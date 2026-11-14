@@ -29,3 +29,5 @@ MARKET_VOLATILITY_MAX_HAIRCUT = 0.30
 MARKET_WINDOW_MONTHS = 12
 
 DAYS_IN_YEAR = 365
+
+CURRENT_MSP_SEASON = "2026-27"   # prefer MSP rows whose marketing_season contains this

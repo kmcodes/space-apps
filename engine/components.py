@@ -60,3 +60,47 @@ def water_fit(crop, yf):
     needed = config.RABI_WET_DAYS_NEEDED[crop.water_need]
     return Result(min(100.0, 100.0 * wet / needed), "ok", "unverified",
                   {"kind": "proxy: wet root-zone days Oct-Dec / days wanted", "wet_days": wet, "days_needed": needed})
+
+
+def _timing_inputs_unverified(crop):
+    return any(f.startswith("sow_") or f.startswith("duration") for f in crop.unverified)
+
+
+def timing_fit(crop, yf):
+    """Sowing date from monsoon onset and the crop's window; penalties for late onset, long delay, and
+    a crop cycle running into the pre-monsoon heat. All penalty sizes live in config (assumptions)."""
+    if crop.role == "baseline":
+        return Result(None, "na", "valid", {"reason": "not applicable to fallow"})
+    if crop.sow_start_doy is None or crop.sow_end_doy is None or crop.duration_mid is None:
+        return _missing("sowing window or duration is blank")
+    flags = []
+    penalty = 0.0
+    if crop.season == "kharif":
+        onset = yf["onset_doy"]
+        if onset > crop.sow_end_doy:
+            flags.append("onset_after_window")
+            penalty += config.LATE_ONSET_PENALTY
+        sow = min(max(onset, crop.sow_start_doy), crop.sow_end_doy)
+        delay = sow - crop.sow_start_doy
+        penalty += min(config.SOWING_DELAY_CAP, max(0, delay - config.SOWING_DELAY_FREE_DAYS) * config.SOWING_DELAY_PER_DAY)
+    else:
+        sow = crop.sow_start_doy
+    harvest = sow + crop.duration_mid
+    heat_limit = config.DAYS_IN_YEAR + config.HEAT_SEASON_START_DOY
+    if harvest > heat_limit:
+        flags.append("heat_exposure")
+        penalty += min(config.HEAT_EXPOSURE_CAP, (harvest - heat_limit) * config.HEAT_EXPOSURE_PER_DAY)
+    validity = "unverified" if _timing_inputs_unverified(crop) else "degraded"
+    return Result(max(0.0, 100.0 - penalty), "ok", validity,
+                  {"sow_doy": sow, "harvest_doy": harvest, "flags": flags})
+
+
+def bare_days(intervals, validity="degraded"):
+    """Days in the year with no crop in the ground. intervals = [(sow_doy, harvest_doy), ...]; may wrap the new year."""
+    covered = set()
+    for start, end in intervals:
+        for d in range(int(start), int(end)):
+            covered.add(d % config.DAYS_IN_YEAR)
+    bare = config.DAYS_IN_YEAR - len(covered)
+    return Result(100.0 * (1 - bare / config.DAYS_IN_YEAR), "ok", validity,
+                  {"covered_days": len(covered), "bare_days": bare})

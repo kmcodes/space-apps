@@ -1,0 +1,9 @@
+crop,variety,marketing_season,msp_rs_per_quintal,announced,validity,source
+soybean,yellow,kharif 2026-27,5708,2026-05-13,unverified,https://www.global-agriculture.com/india-region/india-raises-msp-for-kharif-crops-for-2026-27-soybean-seed-sees-7-increase-per-quintal/
+cotton,medium staple,kharif 2026-27,8267,2026-05-13,unverified,https://www.angelone.in/news/economy/cabinet-clears-2-6-trillion-14-kharif-crops-msp-package-for-2026-27-marketing-season
+cotton,long staple,kharif 2026-27,8667,2026-05-13,unverified,https://www.angelone.in/news/economy/cabinet-clears-2-6-trillion-14-kharif-crops-msp-package-for-2026-27-marketing-season
+pigeon_pea,tur/arhar,kharif 2026-27,8450,2026-05-13,valid,https://www.newsonair.gov.in/cabinet-approves-msp-for-kharif-crops-for-2026-27-season/
+sorghum,hybrid,kharif 2026-27,4023,2026-05-13,valid,https://www.newsonair.gov.in/cabinet-approves-msp-for-kharif-crops-for-2026-27-season/
+sorghum,maldandi,kharif 2026-27,4073,2026-05-13,unverified,https://www.angelone.in/news/economy/cabinet-clears-2-6-trillion-14-kharif-crops-msp-package-for-2026-27-marketing-season
+chickpea,gram,rabi 2026-27,5875,2025-10-01,valid,https://agrospectrumindia.com/news/8/34906/cabinet-approves-msp-for-rabi-crops-for-marketing-season-2027-28.html
+chickpea,gram,rabi 2027-28,5958,2026-09-30,valid,https://agrospectrumindia.com/news/8/34906/cabinet-approves-msp-for-rabi-crops-for-marketing-season-2027-28.html

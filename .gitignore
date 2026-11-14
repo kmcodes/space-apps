@@ -1,0 +1,9 @@
+data/raw/
+.env
+.env.*
+*.netrc
+.venv/
+__pycache__/
+node_modules/
+.next/
+.DS_Store

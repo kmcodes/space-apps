@@ -1,2 +1,1 @@
 earthaccess>=0.19
-cdsapi

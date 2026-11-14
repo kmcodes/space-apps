@@ -31,3 +31,6 @@ MARKET_WINDOW_MONTHS = 12
 DAYS_IN_YEAR = 365
 
 CURRENT_MSP_SEASON = "2026-27"   # prefer MSP rows whose marketing_season contains this
+
+# Crop sheet name -> name used in the mandi price table
+MARKET_CROP_KEY = {"sorghum_kharif": "sorghum", "sorghum_rabi": "sorghum"}

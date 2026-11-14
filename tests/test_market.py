@@ -83,3 +83,10 @@ def test_fallow_is_not_applicable_and_unpriced_crops_are_gaps():
     md = MarketData(mandi([]), msp([]))
     assert md.component("akola", "fallow").status == "na"
     assert md.component("akola", "sunn_hemp").status == "missing"
+
+
+def test_sheet_crop_names_map_to_mandi_crop_names():
+    rows = [("akola", "sorghum", mo, 10, 4000, 3500, 4500) for mo in months(12)]
+    md = MarketData(mandi(rows), msp([("sorghum", "hybrid", "kharif 2026-27", 4000, "valid")]))
+    assert md.component("akola", "sorghum_rabi").status == "ok"
+    assert md.component("akola", "sorghum_kharif").status == "ok"

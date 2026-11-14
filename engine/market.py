@@ -38,6 +38,7 @@ class MarketData:
     def component(self, point, crop):
         if crop == "fallow":
             return Result(None, "na", "valid", {"reason": "fallow earns nothing; not scored"})
+        crop = config.MARKET_CROP_KEY.get(crop, crop)
         msp = self._msp_row(crop)
         rows = self.mandi[(self.mandi.point == point) & (self.mandi.crop == crop)]
         if rows.empty:

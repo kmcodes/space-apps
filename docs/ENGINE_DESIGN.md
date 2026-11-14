@@ -52,6 +52,27 @@ The voice is an interface **inside the mobile app, which is a PWA** (installable
 
 **To verify at build time:** that the Sarvam STT/TTS calls work inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
 
+## 2c. Coverage: which GPS points we can serve (tiles and snapping)
+
+Measured 14 Nov 2026. The downloaded soil tile covers **208 km east-west by 221 km north-south (about 46,000 km2), at 250 m pixels** (lon 76.058-78.058, lat 19.75-21.75). All three presets are inside it.
+
+| Layer | What we have | For a GPS point |
+|---|---|---|
+| Soil (SoilGrids) | the tile above | sampled at the point itself, **plot-scale (250 m)**, anywhere in the tile |
+| Weather features (POWER, ERA5) | computed at 3 points; grids are ~25-50 km | snapped to the nearest preset |
+| NDVI (MODIS) | 3 points (a region-wide area request is possible later) | snapped to the nearest preset |
+| Mandi prices | by district | nearest preset's district markets |
+| Crop windows (CRIDA) | one zone covering Akola, Buldhana, Washim | applies inside that zone only |
+
+The presets cover little of the tile: within 10 km of a preset is 2% of it, 25 km is 12%, 50 km is 37%, 100 km is 78%. The farthest point is 166 km from a preset.
+
+**Rule for now (data-driven, so adding tiles later needs no code change):**
+1. A **tile registry** lists each covered tile (bounds, resolution, source). Adding a tile later means adding one entry and its data.
+2. A point is **served** if it is inside the soil tile **and** within `MAX_SNAP_KM` (default 50 km) of a preset. Inside the tile but farther than that: "outside the areas we have built data for yet (Akola, Washim, Buldhana)".
+3. Every result states the **distance to the nearest preset** and each layer's level: "your spot (250 m)" for soil, "area (snapped, N km away)" for the rest. Evidence lines carry that resolution.
+4. A snapped layer more than 25 km from its preset is marked `degraded`.
+5. Product version later: more tiles, a region-wide NDVI raster, and weather fetched live for any point; the 50 km limit then goes away.
+
 ## 3. The four strategies (defined as data, not code)
 
 | id | name | crops and timing |

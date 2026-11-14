@@ -210,5 +210,5 @@ Response: for each of 4 strategies: `name`, `total_score`, `score_band` (p20/p80
 - POWER cannot tell the three farm points apart for weather; only NDVI and soil are 250 m.
 - No farm-level data: nothing here knows what a particular field did last season.
 - Crop traits are generalised; many are unverified.
-- Rainfall trend in POWER may be a data artefact (see the process log); trends are not used for scoring.
+- Cross-check against ERA5 (independent reanalysis): both datasets show a significant rainfall rise (about 53-92 mm/decade) but they **disagree on temperature trend** and on **heat-day counts** (days above 40 C in Mar-May differ by up to 5x between datasets). Trends are not used for scoring, and any heat-day figure must be shown as a range with the `degraded` flag.
 - Scores rank hypotheses, they do not predict yield or profit.

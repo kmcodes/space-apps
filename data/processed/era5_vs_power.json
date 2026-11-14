@@ -1,0 +1,248 @@
+{
+  "akola": {
+    "days_compared": 16436,
+    "daily_rain_corr": 0.534,
+    "monthly_rain_corr": 0.868,
+    "monthly_temp_corr": 0.983,
+    "mean_annual_rain_mm": {
+      "power": 877.0,
+      "era5": 937.0
+    },
+    "mean_temp_c": {
+      "power": 26.6,
+      "era5": 27.28
+    },
+    "mean_tmax_mar_may_c": {
+      "power": 40.38,
+      "era5": 39.07
+    },
+    "trend_per_decade": {
+      "annual_rain_mm": {
+        "power": {
+          "per_decade": 80.55,
+          "p": 0.0036,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 74.36,
+          "p": 0.0153,
+          "significant": true
+        },
+        "agree": true
+      },
+      "kharif_rain_mm": {
+        "power": {
+          "per_decade": 78.05,
+          "p": 0.0009,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 71.35,
+          "p": 0.0165,
+          "significant": true
+        },
+        "agree": true
+      },
+      "t2m_mean_annual": {
+        "power": {
+          "per_decade": -0.08,
+          "p": 0.1175,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.09,
+          "p": 0.033,
+          "significant": true
+        },
+        "agree": false
+      },
+      "tmax_mean_mar_may": {
+        "power": {
+          "per_decade": -0.12,
+          "p": 0.2177,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.15,
+          "p": 0.2404,
+          "significant": false
+        },
+        "agree": false
+      }
+    },
+    "kharif_rain_baseline_vs_recent_mm": {
+      "power": [
+        689,
+        880
+      ],
+      "era5": [
+        781,
+        938
+      ]
+    }
+  },
+  "buldhana": {
+    "days_compared": 16436,
+    "daily_rain_corr": 0.555,
+    "monthly_rain_corr": 0.885,
+    "monthly_temp_corr": 0.98,
+    "mean_annual_rain_mm": {
+      "power": 835.0,
+      "era5": 956.0
+    },
+    "mean_temp_c": {
+      "power": 26.1,
+      "era5": 25.6
+    },
+    "mean_tmax_mar_may_c": {
+      "power": 39.69,
+      "era5": 36.79
+    },
+    "trend_per_decade": {
+      "annual_rain_mm": {
+        "power": {
+          "per_decade": 79.93,
+          "p": 0.0004,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 91.73,
+          "p": 0.0012,
+          "significant": true
+        },
+        "agree": true
+      },
+      "kharif_rain_mm": {
+        "power": {
+          "per_decade": 69.59,
+          "p": 0.0002,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 85.77,
+          "p": 0.0005,
+          "significant": true
+        },
+        "agree": true
+      },
+      "t2m_mean_annual": {
+        "power": {
+          "per_decade": -0.08,
+          "p": 0.0851,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.18,
+          "p": 0.0001,
+          "significant": true
+        },
+        "agree": false
+      },
+      "tmax_mean_mar_may": {
+        "power": {
+          "per_decade": -0.09,
+          "p": 0.3893,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.25,
+          "p": 0.0161,
+          "significant": true
+        },
+        "agree": false
+      }
+    },
+    "kharif_rain_baseline_vs_recent_mm": {
+      "power": [
+        650,
+        849
+      ],
+      "era5": [
+        765,
+        984
+      ]
+    }
+  },
+  "washim": {
+    "days_compared": 16436,
+    "daily_rain_corr": 0.566,
+    "monthly_rain_corr": 0.886,
+    "monthly_temp_corr": 0.985,
+    "mean_annual_rain_mm": {
+      "power": 886.0,
+      "era5": 957.0
+    },
+    "mean_temp_c": {
+      "power": 26.19,
+      "era5": 26.19
+    },
+    "mean_tmax_mar_may_c": {
+      "power": 39.83,
+      "era5": 37.91
+    },
+    "trend_per_decade": {
+      "annual_rain_mm": {
+        "power": {
+          "per_decade": 53.13,
+          "p": 0.0199,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 83.06,
+          "p": 0.0033,
+          "significant": true
+        },
+        "agree": true
+      },
+      "kharif_rain_mm": {
+        "power": {
+          "per_decade": 57.14,
+          "p": 0.0074,
+          "significant": true
+        },
+        "era5": {
+          "per_decade": 73.44,
+          "p": 0.013,
+          "significant": true
+        },
+        "agree": true
+      },
+      "t2m_mean_annual": {
+        "power": {
+          "per_decade": -0.05,
+          "p": 0.3893,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.12,
+          "p": 0.0055,
+          "significant": true
+        },
+        "agree": false
+      },
+      "tmax_mean_mar_may": {
+        "power": {
+          "per_decade": -0.11,
+          "p": 0.1834,
+          "significant": false
+        },
+        "era5": {
+          "per_decade": 0.22,
+          "p": 0.1589,
+          "significant": false
+        },
+        "agree": false
+      }
+    },
+    "kharif_rain_baseline_vs_recent_mm": {
+      "power": [
+        712,
+        846
+      ],
+      "era5": [
+        787,
+        962
+      ]
+    }
+  }
+}

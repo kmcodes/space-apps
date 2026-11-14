@@ -6,8 +6,8 @@
     },
     "evidence": {
       "dataset": "NASA POWER daily (AG community)",
-      "period": "1981-2025",
       "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "period": "1981-2025",
       "validity": "degraded at farm scale: gridded, cannot see field-level differences"
     },
     "monsoon_onset": {
@@ -137,8 +137,8 @@
     },
     "evidence": {
       "dataset": "NASA POWER daily (AG community)",
-      "period": "1981-2025",
       "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "period": "1981-2025",
       "validity": "degraded at farm scale: gridded, cannot see field-level differences"
     },
     "monsoon_onset": {
@@ -268,8 +268,8 @@
     },
     "evidence": {
       "dataset": "NASA POWER daily (AG community)",
-      "period": "1981-2025",
       "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "period": "1981-2025",
       "validity": "degraded at farm scale: gridded, cannot see field-level differences"
     },
     "monsoon_onset": {

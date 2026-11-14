@@ -66,11 +66,26 @@ def merge():
     print("merged", len(rows), "rows ->", out)
 
 
+def find_existing(client, y0, y1):
+    """Reuse a not-failed job already on this account for the same years (avoids duplicates)."""
+    want = {str(y) for y in range(y0, y1 + 1)}
+    for rid in client.get_jobs(limit=50).request_ids:
+        j = client.get_remote(rid)
+        j.update()
+        if j.status not in ("accepted", "running", "successful"):
+            continue
+        ids = j.reply.get("metadata", {}).get("request", {}).get("ids", {})
+        if set(ids.get("year", [])) == want and ids.get("time") == "00:00" and "monthly" in j.reply.get("processID", ""):
+            return j
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--parts", type=int, nargs="*", help="part numbers 1-5 (default all)")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--max-active", type=int, default=2, help="jobs queued at once (CDS rejects bursts)")
     a = ap.parse_args()
     if a.merge:
         return merge()
@@ -83,17 +98,24 @@ def main():
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     client = cdsapi.Client().client
-    pending = {}
-    for i, (y0, y1) in chosen:  # submit all first so they queue in parallel
-        out_csv = OUT_DIR / f"era5_{y0}_{y1}.csv"
-        if out_csv.exists():
+    todo = [(i, y0, y1) for i, (y0, y1) in chosen if not (OUT_DIR / f"era5_{y0}_{y1}.csv").exists()]
+    for i, (y0, y1) in chosen:
+        if (OUT_DIR / f"era5_{y0}_{y1}.csv").exists():
             print(f"part {i} {y0}-{y1}: already done")
-            continue
-        remote = client.submit(DATASET, request(y0, y1, pts))
-        print(f"part {i} {y0}-{y1}: submitted {remote.request_id}", flush=True)
-        pending[i] = (y0, y1, remote)
-    while pending:
-        for i, (y0, y1, remote) in list(pending.items()):
+    active = {}  # part -> (y0, y1, remote)
+    retry_at = {}
+    while todo or active:
+        # start new jobs, at most max_active at a time (CDS rejects bursts)
+        while todo and len(active) < a.max_active and time.time() >= retry_at.get(todo[0][0], 0):
+            i, y0, y1 = todo.pop(0)
+            remote = find_existing(client, y0, y1)
+            if remote:
+                print(f"part {i} {y0}-{y1}: reusing existing job {remote.request_id[:8]}", flush=True)
+            else:
+                remote = client.submit(DATASET, request(y0, y1, pts))
+                print(f"part {i} {y0}-{y1}: submitted {remote.request_id[:8]}", flush=True)
+            active[i] = (y0, y1, remote)
+        for i, (y0, y1, remote) in list(active.items()):
             remote.update()
             st = remote.status
             if st == "successful":
@@ -104,12 +126,14 @@ def main():
                     w.writerow(["point", "date", "rain_mm_month", "t2m_c"])
                     w.writerows(to_rows(nc, pts))
                 print(f"part {i} {y0}-{y1}: done", flush=True)
-                del pending[i]
-            elif st == "failed":
-                print(f"part {i} {y0}-{y1}: FAILED", flush=True)
-                del pending[i]
-        if pending:
-            print("waiting:", {i: v[2].status for i, v in pending.items()}, flush=True)
+                del active[i]
+            elif st in ("failed", "rejected"):
+                print(f"part {i} {y0}-{y1}: {st}; will retry in 5 min", flush=True)
+                del active[i]
+                todo.append((i, y0, y1))
+                retry_at[i] = time.time() + 300
+        if todo or active:
+            print("waiting:", {i: v[2].status for i, v in active.items()}, "queued:", [t[0] for t in todo], flush=True)
             time.sleep(60)
     print("all parts finished. Merge with: --merge (needs all 5 part CSVs)")
 

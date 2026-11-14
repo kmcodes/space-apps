@@ -104,7 +104,7 @@ Engine → API → dashboard → voice. Voice stays scripted if the Hindi test f
 
 1. ~~Team size~~ Decided: 2 (Kartik, Amrita), working jointly
 2. Earthdata login / AppEEARS status
-3. Bolna Hindi voice on the account
+3. Sarvam STT/TTS access and Hindi quality (account, API key, latency, Marathi support)
 4. Agronomist/KVK contact for sanity check
 5. Local event rules on pre-written code
 6. Scenario slider in scope?

@@ -66,4 +66,4 @@ Each Claude follows `CLAUDE.md`: pull first, tell you what it is about to touch,
 
 ## Secrets
 
-Never commit API keys (Earthdata, CDS, Bolna, LLM). Use a local `.env` (gitignored) and send keys privately. Keep a committed `.env.example` with names only.
+Never commit API keys (Earthdata, CDS, Sarvam, LLM). Use a local `.env` (gitignored) and send keys privately. Keep a committed `.env.example` with names only.

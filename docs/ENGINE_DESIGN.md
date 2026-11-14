@@ -42,13 +42,15 @@ The voice is an interface **inside the mobile app, which is a PWA** (installable
 5. **Map confirm.** Show a satellite map centred on the reading. The farmer drags or taps the pin onto their field. This also catches a wrong GPS reading and a farmer who is not at the plot.
 6. The engine receives lat/lon and returns the cards; the agent speaks the top three and the key risk.
 
+**Phone call (optional, later, not in scope now):** the same engine could be reached by a phone call using Sarvam STT/TTS, but a call has no GPS. The farmer would have to say a village or taluka name, or we send an SMS link that opens the PWA and shares location. That is more complex, so it stays out of the first version.
+
 **Fallbacks** (only if GPS is denied, off or inaccurate): tap a pin on the map; say or type a village or taluka name (geocoded, then confirmed on the map); or choose a district preset. Each fallback changes the evidence line labels (resolution) and the confidence, never the claims.
 
 **Privacy:** nothing is stored by default. Coordinates stay in memory for the session. For outside services (NASA POWER, geocoder) send coordinates rounded to about 1 km, since POWER's cell is about 50 km anyway. Say this in the consent text, in the app's language.
 
 **PWA notes:** installable to the home screen; the mic and location prompts must be tested in installed (standalone) mode as well as in the browser, on Android Chrome and on iOS Safari (iOS can behave differently, verify). Voice needs internet, so the pre-recorded demo fallback stays. Cache the explainer text and last result for flaky rural connections.
 
-**To verify at build time:** that the chosen voice stack (Bolna web call, Sarvam, or browser speech) works inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
+**To verify at build time:** that the Sarvam STT/TTS calls work inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
 
 ## 3. The four strategies (defined as data, not code)
 
@@ -144,7 +146,7 @@ The target region (Vidarbha) speaks Marathi. We use **Hindi for the demo** only 
 - The engine is **language-free**. It outputs structured evidence lines, scores and flags. It never contains user-facing sentences.
 - All user-facing text lives in per-language files (`engine/i18n/hi.json`, `mr.json`, `en.json`): card templates, explainer text, component names, disclaimer. Keys are shared across languages.
 - The narration step takes a `lang` setting. If an LLM rewrites text, the prompt names the language, and the number check (section 6) must handle Devanagari digits as well as Latin digits.
-- Voice: speech-to-text, text-to-speech and the agent language are set by config. Sarvam AI is the candidate Indic provider (my understanding is that it covers Hindi and Marathi; verify current language support and pricing before relying on it). Bolna is the other option already noted.
+- Voice: **Sarvam AI speech-to-text and text-to-speech**, called from the PWA. Language is set by config. My understanding is that Sarvam covers Hindi and Marathi; verify current language support, latency and pricing before relying on it. There is no phone-agent platform (Bolna is dropped).
 - The fixed disclaimer ("supports, does not replace, local expertise") is a reviewed string per language, never machine-written on the fly.
 - **Before any production use in Marathi: a native Marathi speaker (ideally a farmer or KVK/agronomy contact) must review every template and the explainers.** Until then Marathi output is labelled unreviewed.
 - Crop and technical terms differ by language and region; keep a small glossary per language (for example soybean, chickpea, pigeon pea), also reviewed.

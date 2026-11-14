@@ -8,7 +8,7 @@ Two people, same house, working together on everything. No fixed role split. Eac
 2. **After each logical change:** commit with a clear message and `git push` right away so the other instance can pull. Small, frequent commits.
 3. Never force-push. On a conflict, stop, show both sides, and ask the human.
 4. Before starting a new task, tell the human what you are about to touch so the pair does not edit the same file at once.
-5. Keep secrets out of the repo (`.env`, Earthdata/CDS/Bolna/LLM keys). Share them out of band.
+5. Keep secrets out of the repo (`.env`, Earthdata/CDS/Sarvam/LLM keys). Share them out of band.
 6. Default branch is `master`.
 
 Full detail and conflict-avoidance rules: [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md).

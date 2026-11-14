@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from . import config
 from .card import build_card
 from .coverage import locate, presets
 from .crops import load_crops
@@ -161,8 +162,12 @@ class Engine:
                 "variants": {v: {"total_score": None if d["total"] is None else round(d["total"], 1)}
                              for v, d in variants.items()},
             })
+        totals = {s["id"]: s["total_score"] for s in out}
+        top = max(totals.values())
         return {
             "served": True, "location": location,
+            "ranking": sorted(totals, key=totals.get, reverse=True),
+            "tied_with_top": [i for i, t in totals.items() if top - t <= config.TIE_POINTS],
             "weights_used": compute_weights(priorities, constraints, tuple(BASE_WEIGHTS)),
             "strategies": out, "site_evidence": self._site_evidence(point, period),
             "disclaimer": DISCLAIMER, "language": "en",

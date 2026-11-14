@@ -111,3 +111,12 @@ def test_era5_cross_check_compares_like_with_like():
     # S1 has a rabi crop whose soil-wetness proxy is missing in ERA5: the comparable total must differ from the full one
     assert s["S1"]["score_by_source"]["power_comparable"] != s["S1"]["score_by_source"]["power"]
     assert abs(s["S1"]["score_by_source"]["power_comparable"] - s["S1"]["score_by_source"]["era5"]) < 25
+
+
+def test_scores_within_five_points_of_the_top_are_reported_as_a_tie():
+    out = run()
+    totals = {s["id"]: s["total_score"] for s in out["strategies"]}
+    top = max(totals.values())
+    assert out["ranking"][0] == max(totals, key=totals.get)
+    assert set(out["tied_with_top"]) == {i for i, t in totals.items() if top - t <= 5}
+    assert len(out["tied_with_top"]) >= 2  # Akola, water saving: several strategies are close

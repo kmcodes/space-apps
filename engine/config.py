@@ -38,3 +38,5 @@ MARKET_CROP_KEY = {"sorghum_kharif": "sorghum", "sorghum_rabi": "sorghum"}
 # Hand-off between consecutive crops: points off timing_fit when the first crop finishes after the next
 # crop's sowing window has closed (ASSUMPTION)
 HANDOFF_PENALTY = 30
+
+TIE_POINTS = 5   # strategies within this many points of the top score are reported as a tie, not a ranking

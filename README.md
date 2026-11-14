@@ -9,6 +9,18 @@ Decision-support tool that helps a rainfed farmer in Vidarbha, Maharashtra explo
 - Challenge: https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/
 - Start plan: [START.md](START.md)
 
+## Run the engine
+
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest                              # 129 tests
+.venv/bin/uvicorn api.main:app --reload                 # http://127.0.0.1:8000/docs
+curl -s localhost:8000/compare -H 'content-type: application/json' \
+  -d '{"location":"akola","priorities":["water_saving"],"constraints":{"water_availability":"low"}}'
+```
+
+Design: `docs/ENGINE_DESIGN.md`. Every tunable number is in `engine/config.py`.
+
 ## Layout (built during the event)
 
 ```

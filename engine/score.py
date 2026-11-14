@@ -43,15 +43,17 @@ def _combine(name, per_crop, how, weights=None):
         return _gap(name, missing)
     validity = worst(*(r.validity for _, r in items))
     scores = [r.score for _, r in items]
+    by_crop = {c: r.score for c, r in items}
     if how == "min":
-        score, detail = min(scores), {"worst_crop": min(items, key=lambda it: it[1].score)[0]}
+        worst_crop, worst_result = min(items, key=lambda it: it[1].score)
+        score, detail = worst_result.score, {**worst_result.detail, "worst_crop": worst_crop}
     elif how == "max":
-        score, detail = max(scores), {}
+        score, detail = max(scores), {"by_crop": by_crop}
     else:  # weighted mean
         w = [(weights or {}).get(c, 1.0) for c, _ in items]
         if sum(w) == 0:
             w = [1.0] * len(items)
-        score, detail = sum(a * b for a, b in zip(scores, w)) / sum(w), {}
+        score, detail = sum(a * b for a, b in zip(scores, w)) / sum(w), {"by_crop": by_crop}
     return Result(score, "ok", validity, detail)
 
 
@@ -63,6 +65,24 @@ def _bare(per_crop):
     intervals = [(t.detail["sow_doy"], t.detail["harvest_doy"]) for t in ok]
     validity = worst("degraded", *(t.validity for t in ok)) if ok else "valid"
     return bare_days(intervals, validity)
+
+
+def _with_handoff(timing, per_crop, chosen):
+    """Flag and penalise a first crop that finishes after the next crop's sowing window closes."""
+    if timing.status != "ok":
+        return timing
+    flags = sorted({f for r in per_crop.values() if r["timing_fit"].status == "ok" for f in r["timing_fit"].detail["flags"]})
+    names = [n for n in chosen if per_crop[n]["timing_fit"].status == "ok"]
+    missed = 0
+    for prev, nxt in zip(names, names[1:]):
+        harvest = per_crop[prev]["timing_fit"].detail["harvest_doy"]
+        window_end = chosen[nxt].sow_end_doy
+        if window_end is not None and harvest > window_end:
+            missed += 1
+    if missed:
+        flags.append("misses_next_sowing_window")
+    score = max(0.0, timing.score - config.HANDOFF_PENALTY * missed)
+    return Result(score, "ok", timing.validity, {**timing.detail, "flags": flags})
 
 
 def _mixed_water(main, partner, yf):
@@ -84,6 +104,7 @@ def strategy_components(strategy, crops, yf, market, point):
         days = {n: (c.duration_mid or 0.0) for n, c in chosen.items()}
         out = {n: _combine(n, per_crop, "min") for n in RISK}
         out.update({n: _combine(n, per_crop, "mean", days) for n in BENEFIT})
+        out["timing_fit"] = _with_handoff(out["timing_fit"], per_crop, chosen)
     elif strategy.kind == "mixed":
         main, partner = chosen[strategy.crops[0]], chosen[strategy.crops[1]]
         out = {"water_fit": _mixed_water(main, partner, yf), "timing_fit": _combine("timing_fit", per_crop, "min"),
@@ -95,8 +116,8 @@ def strategy_components(strategy, crops, yf, market, point):
     return out
 
 
-def total_score(components, priorities, constraints):
-    used = [k for k, r in components.items() if r.status == "ok"]
+def total_score(components, priorities, constraints, only=None):
+    used = [k for k, r in components.items() if r.status == "ok" and (only is None or k in only)]
     if not used:
         return None, {}, []
     weights = compute_weights(priorities, constraints, used)

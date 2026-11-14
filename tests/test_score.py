@@ -171,3 +171,26 @@ def test_variants_replace_the_last_crop_and_are_scored_separately():
     out = score_variants(s, crops(), YF, MKT, "akola", [], {})
     assert set(out) == {"pig"}
     assert out["pig"]["total"] is not None
+
+
+# ---- detail is kept so evidence can quote real numbers --------------------
+def test_worst_crop_detail_keeps_the_underlying_numbers_and_the_crop_name():
+    c = comps(Strategy("S1", "x", "sequence", ("soy", "chick")))
+    d = c["water_fit"].detail
+    assert d["worst_crop"] in {"soy", "chick"}
+    assert "rain_mm" in d or "wet_days" in d
+
+
+def test_benefit_average_keeps_each_crops_score():
+    d = comps(Strategy("S1", "x", "sequence", ("soy", "chick")))["nitrogen"].detail
+    assert d["by_crop"] == {"soy": 60.0, "chick": 100.0}
+
+
+# ---- hand-off between consecutive crops -----------------------------------
+def test_a_late_first_crop_that_misses_the_next_sowing_window_is_flagged_and_lowers_timing():
+    s = Strategy("S1", "x", "sequence", ("soy", "chick"))
+    on_time = strategy_components(s, crops(), {**YF, "onset_doy": 170}, MKT, "akola")
+    late = strategy_components(s, crops(), {**YF, "onset_doy": 196}, MKT, "akola")  # soy harvest 196+100=296 > 288
+    assert "misses_next_sowing_window" in late["timing_fit"].detail["flags"]
+    assert "misses_next_sowing_window" not in on_time["timing_fit"].detail["flags"]
+    assert late["timing_fit"].score < on_time["timing_fit"].score

@@ -75,3 +75,15 @@ def test_card_benefits_list_strong_components():
 def test_card_flags_unverified_inputs_as_gaps():
     card = build_card("S1", comps(), {"water_fit": 60.0, "nitrogen": 40.0}, [], {}, [make_crop()])
     assert any("unverified" in g.lower() for g in card["gaps"])
+
+
+def test_combined_water_line_names_the_worst_crop_and_quotes_its_numbers():
+    r = Result(55.0, "ok", "unverified", {"worst_crop": "chickpea", "kind": "proxy: wet root-zone days", "wet_days": 20.0, "days_needed": 30})
+    claim = describe("water_fit", r, CTX)["claim"]
+    assert "chickpea" in claim and "20" in claim and "30" in claim
+
+
+def test_averaged_benefit_line_lists_each_crops_score():
+    r = Result(80.0, "ok", "unverified", {"by_crop": {"soybean": 60.0, "chickpea": 100.0}})
+    claim = describe("nitrogen", r, CTX)["claim"]
+    assert "soybean" in claim and "chickpea" in claim and "60" in claim and "100" in claim

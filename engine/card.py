@@ -5,6 +5,8 @@ REVIEW = "This is a hypothesis for local review by a farmer, KVK or agronomist, 
 RISK_FLAGS = {
     "onset_after_window": "In some years the monsoon starts after this crop's sowing window closes.",
     "heat_exposure": "The crop cycle can run into the pre-monsoon heat (after mid-March).",
+    "no_onset_found": "In some years no clear monsoon start was found in the weather record.",
+    "misses_next_sowing_window": "In late years the first crop can finish after the next crop's sowing window closes.",
 }
 
 

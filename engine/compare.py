@@ -56,11 +56,11 @@ class Engine:
         return {k: float(np.nanmedian([y[k] for y in years])) if not all(math.isnan(y[k]) for y in years) else math.nan
                 for k in YEAR_FIELDS}
 
-    def _totals(self, strategy, years, point, priorities, constraints):
+    def _totals(self, strategy, years, point, priorities, constraints, only=None):
         out = []
         for yf in years:
             comps = strategy_components(strategy, self.crops, yf, self.market, point)
-            total, _, _ = total_score(comps, priorities, constraints)
+            total, _, _ = total_score(comps, priorities, constraints, only)
             out.append(math.nan if total is None else total)
         return out
 
@@ -121,7 +121,14 @@ class Engine:
 
         strategies = get_strategies(request.get("current_rotation", "soybean_fallow"))
         totals_p = {s.id: self._totals(s, years_p, point, priorities, constraints) for s in strategies}
-        totals_e = {s.id: self._totals(s, years_e, point, priorities, constraints) for s in strategies}
+        yf_med_e = self._median_year(years_e)
+        common = {}
+        for s in strategies:  # components scored under BOTH sources, so the cross-check compares like with like
+            cp = strategy_components(s, self.crops, yf_med, self.market, point)
+            ce = strategy_components(s, self.crops, yf_med_e, self.market, point)
+            common[s.id] = {k for k in cp if cp[k].status == "ok" and ce[k].status == "ok"}
+        totals_e = {s.id: self._totals(s, years_e, point, priorities, constraints, common[s.id]) for s in strategies}
+        totals_pc = {s.id: self._totals(s, years_p, point, priorities, constraints, common[s.id]) for s in strategies}
         stability = rank_stability({k: [0 if math.isnan(x) else x for x in v] for k, v in totals_p.items()})
 
         out = []
@@ -130,6 +137,7 @@ class Engine:
             _, weights, used = total_score(comps, priorities, constraints)
             tp = np.array(totals_p[s.id], dtype=float)
             te = np.array(totals_e[s.id], dtype=float)
+            tpc = np.array(totals_pc[s.id], dtype=float)
             conf = confidence(comps, weights)
             evidence = [e for e in (describe(k, r, ctx) for k, r in comps.items()) if e]
             variants = score_variants(s, self.crops, yf_med, self.market, point, priorities, constraints)
@@ -140,7 +148,9 @@ class Engine:
                 "score_band": [round(float(np.nanpercentile(tp, 20)), 1), round(float(np.nanpercentile(tp, 80)), 1)],
                 "rank_stability": round(stability[s.id], 3),
                 "score_by_source": {"power": round(float(np.nanmedian(tp)), 1),
-                                    "era5": None if np.isnan(te).all() else round(float(np.nanmedian(te)), 1)},
+                                    "power_comparable": round(float(np.nanmedian(tpc)), 1),
+                                    "era5": None if np.isnan(te).all() else round(float(np.nanmedian(te)), 1),
+                                    "note": "era5 and power_comparable use only the components scored under both sources"},
                 "confidence": round(conf, 2), "confidence_label": confidence_label(conf),
                 "weights": {k: round(v, 1) for k, v in weights.items()},
                 "components": {k: {"score": None if r.score is None else round(r.score, 1), "status": r.status,

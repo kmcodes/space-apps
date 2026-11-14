@@ -16,16 +16,20 @@ MARKET = {"dataset": "Agmarknet mandi prices via data.gov.in, and MSP", "period"
 
 def _claim(name, r):
     d, s = r.detail, r.score
+    who = f"{d['worst_crop']}: " if "worst_crop" in d else ""
+    if "by_crop" in d:
+        parts = ", ".join(f"{c} {v:.0f}" for c, v in d["by_crop"].items())
+        return f"{name.replace('_', ' ').capitalize()} score by crop: {parts} (out of 100)"
     if name == "water_fit":
         if "rain_mm" in d:
-            return (f"June-September rain is about {d['rain_mm']:.0f} mm against a crop need of about {d['need_mm']:.0f} mm "
-                    f"({d.get('kind', '')})").replace(" ()", "")
+            return (f"{who}June-September rain is about {d['rain_mm']:.0f} mm against a crop need of about "
+                    f"{d['need_mm']:.0f} mm")
         if "wet_days" in d:
-            return (f"About {d['wet_days']:.0f} days with a moist root zone in Oct-Dec against about {d['days_needed']} days "
-                    f"wanted (a proxy, not a water balance)")
+            return (f"{who}About {d['wet_days']:.0f} days with a moist root zone in Oct-Dec against about "
+                    f"{d['days_needed']} days wanted (a proxy, not a water balance)")
     if name == "timing_fit" and "sow_doy" in d:
         flags = ", ".join(d.get("flags", [])) or "no timing problems"
-        return f"Sowing around day {d['sow_doy']:.0f} and harvest around day {d['harvest_doy']:.0f} of the year ({flags})"
+        return f"{who}Sowing around day {d['sow_doy']:.0f} and harvest around day {d['harvest_doy']:.0f} of the year ({flags})"
     if name == "bare_days" and "bare_days" in d:
         return f"About {d['bare_days']} days a year with no crop in the field ({d['covered_days']} days covered)"
     if name == "market" and "ratio" in d:

@@ -102,3 +102,12 @@ def test_site_evidence_describes_bare_windows_and_soil():
     out = run()
     kinds = {e["topic"] for e in out["site_evidence"]}
     assert {"bare_field_window", "soil", "monsoon"} <= kinds
+
+
+def test_era5_cross_check_compares_like_with_like():
+    s = {x["id"]: x for x in run()["strategies"]}
+    # S0 has only kharif crops, so ERA5 loses nothing: the comparable total equals the full total
+    assert s["S0"]["score_by_source"]["power_comparable"] == s["S0"]["score_by_source"]["power"]
+    # S1 has a rabi crop whose soil-wetness proxy is missing in ERA5: the comparable total must differ from the full one
+    assert s["S1"]["score_by_source"]["power_comparable"] != s["S1"]["score_by_source"]["power"]
+    assert abs(s["S1"]["score_by_source"]["power_comparable"] - s["S1"]["score_by_source"]["era5"]) < 25

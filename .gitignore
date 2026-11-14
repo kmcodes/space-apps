@@ -7,6 +7,5 @@ __pycache__/
 node_modules/
 .next/
 .DS_Store
-secrets.md
 .~lock*
 process_log.md

@@ -33,11 +33,11 @@ Anti-goals (a failure even if it runs): an invented number; a strategy shown wit
 
 ## 2b. Input flow: voice inside the mobile app, location from the phone
 
-The voice is an interface **inside the mobile app** (web/PWA first), not a phone call. So the app can read the phone's location in the same session.
+The voice is an interface **inside the mobile app, which is a PWA** (installable web app, no native build), not a phone call. So the app can read the phone's location in the same session.
 
 1. Farmer opens the app and taps the mic. Mic permission is requested (tied to the tap).
 2. Voice agent (Hindi in the demo, see 6b) asks what it needs: crop, water source, priority, constraints.
-3. Agent says, in effect, "sir, ek baar aapke mobile pe location approve kijiye". The app requests location permission and reads GPS (browser Geolocation API, or the Flutter `geolocator` package if we go native).
+3. Agent says, in effect, "sir, ek baar aapke mobile pe location approve kijiye". The app requests location permission and reads GPS with the browser Geolocation API (needs HTTPS; the PWA is served from Vercel).
 4. **Accuracy check.** The API returns an accuracy radius. If it is worse than about 250 m, ask the farmer to step outside or place the pin on the map.
 5. **Map confirm.** Show a satellite map centred on the reading. The farmer drags or taps the pin onto their field. This also catches a wrong GPS reading and a farmer who is not at the plot.
 6. The engine receives lat/lon and returns the cards; the agent speaks the top three and the key risk.
@@ -45,6 +45,8 @@ The voice is an interface **inside the mobile app** (web/PWA first), not a phone
 **Fallbacks** (only if GPS is denied, off or inaccurate): tap a pin on the map; say or type a village or taluka name (geocoded, then confirmed on the map); or choose a district preset. Each fallback changes the evidence line labels (resolution) and the confidence, never the claims.
 
 **Privacy:** nothing is stored by default. Coordinates stay in memory for the session. For outside services (NASA POWER, geocoder) send coordinates rounded to about 1 km, since POWER's cell is about 50 km anyway. Say this in the consent text, in the app's language.
+
+**PWA notes:** installable to the home screen; the mic and location prompts must be tested in installed (standalone) mode as well as in the browser, on Android Chrome and on iOS Safari (iOS can behave differently, verify). Voice needs internet, so the pre-recorded demo fallback stays. Cache the explainer text and last result for flaky rural connections.
 
 **To verify at build time:** that the chosen voice stack (Bolna web call, Sarvam, or browser speech) works inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
 

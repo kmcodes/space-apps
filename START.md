@@ -9,7 +9,7 @@ Two people: Kartik and Amrita, working together in the same house on everything 
 
 ## Scope in one paragraph
 
-Region Vidarbha (Akola, Buldhana, Washim). Compare 4 rotations per location. Each gets: why suggested, evidence, benefits, information gaps, risks needing local review. Show bare-field windows and crop-vulnerable seasons. Farmer inputs: crop, water source, one priority. Every evidence line cites dataset + period + a validity flag (valid / degraded / unverified). Hindi voice front-end with a pre-recorded fallback.
+Region Vidarbha (Akola, Buldhana, Washim). Compare 4 rotations per location. Each gets: why suggested, evidence, benefits, information gaps, risks needing local review. Show bare-field windows and crop-vulnerable seasons. Farmer inputs: crop, water source, one priority. Every evidence line cites dataset + period + a validity flag (valid / degraded / unverified). Voice front-end in Hindi for the demo (the production region speaks Marathi, but neither of us does, so Marathi waits for a native reviewer; the language layer is configurable, see `docs/ENGINE_DESIGN.md` section 6b). Pre-recorded fallback.
 
 ## Farmer inputs
 

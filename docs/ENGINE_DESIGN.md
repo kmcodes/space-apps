@@ -118,6 +118,20 @@ The engine builds the five card sections from templates: **why suggested, eviden
 3. If the check fails, discard the LLM text and show the template text. Log the failure.
 4. A short fixed disclaimer is appended by code, not by the LLM: "supports, does not replace, local expertise".
 
+## 6b. Language layer (Hindi for the demo, Marathi for production)
+
+The target region (Vidarbha) speaks Marathi. We use **Hindi for the demo** only because neither of us speaks Marathi and we cannot review Marathi text ourselves. Marathi is the production language. The design must make switching a configuration change, not a rewrite:
+
+- The engine is **language-free**. It outputs structured evidence lines, scores and flags. It never contains user-facing sentences.
+- All user-facing text lives in per-language files (`engine/i18n/hi.json`, `mr.json`, `en.json`): card templates, explainer text, component names, disclaimer. Keys are shared across languages.
+- The narration step takes a `lang` setting. If an LLM rewrites text, the prompt names the language, and the number check (section 6) must handle Devanagari digits as well as Latin digits.
+- Voice: speech-to-text, text-to-speech and the agent language are set by config. Sarvam AI is the candidate Indic provider (my understanding is that it covers Hindi and Marathi; verify current language support and pricing before relying on it). Bolna is the other option already noted.
+- The fixed disclaimer ("supports, does not replace, local expertise") is a reviewed string per language, never machine-written on the fly.
+- **Before any production use in Marathi: a native Marathi speaker (ideally a farmer or KVK/agronomy contact) must review every template and the explainers.** Until then Marathi output is labelled unreviewed.
+- Crop and technical terms differ by language and region; keep a small glossary per language (for example soybean, chickpea, pigeon pea), also reviewed.
+
+In the pitch we say this plainly: Hindi demo, Marathi production target, same engine, configurable language layer.
+
 ## 7. Uncertainty, shown not hidden
 
 - **Per-year scoring:** run the pipeline for each of 45 years. Report median score and a p20-p80 band per strategy.
@@ -167,7 +181,8 @@ Response: for each of 4 strategies: `name`, `total_score`, `score_band` (p20/p80
 4. S0 baseline when the farmer says "cotton": is it cotton alone, and does S2 then become the "add pigeon pea" comparison?
 5. Do we show `water_source = well / canal` farms at all, given our data describes rainfed conditions? Suggest: yes, but `water_fit` uses a higher supply and the card says irrigation data is missing.
 6. Scenario slider in scope or cut?
-7. Who drives which engine file (see `docs/GIT_WORKFLOW.md` ownership rules)?
+7. Language: confirm Hindi for demo and Marathi as the production target; who can review Marathi text later?
+8. Who drives which engine file (see `docs/GIT_WORKFLOW.md` ownership rules)?
 
 ## 12. Known weaknesses to state openly
 

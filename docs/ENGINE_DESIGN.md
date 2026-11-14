@@ -14,7 +14,7 @@ Anti-goals (a failure even if it runs): an invented number; a strategy shown wit
 
 | Input | Values |
 |---|---|
-| location | akola, buldhana, washim |
+| location | lat/lon of the plot (from phone GPS or a map pin). Districts akola, buldhana, washim remain as presets that fill in our three farm points |
 | current rotation | soybean_fallow (default), cotton, soybean_chickpea, ... |
 | water source | rainfed, well, canal_tank |
 | priority (1, optional 2nd) | water_saving, forage, nitrogen, erosion, organic_matter, market_income |
@@ -30,6 +30,23 @@ Anti-goals (a failure even if it runs): an invented number; a strategy shown wit
 | `data/processed/soil.csv` | clay, sand, silt, pH, SOC stock per point |
 | `data/crops.csv` | per-crop traits and validity flags (Amrita's sheet) |
 | `data/processed/mandi_monthly.csv`, `data/msp.csv` | prices and MSP |
+
+## 2b. Input flow: voice inside the mobile app, location from the phone
+
+The voice is an interface **inside the mobile app** (web/PWA first), not a phone call. So the app can read the phone's location in the same session.
+
+1. Farmer opens the app and taps the mic. Mic permission is requested (tied to the tap).
+2. Voice agent (Hindi in the demo, see 6b) asks what it needs: crop, water source, priority, constraints.
+3. Agent says, in effect, "sir, ek baar aapke mobile pe location approve kijiye". The app requests location permission and reads GPS (browser Geolocation API, or the Flutter `geolocator` package if we go native).
+4. **Accuracy check.** The API returns an accuracy radius. If it is worse than about 250 m, ask the farmer to step outside or place the pin on the map.
+5. **Map confirm.** Show a satellite map centred on the reading. The farmer drags or taps the pin onto their field. This also catches a wrong GPS reading and a farmer who is not at the plot.
+6. The engine receives lat/lon and returns the cards; the agent speaks the top three and the key risk.
+
+**Fallbacks** (only if GPS is denied, off or inaccurate): tap a pin on the map; say or type a village or taluka name (geocoded, then confirmed on the map); or choose a district preset. Each fallback changes the evidence line labels (resolution) and the confidence, never the claims.
+
+**Privacy:** nothing is stored by default. Coordinates stay in memory for the session. For outside services (NASA POWER, geocoder) send coordinates rounded to about 1 km, since POWER's cell is about 50 km anyway. Say this in the consent text, in the app's language.
+
+**To verify at build time:** that the chosen voice stack (Bolna web call, Sarvam, or browser speech) works inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
 
 ## 3. The four strategies (defined as data, not code)
 

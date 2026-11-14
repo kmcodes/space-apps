@@ -25,6 +25,7 @@ class MarketData:
     def __init__(self, mandi: pd.DataFrame, msp: pd.DataFrame):
         self.mandi = mandi
         self.msp = msp
+        self._cache = {}  # prices do not change by weather year, so compute each (point, crop) once
 
     def _msp_row(self, crop):
         rows = self.msp[self.msp.crop == crop]
@@ -36,6 +37,12 @@ class MarketData:
         return (valid if not valid.empty else rows).iloc[0]
 
     def component(self, point, crop):
+        key = (point, crop)
+        if key not in self._cache:
+            self._cache[key] = self._compute(point, crop)
+        return self._cache[key]
+
+    def _compute(self, point, crop):
         if crop == "fallow":
             return Result(None, "na", "valid", {"reason": "fallow earns nothing; not scored"})
         crop = config.MARKET_CROP_KEY.get(crop, crop)

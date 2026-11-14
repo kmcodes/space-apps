@@ -21,6 +21,7 @@ def build_card(strategy_id, comps, weights, evidence_lines, constraints, crops):
             gaps.append(f"{LABEL[k].capitalize()} could not be scored: {r.detail.get('reason', 'input missing')}")
         elif r.status == "ok" and r.validity == "unverified":
             gaps.append(f"{LABEL[k].capitalize()} relies on unverified inputs or a proxy")
+    gaps.append("Weather data is area-scale (about 50 km); your own field may differ.")
     risks = [REVIEW]
     if constraints.get("equipment") == "basic":
         for c in crops:

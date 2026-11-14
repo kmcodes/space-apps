@@ -87,3 +87,10 @@ def test_crop_cycle_wrapping_over_new_year_is_counted():
 def test_no_crop_at_all_is_all_bare_with_a_real_zero_score():
     r = bare_days([])
     assert (r.score, r.status, r.detail["bare_days"]) == (0.0, "ok", 365)
+
+
+def test_no_onset_detected_is_treated_as_a_late_monsoon_not_a_crash():
+    r = timing_fit(make_crop(**KHARIF), {"onset_doy": float("nan"), "withdrawal_doy": 278})
+    assert "no_onset_found" in r.detail["flags"]
+    assert r.detail["sow_doy"] == 196  # sown at the end of the window
+    assert r.score == pytest.approx(100 - 30 - 16)

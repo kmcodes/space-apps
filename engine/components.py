@@ -77,6 +77,9 @@ def timing_fit(crop, yf):
     penalty = 0.0
     if crop.season == "kharif":
         onset = yf["onset_doy"]
+        if math.isnan(onset):  # the onset rule found no onset this year: treat as after the window
+            flags.append("no_onset_found")
+            onset = crop.sow_end_doy + 1
         if onset > crop.sow_end_doy:
             flags.append("onset_after_window")
             penalty += config.LATE_ONSET_PENALTY

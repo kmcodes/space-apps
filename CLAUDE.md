@@ -11,6 +11,8 @@ Two people, same house, working together on everything. No fixed role split. Eac
 5. Keep secrets out of the repo (`.env`, Earthdata/CDS/Bolna/LLM keys). Share them out of band.
 6. Default branch is `master`.
 
+Full detail and conflict-avoidance rules: [docs/GIT_WORKFLOW.md](docs/GIT_WORKFLOW.md).
+
 ## Project rules
 
 See `START.md` for scope, build order and checklists. Key rules: LLM narrates only from engine output, every number checked; no strategy shown without gaps and risks; the "supports, does not replace, local expertise" banner is always visible; product code only inside the 14–15 Nov window.

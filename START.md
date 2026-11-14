@@ -11,6 +11,18 @@ Two people: Kartik and Amrita, working together in the same house on everything 
 
 Region Vidarbha (Akola, Buldhana, Washim). Compare 4 rotations per location. Each gets: why suggested, evidence, benefits, information gaps, risks needing local review. Show bare-field windows and crop-vulnerable seasons. Farmer inputs: crop, water source, one priority. Every evidence line cites dataset + period + a validity flag (valid / degraded / unverified). Hindi voice front-end with a pre-recorded fallback.
 
+## Farmer inputs
+
+| Input | Type | Values |
+|---|---|---|
+| Location | choice | Akola / Buldhana / Washim |
+| Current crop / rotation | choice | soybean, cotton, fallow after kharif, etc. |
+| Water source | choice | rainfed only / well or borewell / canal or tank |
+| **Priority** (pick 1, optionally rank top 2) | choice | water saving · forage for animals · nitrogen fixing (less fertiliser) · erosion reduction · organic matter / soil structure · market income |
+| **Constraints** | choice | water availability (low/medium/high), equipment (basic / has seeder or sprayer), market preference (sell at local mandi / sell to nearby buyer / own use) |
+
+Priority sets the scoring weights (e.g. water saving up-weights low water need and drought tolerance; nitrogen fixing up-weights legumes). Constraints filter or penalise strategies (e.g. low water availability penalises high-water crops; no equipment penalises intercropping). Weights and filters are shown to the user. These six priorities and three constraints come straight from the brief.
+
 ## Strategies (hypotheses, not prescriptions)
 
 | # | Strategy |

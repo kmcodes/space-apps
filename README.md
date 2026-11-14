@@ -23,4 +23,6 @@ docs/        notes, data quality, crop sheet
 
 ## Status
 
+Team: Kartik + Amrita. Working agreement in [CLAUDE.md](CLAUDE.md).
+
 Planning done. Build starts 14 Nov 09:00 local.

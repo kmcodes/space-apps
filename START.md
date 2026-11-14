@@ -3,6 +3,10 @@
 Hackathon: Sat 14 Nov 09:00 → Sun 15 Nov 23:59 local (submission deadline).
 Rule: product code (engine, API, dashboard, voice) is written inside this window only. Pre-event work was data exploration and notes.
 
+## Team
+
+Two people: Kartik and Amrita, working together in the same house on everything (no separate groups). Two Claude instances, one shared repo. Read `CLAUDE.md` for the pull/commit/push rules. Pair-review: the person who did not drive a module reads it before it counts as done.
+
 ## Scope in one paragraph
 
 Region Vidarbha (Akola, Buldhana, Washim). Compare 4 rotations per location. Each gets: why suggested, evidence, benefits, information gaps, risks needing local review. Show bare-field windows and crop-vulnerable seasons. Farmer inputs: crop, water source, one priority. Every evidence line cites dataset + period + a validity flag (valid / degraded / unverified). Hindi voice front-end with a pre-recorded fallback.
@@ -31,7 +35,7 @@ Skip: ECOSTRESS, Landsat, GEDI, SRTM, GRACE (optional district context only). Ve
 
 ## First 2 hours (Sat 09:00–11:00)
 
-1. **09:00 Sync (15 min).** Confirm team size, roles, stand-up every 4 h. Read the submission checklist once together. Agree the cut list: farmer confirm/correct, scenario slider, US demo point go first.
+1. **09:00 Sync (15 min).** Team is confirmed (2). Agree who drives what first, check-in every 4 h. Read the submission checklist once together. Agree the cut list: farmer confirm/correct, scenario slider, US demo point go first.
 2. **09:15 Data check.** Confirm what landed in `data/raw/` (POWER x3, MODIS CSV, SoilGrids x3, crop sheet, mandi table). List gaps. Re-request anything missing now.
 3. **09:30 Scaffold.** Create `pipeline/ engine/ api/ web/ voice/`, pick FastAPI + Next.js (default; change only with reason), set env var template (no secrets committed).
 4. **09:45 Pipeline.** Load raw data into one weekly/crop-stage table per location. Derive: monsoon onset/withdrawal, heat-stress days, dry-spell counts, post-monsoon moisture curve, NDVI bare windows.
@@ -59,7 +63,8 @@ Engine → API → dashboard → voice. Voice stays scripted if the Hindi test f
 - No strategy shown without its gaps and review-needed risks.
 - "Supports, does not replace, local expertise" banner always visible.
 - No field-level precision claims. Data is point/regional.
-- AI-written modules get a second human reviewer before they count as done.
+- AI-written modules get read by the other person before they count as done.
+- Always `git pull --rebase` before changing anything; commit and push after each change.
 - Demo must work offline from recorded fallback.
 
 ## Brief → feature checklist
@@ -85,7 +90,7 @@ Engine → API → dashboard → voice. Voice stays scripted if the Hindi test f
 
 ## Open items
 
-1. Team size and roles
+1. ~~Team size~~ Decided: 2 (Kartik, Amrita), working jointly
 2. Earthdata login / AppEEARS status
 3. Bolna Hindi voice on the account
 4. Agronomist/KVK contact for sanity check

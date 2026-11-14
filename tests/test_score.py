@@ -194,3 +194,22 @@ def test_a_late_first_crop_that_misses_the_next_sowing_window_is_flagged_and_low
     assert "misses_next_sowing_window" in late["timing_fit"].detail["flags"]
     assert "misses_next_sowing_window" not in on_time["timing_fit"].detail["flags"]
     assert late["timing_fit"].score < on_time["timing_fit"].score
+
+
+# ---- data coverage: a gap must not flatter a strategy ---------------------
+def test_coverage_is_the_share_of_intended_weight_that_could_be_scored():
+    from engine.score import coverage
+    ok = Result(80, "ok", "degraded")
+    miss = Result(None, "missing", "unverified", {"reason": "x"})
+    full = {k: ok for k in ("water_fit", "timing_fit", "bare_days", "nitrogen", "forage", "market")}
+    assert coverage(full, [], {}) == pytest.approx(1.0)
+    # water fit has 25 base weight (55 as first priority) and is missing
+    assert coverage({**full, "water_fit": miss}, [], {}) == pytest.approx(0.75)
+    assert coverage({**full, "water_fit": miss}, ["water_saving"], {}) == pytest.approx(0.45)
+
+
+def test_not_applicable_components_do_not_count_as_gaps():
+    from engine.score import coverage
+    ok = Result(80, "ok", "degraded")
+    na = Result(None, "na", "valid")
+    assert coverage({"water_fit": na, "market": ok, "nitrogen": ok}, [], {}) == pytest.approx(1.0)

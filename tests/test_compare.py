@@ -120,3 +120,27 @@ def test_scores_within_five_points_of_the_top_are_reported_as_a_tie():
     assert out["ranking"][0] == max(totals, key=totals.get)
     assert set(out["tied_with_top"]) == {i for i, t in totals.items() if top - t <= 5}
     assert len(out["tied_with_top"]) >= 2  # Akola, water saving: several strategies are close
+
+
+def test_a_strategy_scored_on_too_little_of_the_intended_weight_is_incomplete_and_not_ranked():
+    out = run(priorities=["water_saving"])  # S2 has no water fit (pigeon pea need is blank): water is 55% of the weight
+    s2 = {s["id"]: s for s in out["strategies"]}["S2"]
+    assert s2["data_coverage"] < 0.7
+    assert s2["incomplete"] is True
+    assert "S2" not in out["ranking"] and "S2" not in out["tied_with_top"]
+    assert any("not ranked" in g for g in s2["card"]["gaps"])
+
+
+def test_a_strategy_with_a_small_gap_is_still_ranked():
+    out = run(priorities=["market_income"])  # water fit is only a small share of the weight here
+    s2 = {s["id"]: s for s in out["strategies"]}["S2"]
+    assert s2["incomplete"] is False
+    assert "S2" in out["ranking"]
+
+
+def test_a_missing_price_does_not_win_a_market_priority():
+    # Washim has no cotton prices, so S2 market is a gap; with a market priority it must not top the ranking
+    out = ENGINE.compare({**REQ, "location": "washim", "priorities": ["market_income"]})
+    s2 = {s["id"]: s for s in out["strategies"]}["S2"]
+    assert s2["incomplete"] is True
+    assert out["ranking"][0] != "S2"

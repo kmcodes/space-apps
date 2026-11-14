@@ -234,3 +234,23 @@ Response: for each of 4 strategies: `name`, `total_score`, `score_band` (p20/p80
 - Crop traits are generalised; many are unverified.
 - Cross-check against ERA5 (independent reanalysis): both datasets show a significant rainfall rise (about 53-92 mm/decade) but they **disagree on temperature trend** and on **heat-day counts** (days above 40 C in Mar-May differ by up to 5x between datasets). Trends are not used for scoring, and any heat-day figure must be shown as a range with the `degraded` flag.
 - Scores rank hypotheses, they do not predict yield or profit.
+
+## 13. Implementation status (14 Nov 2026, evening)
+
+Built test-first in `engine/` and `api/` (134 tests). Run: `pytest`; `uvicorn api.main:app`.
+
+**Built:** crop loader (blank is `None`, never zero); the four strategies as data (with duplicate-of-S1 flag); six components: `water_fit`, `timing_fit` (with hand-off check between crops), `bare_days`, `nitrogen`, `forage`, `market`; weights with a fixed 40% (first) and 20% (second) priority share; the accepted combining rules (sequence = worse crop for risks and day-weighted average for benefits; mixed = main crop plus 30% of partner water; S3 variants scored separately); per-year scoring over 1981-2025 giving a median, p20-p80 band and rank stability; ERA5 cross-check on the components scored under both sources; evidence lines; template cards; coverage rule (tile registry, 50 km snap limit); `POST /compare`, `GET /health`.
+
+**Rules added during the build (not in the first design):**
+- **Data coverage.** A missing component used to be dropped and the rest renormalised, which let a gap flatter a strategy (Washim S2 topped a market-priority ranking because cotton prices are missing). Now each strategy reports `data_coverage`; below 70% it is `incomplete`, shown with its score but **not ranked**.
+- **Tie rule.** Strategies within 5 points of the top are reported as `tied_with_top`.
+- **No onset found** in a weather year is treated as a late monsoon (flag `no_onset_found`).
+- **Like-for-like cross-check:** `power_comparable` and `era5` use only components scored under both sources.
+
+**Not built yet (from this design):** `heat_risk` and `dry_spell_risk` components (the data is in `features_ranges.json`; the crop heat thresholds are in `docs/crop_gap_research.md`), pest-break and organic-matter components, equipment fit as a score (it is a card flag only), scenario slider, LLM narration and the number check, per-language text files, plot-scale soil at a GPS point (the soil rasters are in `data/raw/`, which is gitignored, so a server would need them bundled), the web app and voice.
+
+**Known weaknesses of the numbers (read before trusting a ranking):**
+- Rabi `water_fit` is a proxy from wet root-zone days against assumed need (`RABI_WET_DAYS_NEEDED`), not a water balance. It saturates at 100 in most years, so under a water-saving priority it can decide the ranking. It is always labelled `unverified`.
+- Kharif `water_fit` also saturates: median rain (750-820 mm) exceeds crop need (450-700 mm), so weather barely separates strategies; ratings from the crop sheet do. The per-year band shows the dry-year risk.
+- Confidence is grey for most strategies because most crop fields are still `unverified`. It will improve as `crops.csv` gaps are filled.
+- Every penalty size and weight in `engine/config.py` is an assumption to review.

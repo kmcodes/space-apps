@@ -17,7 +17,7 @@ from .coverage import locate, presets
 from .crops import load_crops
 from .evidence import describe
 from .market import load_market
-from .score import (confidence, confidence_label, rank_stability, score_variants, strategy_components,
+from .score import (confidence, coverage, confidence_label, rank_stability, score_variants, strategy_components,
                     total_score)
 from .strategies import get_strategies
 from .weights import BASE_WEIGHTS, compute_weights
@@ -97,6 +97,13 @@ class Engine:
                    "validity": "degraded", "validity_reason": "datasets disagree", "gap": "shown as a range on purpose"})
         return ev
 
+    def _card(self, s, comps, weights, evidence, constraints, cov, incomplete):
+        card = build_card(s.id, comps, weights, evidence, constraints, [self.crops[c] for c in s.crops])
+        if incomplete:
+            card["gaps"].insert(0, f"Scored on only {100 * cov:.0f}% of the information that matters for your priorities, "
+                                   f"so this strategy is not ranked against the others.")
+        return card
+
     # ---- public ----------------------------------------------------------
     def compare(self, request):
         priorities = request.get("priorities", [])
@@ -140,6 +147,8 @@ class Engine:
             te = np.array(totals_e[s.id], dtype=float)
             tpc = np.array(totals_pc[s.id], dtype=float)
             conf = confidence(comps, weights)
+            cov = coverage(comps, priorities, constraints)
+            incomplete = cov < config.MIN_COVERAGE
             evidence = [e for e in (describe(k, r, ctx) for k, r in comps.items()) if e]
             variants = score_variants(s, self.crops, yf_med, self.market, point, priorities, constraints)
             out.append({
@@ -158,12 +167,13 @@ class Engine:
                                    "validity": r.validity, "weight": round(weights.get(k, 0.0), 1)}
                                for k, r in comps.items()},
                 "evidence": evidence,
-                "card": build_card(s.id, comps, weights, evidence, constraints, [self.crops[c] for c in s.crops]),
+                "data_coverage": round(cov, 2), "incomplete": incomplete,
+                "card": self._card(s, comps, weights, evidence, constraints, cov, incomplete),
                 "variants": {v: {"total_score": None if d["total"] is None else round(d["total"], 1)}
                              for v, d in variants.items()},
             })
-        totals = {s["id"]: s["total_score"] for s in out}
-        top = max(totals.values())
+        totals = {s["id"]: s["total_score"] for s in out if not s["incomplete"]}
+        top = max(totals.values()) if totals else 0.0
         return {
             "served": True, "location": location,
             "ranking": sorted(totals, key=totals.get, reverse=True),

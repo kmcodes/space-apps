@@ -125,6 +125,16 @@ def total_score(components, priorities, constraints, only=None):
     return total, weights, used
 
 
+def coverage(components, priorities, constraints):
+    """Share of the intended weight that could be scored. Missing components count against a strategy, so a
+    gap can never make it look better; 'na' components (e.g. fallow) are not gaps."""
+    applicable = [k for k, r in components.items() if r.status in ("ok", "missing")]
+    if not applicable:
+        return 0.0
+    w = compute_weights(priorities, constraints, applicable)
+    return sum(w[k] for k in applicable if components[k].status == "ok") / 100.0
+
+
 def confidence(components, weights):
     total = sum(weights.values())
     if not total:

@@ -40,3 +40,5 @@ MARKET_CROP_KEY = {"sorghum_kharif": "sorghum", "sorghum_rabi": "sorghum"}
 HANDOFF_PENALTY = 30
 
 TIE_POINTS = 5   # strategies within this many points of the top score are reported as a tie, not a ranking
+
+MIN_COVERAGE = 0.70   # a strategy scored on less than this share of its intended weight is not ranked (a gap must not flatter it)

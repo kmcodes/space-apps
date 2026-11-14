@@ -1,0 +1,88 @@
+point,arrival_date,district,market,commodity,variety,grade,min_price,max_price,modal_price
+akola,2026-11-13,Akola,APMC Akola,Bengal Gram(Gram)(Whole),Other,FAQ,6900,7645,7200
+akola,2026-11-13,Akola,APMC Akola,Bengal Gram(Gram)(Whole),Other,Non-FAQ,5355,5700,5600
+akola,2026-11-13,Akola,APMC Akola,Black Gram(Urd Beans)(Whole),Other,Non-FAQ,4600,4600,4600
+akola,2026-11-13,Akola,APMC Akola,Cotton,Desi,Local,9325,9479,9400
+akola,2026-11-13,Akola,APMC Akola,Garlic,Other,Local,11000,22000,16000
+akola,2026-11-13,Akola,APMC Akola,Ginger(Green),Other,Local,3000,5500,4000
+akola,2026-11-13,Akola,APMC Akola,Green Gram(Moong)(Whole),Green (Whole),FAQ,10311,10311,10311
+akola,2026-11-13,Akola,APMC Akola,Jowar(Sorghum),Other,Non-FAQ,2700,2815,2800
+akola,2026-11-13,Akola,APMC Akola,Mustard,Other,FAQ,6955,6955,6955
+akola,2026-11-13,Akola,APMC Akola,Onion,Other,Local,2500,4500,3500
+akola,2026-11-13,Akola,APMC Akola,Potato,Other,Local,700,1300,900
+akola,2026-11-13,Akola,APMC Akola,Red gram/Arhar/Tur(whole),Other,FAQ,9660,11000,10950
+akola,2026-11-13,Akola,APMC Akola,Red gram/Arhar/Tur(whole),Other,Non-FAQ,5075,7500,6500
+akola,2026-11-13,Akola,APMC Akola,"Sesamum(Sesame,Gingelly,Til)",Other,Non-FAQ,7505,7505,7505
+akola,2026-11-13,Akola,APMC Akola,Soyabean,Yellow,FAQ,6200,7295,7150
+akola,2026-11-13,Akola,APMC Akola,Wheat,Other,FAQ,2685,3000,2960
+akola,2026-11-13,Akola,APMC Akola,Wheat,Sharbati,FAQ,3550,4150,4100
+akola,2026-11-13,Akola,APMC Akot,Cotton,H-4(A) 27mm FIne,FAQ,9000,9665,9600
+akola,2026-11-13,Akola,APMC Barshi Takli,Soyabean,Yellow,FAQ,6750,7200,7000
+akola,2026-11-13,Akola,APMC Murtizapur,Bengal Gram(Gram)(Whole),Other,FAQ,6700,7705,7355
+akola,2026-11-13,Akola,APMC Murtizapur,Green Gram(Moong)(Whole),Green (Whole),Non-FAQ,6800,7000,6900
+akola,2026-11-13,Akola,APMC Murtizapur,Jowar(Sorghum),Other,Local,2600,2675,2640
+akola,2026-11-13,Akola,APMC Murtizapur,Red gram/Arhar/Tur(whole),Other,FAQ,9600,10245,9925
+akola,2026-11-13,Akola,APMC Murtizapur,Soyabean,Yellow,FAQ,6700,7500,7100
+akola,2026-11-13,Akola,APMC Murtizapur,Wheat,Other,FAQ,2615,2900,2760
+akola,2026-11-13,Akola,Akola(Borgaon Manju),Cotton,Desi,Local,9238,9400,9300
+buldhana,2026-11-13,Buldhana,APMC Buldhana,Soyabean,Yellow,FAQ,7000,7200,7100
+buldhana,2026-11-13,Buldhana,APMC Chikali,Bengal Gram(Gram)(Whole),Average (Whole),FAQ,6500,7100,6800
+buldhana,2026-11-13,Buldhana,APMC Chikali,Bengal Gram(Gram)(Whole),Kabul Small,FAQ,6700,8300,7500
+buldhana,2026-11-13,Buldhana,APMC Chikali,Black Gram(Urd Beans)(Whole),Other,FAQ,8400,9000,8700
+buldhana,2026-11-13,Buldhana,APMC Chikali,Maize,Deshi Red,Non-FAQ,1700,2400,2050
+buldhana,2026-11-13,Buldhana,APMC Chikali,Red gram/Arhar/Tur(whole),Other,FAQ,9000,10001,9500
+buldhana,2026-11-13,Buldhana,APMC Chikali,Soyabean,Yellow,FAQ,6500,7500,7000
+buldhana,2026-11-13,Buldhana,APMC Deoulgaon Raja,Bajra(Pearl Millet/Cumbu),Other,FAQ,3000,3000,3000
+buldhana,2026-11-13,Buldhana,APMC Deoulgaon Raja,Soyabean,Yellow,FAQ,7150,7225,7150
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Bengal Gram(Gram)(Whole),Average (Whole),FAQ,6500,7500,7000
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Bengal Gram(Gram)(Whole),Average (Whole),Non-FAQ,5425,5425,5425
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Black Gram(Urd Beans)(Whole),Other,FAQ,8400,8800,8600
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Jowar(Sorghum),Other,Non-FAQ,2000,2800,2400
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Maize,Deshi Red,FAQ,2650,2650,2650
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Mustard,Other,FAQ,8000,8000,8000
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Red gram/Arhar/Tur(whole),Other,FAQ,8500,10550,9525
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Red gram/Arhar/Tur(whole),Other,Non-FAQ,7700,7700,7700
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Soyabean,Yellow,FAQ,6621,7325,6967
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Wheat,Other,FAQ,2700,2800,2750
+buldhana,2026-11-13,Buldhana,APMC Khamgaon,Wheat,Other,Non-FAQ,2600,2600,2600
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Bengal Gram(Gram)(Whole),Average (Whole),FAQ,6725,7500,6800
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Bengal Gram(Gram)(Whole),Average (Whole),Non-FAQ,5150,5150,5150
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Jowar(Sorghum),Other,Non-FAQ,2650,3181,2900
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Maize,Yellow,FAQ,2855,3020,2900
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Maize,Yellow,Non-FAQ,2300,2300,2300
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Red gram/Arhar/Tur(whole),Other,FAQ,8450,10200,10000
+buldhana,2026-11-13,Buldhana,APMC Malkapur,"Sesamum(Sesame,Gingelly,Til)",Other,FAQ,15400,16000,15500
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Soyabean,Yellow,FAQ,5900,7205,7045
+buldhana,2026-11-13,Buldhana,APMC Malkapur,Wheat,Other,FAQ,2785,3810,3175
+buldhana,2026-11-13,Buldhana,APMC Mehekar,Bengal Gram(Gram)(Whole),Other,FAQ,6500,7225,7000
+buldhana,2026-11-13,Buldhana,APMC Mehekar,Red gram/Arhar/Tur(whole),Other,FAQ,9000,10090,9600
+buldhana,2026-11-13,Buldhana,APMC Mehekar,Soyabean,Other,Local,6500,7375,7200
+buldhana,2026-11-13,Buldhana,APMC Mehekar,Wheat,Other,FAQ,3000,3550,3300
+buldhana,2026-11-13,Buldhana,"Bsk Krishi Bazar Private Limited, Mehkar, Dist Buldhana",Bengal Gram(Gram)(Whole),Other,Local,6300,7150,6497
+buldhana,2026-11-13,Buldhana,"Bsk Krishi Bazar Private Limited, Mehkar, Dist Buldhana",Soyabean,Other,Local,6500,7180,6803
+buldhana,2026-11-13,Buldhana,"Deulgaon Raja Balaji Agro Marketing Pvt Market, Deulgaon Raja, Dist Buldhana",Cotton,Other,Local,9000,9300,9200
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Bengal Gram(Gram)(Whole),Average (Whole),FAQ,6800,7200,7200
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Jowar(Sorghum),Other,Non-FAQ,2400,2700,2600
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Maize,Yellow,FAQ,2700,2900,2800
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Red gram/Arhar/Tur(whole),Other,FAQ,9900,10200,10000
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Soyabean,Yellow,FAQ,7000,7400,7200
+buldhana,2026-11-13,Buldhana,Jalgaon Jamod(Aasalgaon),Wheat,Maharashtra 2189,FAQ,2700,2900,2800
+washim,2026-11-13,Washim,APMC Karanja,Bengal Gram(Gram)(Whole),Other,FAQ,6550,7430,7155
+washim,2026-11-13,Washim,APMC Karanja,Red gram/Arhar/Tur(whole),Other,FAQ,9205,10450,9755
+washim,2026-11-13,Washim,APMC Karanja,Soyabean,Other,Local,6800,7270,7090
+washim,2026-11-13,Washim,APMC Karanja,Wheat,Other,FAQ,2895,3100,2925
+washim,2026-11-13,Washim,APMC Manora,Red gram/Arhar/Tur(whole),Other,FAQ,9150,10600,9875
+washim,2026-11-13,Washim,APMC Manora,Red gram/Arhar/Tur(whole),Other,Non-FAQ,4676,7600,6138
+washim,2026-11-13,Washim,APMC Manora,Soyabean,Other,Local,7065,7370,7217
+washim,2026-11-13,Washim,APMC Risod,Bengal Gram(Gram)(Whole),Other,FAQ,6400,6700,6550
+washim,2026-11-13,Washim,APMC Risod,Red gram/Arhar/Tur(whole),Other,FAQ,9800,10200,10000
+washim,2026-11-13,Washim,APMC Risod,Soyabean,Other,Local,6785,7140,6950
+washim,2026-11-13,Washim,APMC Washim,Bengal Gram(Gram)(Whole),Average (Whole),FAQ,6400,7300,6600
+washim,2026-11-13,Washim,APMC Washim,Green Gram(Moong)(Whole),Other,Non-FAQ,7020,8499,8050
+washim,2026-11-13,Washim,APMC Washim,Soyabean,Yellow,FAQ,6000,7400,6800
+washim,2026-11-13,Washim,APMC Washim,Wheat,Maharashtra 2189,FAQ,2700,3100,2900
+washim,2026-11-13,Washim,"Krushna Krishi Bazar, Washim",Bengal Gram(Gram)(Whole),Other,Local,6500,7200,6800
+washim,2026-11-13,Washim,"Krushna Krishi Bazar, Washim",Red gram/Arhar/Tur(whole),Other,Local,9000,11500,9200
+washim,2026-11-13,Washim,"Krushna Krishi Bazar, Washim",Soyabean,Other,Local,6000,7000,6892
+washim,2026-11-13,Washim,"Krushna Krishi Bazar, Washim",Wheat,Other,Local,2000,2700,2700
+washim,2026-11-13,Washim,Washim(Ansing),Soyabean,Yellow,FAQ,6500,7400,6800

@@ -9,3 +9,4 @@ node_modules/
 .DS_Store
 .~lock*
 process_log.md
+secrets.md

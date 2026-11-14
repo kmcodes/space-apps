@@ -1,0 +1,395 @@
+{
+  "akola": {
+    "location": {
+      "lat": 20.582591,
+      "lon": 77.051776
+    },
+    "evidence": {
+      "dataset": "NASA POWER daily (AG community)",
+      "period": "1981-2025",
+      "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "validity": "degraded at farm scale: gridded, cannot see field-level differences"
+    },
+    "monsoon_onset": {
+      "median": "14 Jun",
+      "iqr": "06 Jun - 30 Jun"
+    },
+    "monsoon_withdrawal": {
+      "median": "05 Oct",
+      "iqr": "23 Sep - 14 Oct"
+    },
+    "median": {
+      "annual_rain_mm": 846.1,
+      "kharif_rain_mm": 749.3,
+      "t2m_mean_annual": 26.62,
+      "heat_days_gt40_mar_may": 56.0,
+      "tmax_mean_mar_may": 40.6,
+      "longest_dry_spell_days": 13.0,
+      "dry_spells_ge10": 1.0,
+      "onset_doy": 165.0,
+      "season_length_days": 104.0,
+      "wet_root_days_oct_dec": 49.0
+    },
+    "baseline_1981_2010_mean": {
+      "annual_rain_mm": 826.87,
+      "kharif_rain_mm": 689.22,
+      "t2m_mean_annual": 26.68,
+      "heat_days_gt40_mar_may": 56.07,
+      "tmax_mean_mar_may": 40.51,
+      "longest_dry_spell_days": 16.07,
+      "dry_spells_ge10": 1.4,
+      "onset_doy": 171.85,
+      "season_length_days": 103.11,
+      "wet_root_days_oct_dec": 44.43
+    },
+    "recent_2016_2025_mean": {
+      "annual_rain_mm": 1023.81,
+      "kharif_rain_mm": 880.34,
+      "t2m_mean_annual": 26.4,
+      "heat_days_gt40_mar_may": 55.5,
+      "tmax_mean_mar_may": 40.26,
+      "longest_dry_spell_days": 11.1,
+      "dry_spells_ge10": 0.8,
+      "onset_doy": 161.5,
+      "season_length_days": 120.4,
+      "wet_root_days_oct_dec": 67.5
+    },
+    "trend": {
+      "annual_rain_mm": {
+        "per_decade": 80.512,
+        "mk_tau": 0.301,
+        "p_value": 0.0036,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "kharif_rain_mm": {
+        "per_decade": 78.06,
+        "mk_tau": 0.343,
+        "p_value": 0.0009,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "t2m_mean_annual": {
+        "per_decade": -0.086,
+        "mk_tau": -0.164,
+        "p_value": 0.115,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "heat_days_gt40_mar_may": {
+        "per_decade": -0.5,
+        "mk_tau": -0.041,
+        "p_value": 0.695,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "tmax_mean_mar_may": {
+        "per_decade": -0.116,
+        "mk_tau": -0.127,
+        "p_value": 0.2177,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "longest_dry_spell_days": {
+        "per_decade": -1.875,
+        "mk_tau": -0.296,
+        "p_value": 0.0051,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "dry_spells_ge10": {
+        "per_decade": -0.0,
+        "mk_tau": -0.259,
+        "p_value": 0.0274,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "onset_doy": {
+        "per_decade": -0.952,
+        "mk_tau": -0.065,
+        "p_value": 0.5506,
+        "significant_5pct": false,
+        "n_years": 42
+      },
+      "season_length_days": {
+        "per_decade": 5.0,
+        "mk_tau": 0.174,
+        "p_value": 0.106,
+        "significant_5pct": false,
+        "n_years": 42
+      },
+      "wet_root_days_oct_dec": {
+        "per_decade": 8.49,
+        "mk_tau": 0.256,
+        "p_value": 0.0136,
+        "significant_5pct": true,
+        "n_years": 45
+      }
+    },
+    "false_onset_note": "onset rule: >= 30.0 mm in 5 days from 1 Jun, no 10-day dry run in next 30 days",
+    "gwetroot_note": "POWER GWETROOT is a modelled index with a floor near 0.59; use relative changes only; SMAP is the cross-check",
+    "frost_note": "frost days (T2M_MIN <= 2C) in Dec-Feb: total over years = 0"
+  },
+  "buldhana": {
+    "location": {
+      "lat": 20.471969,
+      "lon": 76.249219
+    },
+    "evidence": {
+      "dataset": "NASA POWER daily (AG community)",
+      "period": "1981-2025",
+      "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "validity": "degraded at farm scale: gridded, cannot see field-level differences"
+    },
+    "monsoon_onset": {
+      "median": "13 Jun",
+      "iqr": "04 Jun - 27 Jun"
+    },
+    "monsoon_withdrawal": {
+      "median": "05 Oct",
+      "iqr": "23 Sep - 15 Oct"
+    },
+    "median": {
+      "annual_rain_mm": 806.0,
+      "kharif_rain_mm": 690.4,
+      "t2m_mean_annual": 26.13,
+      "heat_days_gt40_mar_may": 50.0,
+      "tmax_mean_mar_may": 39.86,
+      "longest_dry_spell_days": 12.0,
+      "dry_spells_ge10": 1.0,
+      "onset_doy": 164.0,
+      "season_length_days": 107.0,
+      "wet_root_days_oct_dec": 51.0
+    },
+    "baseline_1981_2010_mean": {
+      "annual_rain_mm": 783.29,
+      "kharif_rain_mm": 650.08,
+      "t2m_mean_annual": 26.17,
+      "heat_days_gt40_mar_may": 47.97,
+      "tmax_mean_mar_may": 39.82,
+      "longest_dry_spell_days": 13.8,
+      "dry_spells_ge10": 1.33,
+      "onset_doy": 173.25,
+      "season_length_days": 105.32,
+      "wet_root_days_oct_dec": 45.5
+    },
+    "recent_2016_2025_mean": {
+      "annual_rain_mm": 996.17,
+      "kharif_rain_mm": 848.81,
+      "t2m_mean_annual": 25.92,
+      "heat_days_gt40_mar_may": 49.6,
+      "tmax_mean_mar_may": 39.61,
+      "longest_dry_spell_days": 11.4,
+      "dry_spells_ge10": 0.9,
+      "onset_doy": 160.5,
+      "season_length_days": 121.7,
+      "wet_root_days_oct_dec": 69.7
+    },
+    "trend": {
+      "annual_rain_mm": {
+        "per_decade": 79.969,
+        "mk_tau": 0.366,
+        "p_value": 0.0004,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "kharif_rain_mm": {
+        "per_decade": 69.598,
+        "mk_tau": 0.382,
+        "p_value": 0.0002,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "t2m_mean_annual": {
+        "per_decade": -0.081,
+        "mk_tau": -0.176,
+        "p_value": 0.0904,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "heat_days_gt40_mar_may": {
+        "per_decade": -0.0,
+        "mk_tau": 0.015,
+        "p_value": 0.8832,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "tmax_mean_mar_may": {
+        "per_decade": -0.087,
+        "mk_tau": -0.09,
+        "p_value": 0.3838,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "longest_dry_spell_days": {
+        "per_decade": -0.833,
+        "mk_tau": -0.177,
+        "p_value": 0.0948,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "dry_spells_ge10": {
+        "per_decade": -0.0,
+        "mk_tau": -0.179,
+        "p_value": 0.122,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "onset_doy": {
+        "per_decade": -0.811,
+        "mk_tau": -0.069,
+        "p_value": 0.5221,
+        "significant_5pct": false,
+        "n_years": 43
+      },
+      "season_length_days": {
+        "per_decade": 3.784,
+        "mk_tau": 0.116,
+        "p_value": 0.2761,
+        "significant_5pct": false,
+        "n_years": 43
+      },
+      "wet_root_days_oct_dec": {
+        "per_decade": 9.404,
+        "mk_tau": 0.264,
+        "p_value": 0.0112,
+        "significant_5pct": true,
+        "n_years": 45
+      }
+    },
+    "false_onset_note": "onset rule: >= 30.0 mm in 5 days from 1 Jun, no 10-day dry run in next 30 days",
+    "gwetroot_note": "POWER GWETROOT is a modelled index with a floor near 0.59; use relative changes only; SMAP is the cross-check",
+    "frost_note": "frost days (T2M_MIN <= 2C) in Dec-Feb: total over years = 0"
+  },
+  "washim": {
+    "location": {
+      "lat": 20.208788,
+      "lon": 77.119615
+    },
+    "evidence": {
+      "dataset": "NASA POWER daily (AG community)",
+      "period": "1981-2025",
+      "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+      "validity": "degraded at farm scale: gridded, cannot see field-level differences"
+    },
+    "monsoon_onset": {
+      "median": "13 Jun",
+      "iqr": "06 Jun - 24 Jun"
+    },
+    "monsoon_withdrawal": {
+      "median": "06 Oct",
+      "iqr": "21 Sep - 18 Oct"
+    },
+    "median": {
+      "annual_rain_mm": 840.6,
+      "kharif_rain_mm": 740.1,
+      "t2m_mean_annual": 26.19,
+      "heat_days_gt40_mar_may": 51.0,
+      "tmax_mean_mar_may": 40.04,
+      "longest_dry_spell_days": 12.0,
+      "dry_spells_ge10": 1.0,
+      "onset_doy": 164.0,
+      "season_length_days": 104.0,
+      "wet_root_days_oct_dec": 44.0
+    },
+    "baseline_1981_2010_mean": {
+      "annual_rain_mm": 855.96,
+      "kharif_rain_mm": 711.79,
+      "t2m_mean_annual": 26.22,
+      "heat_days_gt40_mar_may": 50.1,
+      "tmax_mean_mar_may": 39.97,
+      "longest_dry_spell_days": 14.0,
+      "dry_spells_ge10": 1.43,
+      "onset_doy": 169.89,
+      "season_length_days": 104.57,
+      "wet_root_days_oct_dec": 41.47
+    },
+    "recent_2016_2025_mean": {
+      "annual_rain_mm": 983.12,
+      "kharif_rain_mm": 845.94,
+      "t2m_mean_annual": 26.08,
+      "heat_days_gt40_mar_may": 49.8,
+      "tmax_mean_mar_may": 39.73,
+      "longest_dry_spell_days": 11.0,
+      "dry_spells_ge10": 0.7,
+      "onset_doy": 162.0,
+      "season_length_days": 123.7,
+      "wet_root_days_oct_dec": 60.2
+    },
+    "trend": {
+      "annual_rain_mm": {
+        "per_decade": 53.089,
+        "mk_tau": 0.24,
+        "p_value": 0.0199,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "kharif_rain_mm": {
+        "per_decade": 57.144,
+        "mk_tau": 0.277,
+        "p_value": 0.0074,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "t2m_mean_annual": {
+        "per_decade": -0.045,
+        "mk_tau": -0.092,
+        "p_value": 0.3732,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "heat_days_gt40_mar_may": {
+        "per_decade": -1.056,
+        "mk_tau": -0.081,
+        "p_value": 0.4389,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "tmax_mean_mar_may": {
+        "per_decade": -0.113,
+        "mk_tau": -0.137,
+        "p_value": 0.1834,
+        "significant_5pct": false,
+        "n_years": 45
+      },
+      "longest_dry_spell_days": {
+        "per_decade": -1.446,
+        "mk_tau": -0.247,
+        "p_value": 0.0199,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "dry_spells_ge10": {
+        "per_decade": -0.0,
+        "mk_tau": -0.283,
+        "p_value": 0.0137,
+        "significant_5pct": true,
+        "n_years": 45
+      },
+      "onset_doy": {
+        "per_decade": -0.0,
+        "mk_tau": -0.001,
+        "p_value": 0.9916,
+        "significant_5pct": false,
+        "n_years": 43
+      },
+      "season_length_days": {
+        "per_decade": 5.294,
+        "mk_tau": 0.167,
+        "p_value": 0.1161,
+        "significant_5pct": false,
+        "n_years": 43
+      },
+      "wet_root_days_oct_dec": {
+        "per_decade": 8.0,
+        "mk_tau": 0.209,
+        "p_value": 0.0438,
+        "significant_5pct": true,
+        "n_years": 45
+      }
+    },
+    "false_onset_note": "onset rule: >= 30.0 mm in 5 days from 1 Jun, no 10-day dry run in next 30 days",
+    "gwetroot_note": "POWER GWETROOT is a modelled index with a floor near 0.59; use relative changes only; SMAP is the cross-check",
+    "frost_note": "frost days (T2M_MIN <= 2C) in Dec-Feb: total over years = 0"
+  }
+}

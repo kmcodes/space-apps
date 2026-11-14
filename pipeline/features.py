@@ -8,7 +8,9 @@ Outputs (data/processed/):
 All thresholds are named constants below so they can be shown to users and tuned.
 Rules are transparent heuristics, not official IMD definitions.
 """
+import argparse
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -105,7 +107,7 @@ def yearly(point, df):
             "heat_days_gt35_kharif": int((khar["T2M_MAX"] > 35).sum()),
             "heat_days_gt38_kharif": int((khar["T2M_MAX"] > 38).sum()),
             "post_monsoon_gwetroot_mean": round(post["GWETROOT"].mean(), 3),
-            "wet_root_days_oct_dec": int((octdec["GWETROOT"] >= SOIL_WET_ROOT).sum()),
+            "wet_root_days_oct_dec": int((octdec["GWETROOT"] >= SOIL_WET_ROOT).sum()) if octdec["GWETROOT"].notna().any() else np.nan,
             "cold_days_le10_dec_feb": int((winter["T2M_MIN"] <= COLD_LE).sum()) if rabi_ok else np.nan,
             "frost_days_le2_dec_feb": int((winter["T2M_MIN"] <= FROST_LE).sum()) if rabi_ok else np.nan,
         }
@@ -148,11 +150,43 @@ def md(doy_series):
     return {"median": d.strftime("%d %b"), "iqr": f"{q1.strftime('%d %b')} - {q3.strftime('%d %b')}"}
 
 
+ERA5_RENAME = {"rain_mm": "PRECTOTCORR", "t2m_mean_c": "T2M", "t2m_max_c": "T2M_MAX", "t2m_min_c": "T2M_MIN"}
+EVIDENCE = {
+    "power": {"dataset": "NASA POWER daily (AG community)", "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value"},
+    "era5": {"dataset": "ERA5 reanalysis daily (ECMWF/Copernicus) via Open-Meteo", "resolution": "0.25 deg grid (about 25-30 km), point value"},
+}
+
+
+def load_daily(point, source):
+    if source == "power":
+        return pd.read_csv(OUT / f"power_{point}.csv", parse_dates=["date"], index_col="date")
+    e = pd.read_csv(OUT / "era5_daily_openmeteo.csv", parse_dates=["date"])
+    e = e[e.point == point].set_index("date").drop(columns="point").rename(columns=ERA5_RENAME)
+    for c in ("RH2M", "GWETTOP", "GWETROOT"):  # ERA5 file has no soil-wetness or humidity
+        e[c] = np.nan
+    return e
+
+
+def clean(o):
+    """JSON-safe: NaN -> None"""
+    if isinstance(o, dict):
+        return {k: clean(v) for k, v in o.items()}
+    if isinstance(o, list):
+        return [clean(v) for v in o]
+    if isinstance(o, float) and math.isnan(o):
+        return None
+    return o
+
+
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--source", choices=["power", "era5"], default="power")
+    source = ap.parse_args().source
+    suffix = "" if source == "power" else "_era5"
     pts = pd.read_csv(ROOT / "data/points.csv")
     ys, ms, summary = [], [], {}
     for _, p in pts.iterrows():
-        df = pd.read_csv(OUT / f"power_{p['name']}.csv", parse_dates=["date"], index_col="date")
+        df = load_daily(p["name"], source)
         y = yearly(p["name"], df)
         ys.append(y)
         ms.append(monthly(p["name"], df))
@@ -162,8 +196,7 @@ def main():
                 "season_length_days", "wet_root_days_oct_dec"]
         summary[p["name"]] = {
             "location": {"lat": float(p["lat"]), "lon": float(p["lon"])},
-            "evidence": {"dataset": "NASA POWER daily (AG community)", "period": f"{int(y.year.min())}-{int(y.year.max())}",
-                         "resolution": "~0.5 x 0.625 deg grid (about 50 km), point value",
+            "evidence": {**EVIDENCE[source], "period": f"{int(y.year.min())}-{int(y.year.max())}",
                          "validity": "degraded at farm scale: gridded, cannot see field-level differences"},
             "monsoon_onset": md(y["onset_doy"]),
             "monsoon_withdrawal": md(y["withdrawal_doy"]),
@@ -175,10 +208,10 @@ def main():
             "gwetroot_note": "POWER GWETROOT is a modelled index with a floor near 0.59; use relative changes only; SMAP is the cross-check",
             "frost_note": "frost days (T2M_MIN <= 2C) in Dec-Feb: total over years = %d" % int(np.nansum(y["frost_days_le2_dec_feb"])),
         }
-    pd.concat(ys).to_csv(OUT / "features_yearly.csv", index=False)
-    pd.concat(ms).to_csv(OUT / "features_monthly_clim.csv", index=False)
-    (OUT / "features_summary.json").write_text(json.dumps(summary, indent=2, default=str))
-    print("wrote features_yearly.csv, features_monthly_clim.csv, features_summary.json")
+    pd.concat(ys).to_csv(OUT / f"features_yearly{suffix}.csv", index=False)
+    pd.concat(ms).to_csv(OUT / f"features_monthly_clim{suffix}.csv", index=False)
+    (OUT / f"features_summary{suffix}.json").write_text(json.dumps(clean(summary), indent=2, default=str))
+    print(f"wrote features_yearly{suffix}.csv, features_monthly_clim{suffix}.csv, features_summary{suffix}.json")
 
 
 if __name__ == "__main__":

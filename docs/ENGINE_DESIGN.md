@@ -158,6 +158,7 @@ In the pitch we say this plainly: Hindi demo, Marathi production target, same en
 - **Per-year scoring:** run the pipeline for each of 45 years. Report median score and a p20-p80 band per strategy.
 - **Rank stability:** the share of years each strategy ranks first. If two strategies' bands overlap, say "no clear winner" instead of forcing a rank.
 - **Tie rule:** scores within 5 points are shown as a tie.
+- **Two-dataset ranges:** weather features are computed from both NASA POWER and ERA5 (`data/processed/features_ranges.json`). Each feature carries the POWER value, the ERA5 value, the range, and an `agree` flag (tolerances are our own choice: 7 days for dates, 10-15% for amounts). Where the datasets disagree (notably days above 40 C in Mar-May, mean Tmax, monsoon onset), the UI shows a range, not one number, and the evidence line is `degraded`.
 - **Information gaps** come straight from `missing` and `unverified` crop fields and from every `degraded` dataset, listed per strategy.
 
 ## 8. Scenario slider (stretch)

@@ -1,0 +1,536 @@
+{
+  "akola": {
+    "onset_doy": {
+      "label": "monsoon onset (day of year)",
+      "power": 165.0,
+      "era5": 173.0,
+      "range": [
+        165.0,
+        173.0
+      ],
+      "difference": 8.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range",
+      "range_dates": [
+        "14 Jun",
+        "22 Jun"
+      ]
+    },
+    "withdrawal_doy": {
+      "label": "monsoon withdrawal (day of year)",
+      "power": 278.0,
+      "era5": 273.0,
+      "range": [
+        273.0,
+        278.0
+      ],
+      "difference": 5.0,
+      "agree": true,
+      "validity": "degraded",
+      "range_dates": [
+        "30 Sep",
+        "05 Oct"
+      ]
+    },
+    "season_length_days": {
+      "label": "rainy season length (days)",
+      "power": 104.0,
+      "era5": 93.0,
+      "range": [
+        93.0,
+        104.0
+      ],
+      "difference": 11.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "annual_rain_mm": {
+      "label": "annual rain (mm)",
+      "power": 846.1,
+      "era5": 898.8,
+      "range": [
+        846.1,
+        898.8
+      ],
+      "difference": 52.7,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "kharif_rain_mm": {
+      "label": "Jun-Sep rain (mm)",
+      "power": 749.3,
+      "era5": 816.1,
+      "range": [
+        749.3,
+        816.1
+      ],
+      "difference": 66.8,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "kharif_rainy_days": {
+      "label": "rainy days Jun-Sep",
+      "power": 55.0,
+      "era5": 54.0,
+      "range": [
+        54.0,
+        55.0
+      ],
+      "difference": 1.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "longest_dry_spell_days": {
+      "label": "longest dry spell in monsoon (days)",
+      "power": 13.0,
+      "era5": 13.0,
+      "range": [
+        13.0,
+        13.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge10": {
+      "label": "dry spells >= 10 days per year",
+      "power": 1.0,
+      "era5": 1.0,
+      "range": [
+        1.0,
+        1.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge15": {
+      "label": "dry spells >= 15 days per year",
+      "power": 0.0,
+      "era5": 0.0,
+      "range": [
+        0.0,
+        0.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "heat_days_gt40_mar_may": {
+      "label": "days > 40 C, Mar-May",
+      "power": 56.0,
+      "era5": 41.0,
+      "range": [
+        41.0,
+        56.0
+      ],
+      "difference": 15.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "heat_days_gt35_kharif": {
+      "label": "days > 35 C, Jun-Oct",
+      "power": 20.0,
+      "era5": 23.0,
+      "range": [
+        20.0,
+        23.0
+      ],
+      "difference": 3.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "heat_days_gt38_kharif": {
+      "label": "days > 38 C, Jun-Oct",
+      "power": 9.0,
+      "era5": 11.0,
+      "range": [
+        9.0,
+        11.0
+      ],
+      "difference": 2.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "tmax_mean_mar_may": {
+      "label": "mean Tmax Mar-May (C)",
+      "power": 40.6,
+      "era5": 39.08,
+      "range": [
+        39.08,
+        40.6
+      ],
+      "difference": 1.52,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "t2m_mean_annual": {
+      "label": "mean temperature (C)",
+      "power": 26.62,
+      "era5": 27.27,
+      "range": [
+        26.62,
+        27.27
+      ],
+      "difference": 0.65,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    }
+  },
+  "buldhana": {
+    "onset_doy": {
+      "label": "monsoon onset (day of year)",
+      "power": 164.0,
+      "era5": 173.0,
+      "range": [
+        164.0,
+        173.0
+      ],
+      "difference": 9.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range",
+      "range_dates": [
+        "13 Jun",
+        "22 Jun"
+      ]
+    },
+    "withdrawal_doy": {
+      "label": "monsoon withdrawal (day of year)",
+      "power": 278.0,
+      "era5": 275.0,
+      "range": [
+        275.0,
+        278.0
+      ],
+      "difference": 3.0,
+      "agree": true,
+      "validity": "degraded",
+      "range_dates": [
+        "02 Oct",
+        "05 Oct"
+      ]
+    },
+    "season_length_days": {
+      "label": "rainy season length (days)",
+      "power": 107.0,
+      "era5": 98.0,
+      "range": [
+        98.0,
+        107.0
+      ],
+      "difference": 9.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "annual_rain_mm": {
+      "label": "annual rain (mm)",
+      "power": 806.0,
+      "era5": 881.7,
+      "range": [
+        806.0,
+        881.7
+      ],
+      "difference": 75.7,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "kharif_rain_mm": {
+      "label": "Jun-Sep rain (mm)",
+      "power": 690.4,
+      "era5": 781.0,
+      "range": [
+        690.4,
+        781.0
+      ],
+      "difference": 90.6,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "kharif_rainy_days": {
+      "label": "rainy days Jun-Sep",
+      "power": 53.0,
+      "era5": 56.0,
+      "range": [
+        53.0,
+        56.0
+      ],
+      "difference": 3.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "longest_dry_spell_days": {
+      "label": "longest dry spell in monsoon (days)",
+      "power": 12.0,
+      "era5": 13.0,
+      "range": [
+        12.0,
+        13.0
+      ],
+      "difference": 1.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge10": {
+      "label": "dry spells >= 10 days per year",
+      "power": 1.0,
+      "era5": 1.0,
+      "range": [
+        1.0,
+        1.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge15": {
+      "label": "dry spells >= 15 days per year",
+      "power": 0.0,
+      "era5": 0.0,
+      "range": [
+        0.0,
+        0.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "heat_days_gt40_mar_may": {
+      "label": "days > 40 C, Mar-May",
+      "power": 50.0,
+      "era5": 8.0,
+      "range": [
+        8.0,
+        50.0
+      ],
+      "difference": 42.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "heat_days_gt35_kharif": {
+      "label": "days > 35 C, Jun-Oct",
+      "power": 17.0,
+      "era5": 12.0,
+      "range": [
+        12.0,
+        17.0
+      ],
+      "difference": 5.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "heat_days_gt38_kharif": {
+      "label": "days > 38 C, Jun-Oct",
+      "power": 8.0,
+      "era5": 4.0,
+      "range": [
+        4.0,
+        8.0
+      ],
+      "difference": 4.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "tmax_mean_mar_may": {
+      "label": "mean Tmax Mar-May (C)",
+      "power": 39.86,
+      "era5": 36.93,
+      "range": [
+        36.93,
+        39.86
+      ],
+      "difference": 2.93,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "t2m_mean_annual": {
+      "label": "mean temperature (C)",
+      "power": 26.13,
+      "era5": 25.58,
+      "range": [
+        25.58,
+        26.13
+      ],
+      "difference": 0.55,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    }
+  },
+  "washim": {
+    "onset_doy": {
+      "label": "monsoon onset (day of year)",
+      "power": 164.0,
+      "era5": 171.0,
+      "range": [
+        164.0,
+        171.0
+      ],
+      "difference": 7.0,
+      "agree": true,
+      "validity": "degraded",
+      "range_dates": [
+        "13 Jun",
+        "20 Jun"
+      ]
+    },
+    "withdrawal_doy": {
+      "label": "monsoon withdrawal (day of year)",
+      "power": 279.0,
+      "era5": 275.0,
+      "range": [
+        275.0,
+        279.0
+      ],
+      "difference": 4.0,
+      "agree": true,
+      "validity": "degraded",
+      "range_dates": [
+        "02 Oct",
+        "06 Oct"
+      ]
+    },
+    "season_length_days": {
+      "label": "rainy season length (days)",
+      "power": 104.0,
+      "era5": 102.0,
+      "range": [
+        102.0,
+        104.0
+      ],
+      "difference": 2.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "annual_rain_mm": {
+      "label": "annual rain (mm)",
+      "power": 840.6,
+      "era5": 921.8,
+      "range": [
+        840.6,
+        921.8
+      ],
+      "difference": 81.2,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "kharif_rain_mm": {
+      "label": "Jun-Sep rain (mm)",
+      "power": 740.1,
+      "era5": 816.7,
+      "range": [
+        740.1,
+        816.7
+      ],
+      "difference": 76.6,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "kharif_rainy_days": {
+      "label": "rainy days Jun-Sep",
+      "power": 58.0,
+      "era5": 57.0,
+      "range": [
+        57.0,
+        58.0
+      ],
+      "difference": 1.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "longest_dry_spell_days": {
+      "label": "longest dry spell in monsoon (days)",
+      "power": 12.0,
+      "era5": 12.0,
+      "range": [
+        12.0,
+        12.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge10": {
+      "label": "dry spells >= 10 days per year",
+      "power": 1.0,
+      "era5": 1.0,
+      "range": [
+        1.0,
+        1.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "dry_spells_ge15": {
+      "label": "dry spells >= 15 days per year",
+      "power": 0.0,
+      "era5": 0.0,
+      "range": [
+        0.0,
+        0.0
+      ],
+      "difference": 0.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "heat_days_gt40_mar_may": {
+      "label": "days > 40 C, Mar-May",
+      "power": 51.0,
+      "era5": 22.0,
+      "range": [
+        22.0,
+        51.0
+      ],
+      "difference": 29.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "heat_days_gt35_kharif": {
+      "label": "days > 35 C, Jun-Oct",
+      "power": 16.0,
+      "era5": 15.0,
+      "range": [
+        15.0,
+        16.0
+      ],
+      "difference": 1.0,
+      "agree": true,
+      "validity": "degraded"
+    },
+    "heat_days_gt38_kharif": {
+      "label": "days > 38 C, Jun-Oct",
+      "power": 7.0,
+      "era5": 6.0,
+      "range": [
+        6.0,
+        7.0
+      ],
+      "difference": 1.0,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "tmax_mean_mar_may": {
+      "label": "mean Tmax Mar-May (C)",
+      "power": 40.04,
+      "era5": 37.95,
+      "range": [
+        37.95,
+        40.04
+      ],
+      "difference": 2.09,
+      "agree": false,
+      "validity": "degraded: datasets disagree, show as range"
+    },
+    "t2m_mean_annual": {
+      "label": "mean temperature (C)",
+      "power": 26.19,
+      "era5": 26.15,
+      "range": [
+        26.15,
+        26.19
+      ],
+      "difference": 0.04,
+      "agree": true,
+      "validity": "degraded"
+    }
+  }
+}

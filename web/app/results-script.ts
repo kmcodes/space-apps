@@ -47,17 +47,18 @@ export const RESULTS = {
   notRanked: "पूरी जानकारी नहीं",
   tapHint: "किसी तरीके को छुइए",
   forExperts: "विशेषज्ञों के लिए: स्रोत और जाँच",
-  good: "अच्छे संकेत",
-  unknown: "जो अभी पक्का नहीं",
+  // The two rows are the two kinds of advice: what was checked, and what is an estimate.
+  good: "जाँचा हुआ सुझाव",
+  unknown: "अनुमानित सुझाव",
   estimate: "अनुमानित सुझाव",
-  verifiedAdvice: "सत्यापित सुझाव",
+  verifiedAdvice: "जाँचा हुआ सुझाव",
   estimateNote: "ये आँकड़ों से लगाए अनुमान हैं, पक्की बात नहीं।",
-  checkPending: "पर इसकी जाँच बाकी है",
+  noneChecked: "अभी इस तरीके की कोई बात पूरी तरह जाँची हुई नहीं है।",
+  estimateGood: "आँकड़ों से अच्छा लगता है, पर अभी जाँचा नहीं",
   expert: "विशेषज्ञ से पूछिए",
   vulnerable: "नाज़ुक समय",
   learn: "समझिए",
   learnTitle: "ये बातें क्या हैं?",
-  noneGood: "इस तरीके में कोई ख़ास अच्छी बात नहीं मिली।",
   kharif: "खरीफ",
   rabi: "रबी",
   summer: "गर्मी",
@@ -201,24 +202,29 @@ export function adviceLabel(kinds: Array<"estimate" | "verified">): string {
   return kinds.length > 0 && kinds.every((k) => k === "verified") ? RESULTS.verifiedAdvice : RESULTS.estimate;
 }
 
-/** Components the engine scored well (score 70 or more, as in the engine's own card). A good sign whose input is
-    not checked says so: a high score is not a confirmed fact. */
+const isGood = (c: Component) => c.status === "ok" && (c.score ?? 0) >= 70; // the engine's own "strong" line
+const isChecked = (c: Component) => c.status === "ok" && c.validity === "valid";
+
+/** Row "जाँचा हुआ सुझाव": only parts whose inputs are checked (validity "valid"). A high score on an unchecked
+    input is not a confirmed fact, so it goes in the estimate row instead. Today the crop sheet is mostly
+    unverified, so this row usually says that nothing is fully checked yet. */
 export function goodLines(s: Strategy): string[] {
   const lines = Object.entries(s.components)
-    .filter(([, c]) => c.status === "ok" && (c.score ?? 0) >= 70)
-    .map(([k, c]) => (GOOD_HI[k] ? (c.validity === "valid" ? GOOD_HI[k] : `${GOOD_HI[k]}, ${RESULTS.checkPending}`) : ""))
+    .filter(([, c]) => isChecked(c))
+    .map(([k, c]) => (isGood(c) ? GOOD_HI[k] : UNSURE_HI[k] ? `${UNSURE_HI[k]}: जाँचा हुआ है, पर इसमें कमी है` : ""))
     .filter(Boolean);
-  return lines.length ? lines : [RESULTS.noneGood];
+  return lines.length ? lines : [RESULTS.noneChecked];
 }
 
-/** What the engine could not be sure of: missing inputs, unverified inputs or proxies, and the area-scale weather. */
+/** Row "अनुमानित सुझाव": what looks good by the numbers but is not checked, the parts not checked or missing,
+    and the area-scale weather. */
 export function unknownLines(s: Strategy): string[] {
-  const unsure = Object.entries(s.components)
-    .filter(([, c]) => c.status === "missing" || (c.status === "ok" && c.validity === "unverified"))
-    .map(([k]) => UNSURE_HI[k])
-    .filter(Boolean);
+  const entries = Object.entries(s.components).filter(([, c]) => !isChecked(c));
+  const estGood = entries.filter(([, c]) => isGood(c)).map(([k]) => GOOD_HI[k]).filter(Boolean);
+  const unsure = entries.filter(([, c]) => !isGood(c)).map(([k]) => UNSURE_HI[k]).filter(Boolean);
   const lines: string[] = [];
   if (s.incomplete) lines.push("इस तरीके को पूरा आँका नहीं जा सका, क्योंकि कुछ जानकारी नहीं मिली।");
+  estGood.forEach((l, i) => lines.push(i === 0 ? `${RESULTS.estimateGood}: ${l}` : l));
   if (unsure.length) lines.push(`इनके आँकड़े हमने अभी जाँचे नहीं हैं: ${unsure.join(", ")}।`);
   lines.push(AREA_SCALE_HI);
   return lines;

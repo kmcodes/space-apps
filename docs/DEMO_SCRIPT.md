@@ -25,7 +25,7 @@ Length: about 230 spoken words at a calm pace, plus the Hindi the app speaks its
 | 0:36–0:50 | The question screen: tiles light up one by one as the app reads them. Tap a few answers quickly (cut between them). | "Each question is read aloud while its picture lights up, so a picture and its word are linked. The farmer answers by voice, or by touching." |
 | 0:50–1:08 | Results list: thumbs-up on the top choice, no numbers. Tap the top choice: the year bar with kharif and rabi grouped, green and dark months. | "The result is spoken and shown, with no scores. The best choices get a thumbs-up. Each one has a twelve-month bar: green when a crop is in the ground, dark when the field is bare, with kharif and rabi grouped." |
 | 1:08–1:22 | Zoom on the thermometer and crossed-out drop markers under the bar, then tap the "नाज़ुक समय" row; its text opens. | "Under it, the hot months and the long dry-spell months from the climate record. A solid mark means both datasets agree." |
-| 1:22–1:36 | Tap "जो अभी पक्का नहीं" and "विशेषज्ञ से पूछिए"; show the text opening and the speaker icon turning blue. Briefly show the "for experts" link. | "Tap a row and it speaks: what looks good, what is not yet confirmed, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link." |
+| 1:22–1:36 | Tap "अनुमानित सुझाव" and "विशेषज्ञ से पूछिए"; show the text opening and the speaker icon turning blue. Briefly show the "for experts" link. | "Tap a row and it speaks: what is checked, what is only an estimate, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link." |
 | 1:36–1:50 | The "समझिए" screen, then a quick cut to the README's cross-check lines (or a caption: "POWER vs ERA5: rain agrees, heat days do not → we show a range"). | "We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag." |
 | 1:50–2:00 | Back to the home screen, then the disclaimer banner large on screen; end card with team and repo link. | "Field Shift supports local expertise; it does not replace it. Hindi today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices." |
 
@@ -39,7 +39,7 @@ One tap starts a call, in Hindi. The phone shows where the farm is. The farmer c
 
 The result is spoken and shown, with no scores. The best choices get a thumbs-up. Each one has a twelve-month bar: green when a crop is in the ground, dark when the field is bare, with kharif and rabi grouped. Under it, the hot months and the long dry-spell months from the climate record. A solid mark means both datasets agree.
 
-Tap a row and it speaks: what looks good, what is not yet confirmed, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link.
+Tap a row and it speaks: what is checked, what is only an estimate, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link.
 
 We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag.
 

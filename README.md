@@ -82,7 +82,7 @@ Each option gets six part-scores from the evidence:
 
 The **farmer's answers set the weights**. The first goal gets a fixed 40% of the total and the second 20%; the rest follows base weights. Low water availability raises the weight of water fit, and "for my own use" removes the market part. The weights used are returned with every result, and every tunable number lives in one file, [`engine/config.py`](engine/config.py).
 
-Rules the engine follows, each covered by tests (170 in all):
+Rules the engine follows, each covered by tests (175 in all):
 
 - **No missing input is ever scored as zero**, and a data gap never flatters an option. An option scored on less than 70% of its intended weight is shown as incomplete and not ranked.
 - **Ranges, not single numbers.** Scores are computed across years and shown as a band. Options within 5 points of the top are called a tie rather than ranked.
@@ -314,7 +314,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 ```bash
 # engine API (from the repo root)
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # requirements.txt alone is enough to run the API
-.venv/bin/python -m pytest                                   # 170 tests
+.venv/bin/python -m pytest                                   # 175 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 
 # web app (second terminal)
@@ -392,7 +392,7 @@ web/         Next.js PWA: voice call, picture questions, results, Hindi and Engl
 voice/       reserved for the Sarvam speech integration (empty for now)
 scripts/     screenshots and deployment helpers
 docs/        design, crop sheet, data quality, plans, demo script, submission text
-tests/       170 tests, written first
+tests/       175 tests, written first
 ```
 
 - Engine design and the rules behind every score: [docs/ENGINE_DESIGN.md](docs/ENGINE_DESIGN.md)
@@ -407,7 +407,7 @@ tests/       170 tests, written first
 
 What works, and what does not yet.
 
-**Works today:** the voice-and-touch call in Hindi and English; the form, in either language, leading to the same results; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 170 passing tests.
+**Works today:** the voice-and-touch call in Hindi and English; the form, in either language, leading to the same results; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 175 passing tests.
 
 **Not done, or not good enough yet:**
 

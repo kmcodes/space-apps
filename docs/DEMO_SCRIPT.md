@@ -12,24 +12,28 @@ Other rules from the guide that apply to the video:
 
 ## What the video is
 
-A screen recording of the app being used, from the first tap to the results page, explained by short **on-screen captions** (no voice-over). The only sound is the app's own voice. The first four captions explain how to use it; the last one looks ahead.
+An explainer of how the app leads a farmer through the call: it **asks a question, waits for the farmer's answer, takes it, and moves on.** It is a captioned screen recording, with no voice-over.
 
-## Shot list (30 seconds)
+- **The opening is in Hindi, with the app's real voice, uncut.** The greeting, the first question (which district), each picture read aloud, then the "your turn" waiting state, and the farmer's answer. English subtitles give what the Hindi says. This is the only sound in the video.
+- **From the second question the call continues in English, silent.** The captions say what the app is doing. A few questions are shown, then the results and one option. Nothing is cut off mid-sentence, because no speech is played after the Hindi opening.
+- **A 1.2-second splash** with the app's name opens the video: "Field Aide" in white on the app's dark green. It is also the first frame, so it shows before anyone presses play.
+- The judges can try the real thing in the live app we link; the video only explains how it works.
 
-The tool adds the 1.2-second splash in front, so the times below run about a second later in the final file. The whole video, splash included, stays under 30 seconds (about 29.4).
+## Shot list (about 29.5 seconds)
 
-| Time | On screen | Caption (large, English) | Sound |
+| Time | On screen | Caption (English subtitle or explanation) | Sound |
 |---|---|---|---|
-| 0:00–0:01 | **Splash:** "Field Aide" in white on the app's dark green. It is also the first frame, so it shows before anyone presses play. | none (no caption) | none |
-| 0:01–0:03 | Home screen in English | **Field Aide: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
-| 0:03–0:07 | Tap **Tap to speak**. The call starts. | **1. One tap starts a call. The app asks the questions aloud.** | the app's greeting |
-| 0:07–0:15 | Tap **Akola**. Then three quick cuts: what is grown now, where the water comes from, what matters most. Tap a picture each time. | **2. Answer by voice or by touching a picture. Eight short questions.** | the app's voice, cut off by each tap |
-| 0:15–0:20 | The results list appears: four options with coloured year bars and the legend | **3. Four ways to use the field through the year, from 45 years of NASA POWER weather and MODIS satellite data.** | the start of the spoken summary |
-| 0:20–0:25 | Tap the top option: the year bar with hot and dry months. Tap the **Estimated advice** row. | **4. Each colour is a crop, black is an empty field. Every suggestion says what is not checked.** | the row read aloud |
-| 0:25–0:28 | Tap **हिन्दी**: the same screen in Hindi | **Hindi and English.** | none |
-| 0:28–0:30 | Home screen, or a plain end card | **Supports, does not replace, local experts. Next: all of India, more crops, orchards.** and the repo address in text | none |
+| 0:00–0:01 | **Splash:** "Field Aide", white on the app's green | none | none |
+| 0:01–0:03 | Home screen in Hindi, then the tap on **बोलने के लिए दबाइए** | **Field Aide: voice advice for rainfed farmers.** Team Kartik and Amrita, NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
+| 0:03–0:10 | The call starts: the Hindi greeting | **1. The app greets the farmer, in Hindi:** "Hello. I will ask you a few questions about your farm." | the Hindi greeting |
+| 0:10–0:16 | The first question and the three district pictures, each lit as it is read | **2. It asks one question aloud and reads each picture:** "Which district is your farm in?" | the Hindi question and picture names |
+| 0:16–0:18 | The "your turn" state (green microphone), then a tap on **अकोला** | **3. Then it waits for the farmer's answer, spoken or touched.** | none |
+| 0:18–0:22 | The next question appears; tap **English**; two questions answered by touching pictures | **4. It takes the answer and moves on to the next question** (from here in English). Eight questions in all. | none |
+| 0:22–0:25 | The results list: four options, coloured year bars, legend | **5. After the last answer: four ways to use the field through the year,** from 45 years of NASA POWER weather and MODIS satellite data. | none |
+| 0:25–0:27 | One option opened, then the **Estimated advice** row | Each colour is a crop, black is an empty field. Every suggestion says what is not checked. | none |
+| 0:27–0:29.5 | Same screen | **Supports, does not replace, local experts.** Next: all of India, more crops, orchards. | none |
 
-The captions are also in [`docs/demo_captions.srt`](demo_captions.srt) with these timings, so an editor can import them as subtitles instead of typing them.
+The times are approximate: the tool measures them from the recording. The captions are in [`docs/demo_captions.srt`](demo_captions.srt).
 
 ## Recording it automatically (Linux with PipeWire)
 
@@ -49,7 +53,7 @@ python scripts/record_demo.py            # the real recording: the app speaks, s
 
 ## Before recording by hand
 
-- **Record the flow in English.** The app then speaks English, so the sound needs no subtitles. The Hindi appears only at the end, as screen text.
+- **Start the call in Hindi and let the first question finish, uncut; switch to English from the second question** (the language switch at the top works in the middle of a call). Mute or cut the sound after the Hindi opening, and caption what the app says. Hindi speech needs English subtitles.
 - **Record on a phone or a clean window.** Use an Android phone in Chrome, or a Chrome window with a fresh profile and one tab. A normal desktop window shows your other tabs, bookmarks and extensions; the video would show them too.
 - **Capture the device's sound.** Use the phone's screen recorder with "media sound" on, or on a computer a recorder that captures system audio (OBS: desktop audio). Do not use a microphone in a room, which adds echo and noise.
 - **Warm up the engine.** Open the API's `/health` a minute before, then do one throwaway run so the first answer is fast.

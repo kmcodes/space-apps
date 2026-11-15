@@ -1,27 +1,35 @@
 """Records the 30-second demo video of the app (docs/DEMO_SCRIPT.md) as docs/demo/field-aide-demo.mp4.
 
-What you get: a phone-sized screen recording of the voice call, in English, with a tap marker, the app's OWN voice as the only
-sound, and captions in a strip under the phone screen, on a dark portrait canvas (1080x1920).
+What the video explains: how the app leads a farmer through the call. It asks a question aloud, reads each picture, WAITS for
+the farmer's answer (spoken or touched), takes it, and moves on to the next question; after the last answer it shows the options.
+
+What you get: a phone-sized screen recording on a dark portrait canvas (1080x1920) with captions in a strip under the phone.
+  * The first question is shown in HINDI with the app's real voice, allowed to finish (the greeting, the question, each picture
+    read aloud, then the "your turn" waiting state), subtitled in English. This is the only sound in the video.
+  * From the second question the call continues in ENGLISH, silent, with captions that say what the app is doing.
+  * A 1.2-second splash with the app's name in white on the app's green opens the video (it is also the first frame).
 
 How it works
   1. Playwright drives Chrome in a 780x1688 window and records the page. The page is zoomed to double size, so the layout is
      exactly a 390x844 phone's (the app has no width breakpoints) but the recording is sharp: Playwright records at the
      window's size, and a real 2x pixel ratio is not recorded. Chrome is started WITHOUT Playwright's default "disable
-     extensions" switches, because Chrome's Google voices need them off.
+     extensions" switches, because Chrome's Google voices need them off, and with a fake microphone so the call can wait for an
+     answer without a permission message.
   2. At the same time PipeWire (pw-record) records what the computer plays, which is the app's voice. Keep the computer quiet
      while it runs (no notifications, music or calls), because everything that is played is recorded.
-  3. ffmpeg keeps the parts that matter (jump cuts, so the whole call fits in under 30 seconds), joins the sound to the same
-     parts, adds the captions and writes the MP4.
+  3. A sync mark (a magenta flash and a beep at the same instant) tells the script exactly how the picture and the sound lag the
+     page clock, so they stay together after cutting.
+  4. ffmpeg keeps the parts that matter (jump cuts), keeps the sound of the Hindi part only, adds the splash and the captions,
+     and writes the MP4 (under 30 seconds in all).
 
---silent is for testing: Chrome stays muted, nothing is recorded or played, and the video has no sound track. The picture,
-the timing and the captions are the same, so it is safe to run while others are working.
+--silent is for testing: Chrome stays muted, nothing is recorded or played, and the video has no sound track.
 
-If the app's screens or wording change, edit LABELS and STEPS below (they are the only places that name on-screen text).
+If the app's screens or wording change, edit LABELS, HINDI_STEP and ENGLISH_STEPS below (the only places that name on-screen
+text). tests/test_record_demo.py fails if a label the script looks for is no longer in the app.
 
 Needs: pip install playwright and `playwright install ffmpeg` (Playwright's own video encoder), the installed Chrome, ffmpeg
 and (unless --silent) pw-record and wpctl (PipeWire). The engine API and the web app must be running (default
-http://localhost:3000); open the API's /health first so it is awake. Linux with PipeWire. On another system, record the phone
-yourself and caption it with docs/demo_captions.srt (see docs/DEMO_SCRIPT.md).
+http://localhost:3000); open the API's /health first so it is awake. Linux with PipeWire.
 
     python scripts/record_demo.py [app url] [--channel chrome] [--headed] [--silent]
 """
@@ -42,21 +50,26 @@ SPLASH_BG = "0x1f4a1c"  # the app's dark green (--color-forest in web/app/global
 APP_NAME = "Field Aide"
 SPLASH_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
-# Everything on screen that the script looks for, in one place (English, because the video is recorded in English).
+# Everything on screen that the script looks for, in one place.
 LABELS = {
-    "start": "Tap to speak",           # the button that starts the call
-    "results": "Touch an option",      # a line that is on the results list and nowhere else
-    "estimate": "Estimated advice",    # the row opened on one option
-    "hindi": "हिन्दी",                  # the language switch, to show the Hindi screen at the end
+    "start": "बोलने के लिए दबाइए",      # the button that starts the call (the call starts in Hindi)
+    "waiting": "आपकी बारी",             # shown while the app waits for the farmer's answer (Hindi)
+    "english": "English",               # the language switch, to carry on in English
+    "results": "Touch an option",       # a line that is on the results list (English) and nowhere else
+    "estimate": "Estimated advice",     # the row opened on one option (English)
     "language_key": "field-shift-lang",  # the browser storage key that holds the chosen language
 }
-# (the tile to tap, seconds to show its question first). The first few are readable; the rest go by quickly.
-STEPS = [("Akola", 0.9), ("Soybean, then empty field", 1.0), ("Rain only", 0.9), ("Save water", 0.9),
-         ("Fodder for animals", 0.4), ("Low", 0.3), ("No", 0.3), ("At the mandi", 0.3)]
+# The first question, in Hindi: (the tile to tap).
+HINDI_STEP = "अकोला"
+# From the second question, in English: (the tile to tap, seconds to show its question first). The first two are shown on
+# screen; the rest are tapped through quickly and cut out of the video.
+ENGLISH_STEPS = [("Soybean, then empty field", 0.7), ("Rain only", 0.7), ("Save water", 0.3), ("Fodder for animals", 0.3),
+                 ("Low", 0.3), ("No", 0.3), ("At the mandi", 0.3)]
+SHOWN_ENGLISH_STEPS = 2  # how many of ENGLISH_STEPS the video shows
 
-# English as the language, a visible tap marker, and no development badge. The voice is left alone: it is the real one.
+# Hindi as the language to begin with, a visible tap marker, and no development badge. The voice is left alone: it is the real one.
 INIT = """
-localStorage.setItem('%(language_key)s', 'en');
+localStorage.setItem('%(language_key)s', 'hi');
 document.addEventListener('DOMContentLoaded', () => {
   const s = document.createElement('style');
   s.textContent = `html { zoom: 2 } nextjs-portal { display: none !important }
@@ -71,7 +84,6 @@ document.addEventListener('pointerdown', (e) => {
   document.body.appendChild(d); setTimeout(() => d.remove(), 800);
 }, true);
 """ % LABELS
-
 
 # A sync mark at the start: a one-frame magenta flash and a 1 kHz beep, started in the same instant. The script finds the flash
 # in the video and the beep in the sound, which tells it exactly how each lags the page clock (Playwright's video starts about
@@ -133,13 +145,12 @@ def record(url, channel, headed, silent):
     for old in list(raw.glob("*.webm")) + list(raw.glob("*.wav")):
         old.unlink()
     wav = None if silent else raw / "sound.wav"
-    rec, t_audio = None, time.monotonic()
+    rec = None
     if wav:
         rec = subprocess.Popen(["pw-record", "--target", default_sink_id(), "-P", "stream.capture.sink=true", "--rate", "48000", "--channels", "2", str(wav)])
-        t_audio = time.monotonic()
         time.sleep(0.6)
     try:
-        video, marks, t_page = _record_page(url, channel, headed, silent, raw)
+        video, marks = _record_page(url, channel, headed, silent, raw)
     finally:
         # Always stop the audio recorder, even after an error, or it keeps running.
         if rec is not None and rec.poll() is None:
@@ -159,12 +170,12 @@ def _record_page(url, channel, headed, silent, raw):
     marks = {}
     # Chrome's Google voices need extensions on. Muting is kept only for --silent.
     ignore = ["--disable-extensions", "--disable-component-extensions-with-background-pages"] + ([] if silent else ["--mute-audio"])
+    args = ["--autoplay-policy=no-user-gesture-required", "--use-fake-ui-for-media-stream", "--use-fake-device-for-media-stream"]
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel=channel, headless=not headed, ignore_default_args=ignore,
-                                    args=["--autoplay-policy=no-user-gesture-required"])
+        browser = p.chromium.launch(channel=channel, headless=not headed, ignore_default_args=ignore, args=args)
         ctx = browser.new_context(
-            viewport={"width": 780, "height": 1688}, device_scale_factor=1, is_mobile=True, has_touch=True, locale="en-IN",
-            record_video_dir=str(raw), record_video_size={"width": 780, "height": 1688},
+            viewport={"width": 780, "height": 1688}, device_scale_factor=1, is_mobile=True, has_touch=True, locale="hi-IN",
+            permissions=["microphone"], record_video_dir=str(raw), record_video_size={"width": 780, "height": 1688},
         )
         ctx.add_init_script(INIT)
         t_page = time.monotonic()
@@ -172,11 +183,22 @@ def _record_page(url, channel, headed, silent, raw):
         now = lambda: time.monotonic() - t_page  # noqa: E731
 
         def need(what, locator, timeout=30000):
-            """Wait for something on screen; say plainly which label to fix in LABELS or STEPS if it never shows."""
+            """Wait for something on screen; say plainly which label to fix in LABELS or the steps if it never shows."""
             try:
                 locator.wait_for(timeout=timeout)
             except Exception:
-                sys.exit(f"the screen never showed {what!r}: the app's wording may have changed; edit LABELS or STEPS in this script")
+                sys.exit(f"the screen never showed {what!r}: the app's wording may have changed; edit LABELS or the steps in this script")
+
+        def next_tile(label, previous):
+            """The tile for the next question: wait until the heading has changed, so a tile of the question just answered
+            (still on screen for a moment after the tap) is never tapped by mistake."""
+            try:
+                page.wait_for_function("prev => { const h = document.querySelector('h2'); return !!h && h.textContent !== prev; }", arg=previous, timeout=30000)
+            except Exception:
+                sys.exit(f"no new question appeared before {label!r}: the question order or wording may have changed; edit the steps")
+            tile = page.locator("ul button", has_text=label).first
+            need(label, tile)
+            return tile
 
         page.goto(url, wait_until="networkidle")
         start_button = page.get_by_role("button", name=LABELS["start"])
@@ -188,88 +210,105 @@ def _record_page(url, channel, headed, silent, raw):
         marks["sync"] = now()
         page.wait_for_timeout(700)  # the flash and the beep are over before the home screen is used
         marks["home"] = now()
-        page.wait_for_timeout(1300)  # the home screen for a moment
+        page.wait_for_timeout(1000)  # the home screen for a moment
 
+        # 1. The call starts in Hindi: the greeting, then the first question read aloud, picture by picture, then the wait.
         marks["tap_start"] = now()
         start_button.click()
+        tile = next_tile(HINDI_STEP, "")
+        marks["q1_visible"] = now()  # the greeting is over and the first question appears
+        need(LABELS["waiting"], page.get_by_text(LABELS["waiting"]), timeout=60000)  # the question and the pictures have been read
+        marks["waiting"] = now()
+        page.wait_for_timeout(1500)  # the app waiting for the farmer's answer
+        marks["first_answer"] = now()
+        tile.click()
+        previous = page.locator("h2").first.text_content()
 
+        # 2. The next question appears; carry on in English.
+        page.wait_for_function("prev => { const h = document.querySelector('h2'); return !!h && h.textContent !== prev; }", arg=previous, timeout=30000)
+        page.wait_for_timeout(300)
+        marks["tap_english"] = now()
+        page.get_by_role("button", name=LABELS["english"]).click()
         previous = ""
-        for i, (label, hold) in enumerate(STEPS):
-            # Wait until the heading has changed, so a tile of the question just answered (still on screen for a moment
-            # after the tap) is never tapped by mistake.
+        for i, (label, hold) in enumerate(ENGLISH_STEPS):
             try:
-                page.wait_for_function("prev => { const h = document.querySelector('h2'); return !!h && h.textContent !== prev; }", arg=previous, timeout=30000)
+                page.wait_for_function("prev => { const h = document.querySelector('h2'); return !!h && /[A-Za-z]/.test(h.textContent) && h.textContent !== prev; }", arg=previous, timeout=30000)
             except Exception:
-                sys.exit(f"no new question appeared before {label!r}: the question order or wording may have changed; edit STEPS")
+                sys.exit(f"no English question appeared before {label!r}; edit ENGLISH_STEPS")
             tile = page.locator("ul button", has_text=label).first
             need(label, tile)
             previous = page.locator("h2").first.text_content()
-            if i == 0:
-                marks["q1_visible"] = now()
             page.wait_for_timeout(int(hold * 1000))
-            if i == 0:
-                marks["first_answer"] = now()
             tile.click()
+            if i == SHOWN_ENGLISH_STEPS - 1:
+                marks["english_shown_end"] = now()
         marks["last_tap"] = now()
         need(LABELS["results"], page.get_by_text(LABELS["results"]), timeout=120000)
         marks["results"] = now()
-        page.wait_for_timeout(4400)  # the results list while the summary starts to be read
+        page.wait_for_timeout(3000)  # the results list
 
         marks["tap_option"] = now()
         page.locator("ul li button").first.click()
-        page.wait_for_timeout(1700)
+        page.wait_for_timeout(1300)
         marks["tap_estimate"] = now()
         row = page.locator("ol button", has_text=LABELS["estimate"]).first
         need(LABELS["estimate"], row)
         row.click()
-        page.wait_for_timeout(3300)
-
-        marks["tap_hindi"] = now()
-        page.get_by_role("button", name=LABELS["hindi"]).click()
-        page.wait_for_timeout(3300)  # long enough to hear the Hindi voice start and to read its subtitle
+        page.wait_for_timeout(3400)
         marks["end"] = now()
         video = page.video.path()
         ctx.close()
         browser.close()
-    return Path(video), marks, t_page
+    return Path(video), marks
 
 
 def plan(m):
-    """The parts to keep, as (start, end) in page time: a jump-cut edit of the whole call."""
-    return [
-        (m["home"] + 0.3, m["tap_start"] + 2.6),           # home screen, the tap, the start of the greeting
-        (m["q1_visible"] - 0.3, m["last_tap"] + 0.9),      # the questions, answered one after another
-        (m["results"] - 0.2, m["results"] + 3.6),          # the results list, summary starting
-        (m["tap_option"] - 0.3, m["tap_estimate"] + 3.0),  # one option, then the "estimated advice" row
-        (m["tap_hindi"] - 0.2, m["end"]),                  # the same screen in Hindi
+    """The parts to keep, as (start, end, with_sound) in page time: a jump-cut edit of the whole call. Only the Hindi opening
+    keeps its sound; the English parts are silent and explained by captions. If the cut would run over the limit, the tails of
+    the last two parts are shortened a little."""
+    parts = [
+        [m["home"], m["first_answer"] + 0.8, True],                  # the Hindi opening: greeting, question, pictures, the wait, the answer
+        [m["tap_english"] - 0.5, m["english_shown_end"] + 0.8, False],  # the language switch, then two English questions answered
+        [m["results"] - 0.2, m["results"] + 2.6, False],             # the results list
+        [m["tap_option"] - 0.3, m["tap_estimate"] + 3.4, False],     # one option, then the "estimated advice" row
     ]
+    over = sum(b - a for a, b, _ in parts) + LEAD - MAX_SECONDS
+    if over > 0:
+        cut_last = min(over, 1.2)
+        parts[3][1] -= cut_last
+        over -= cut_last
+    if over > 0:
+        parts[2][1] -= min(over, 0.6)
+    return [tuple(p) for p in parts]
 
 
 def captions(parts, m):
     """Captions timed on the EDITED video: where each part starts is the sum of the parts before it, after the LEAD-second splash.
+    They explain the call in order: the app asks, reads the pictures, waits for the answer, takes it and moves on.
     Returns (list of (start, end, text), length of the film without the splash)."""
     starts, t = [], 0.0
-    for a, b in parts:
+    for a, b, _ in parts:
         starts.append(t)
         t += b - a
     total = t
 
     def edited(page_time):
-        for (a, b), s in zip(parts, starts):
+        for (a, b, _), s in zip(parts, starts):
             if a <= page_time <= b:
                 return s + (page_time - a)
         raise ValueError(f"{page_time} is not inside a kept part")
 
-    e_tap = edited(m["tap_start"])
-    e_first = edited(m["first_answer"])
+    e_tap, e_q1, e_wait, e_first = (edited(m[k]) for k in ("tap_start", "q1_visible", "waiting", "first_answer"))
+    e_greet = min(e_tap + 0.9, e_q1 - 0.5)  # the Hindi voice starts a moment after the tap
     caps = [
-        (0.0, e_tap, "Field Aide: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
-        (e_tap, e_first, "1. One tap starts a call.\nThe app asks the questions aloud."),
-        (e_first, starts[2], "2. Answer by voice or by touching a picture.\nEight short questions."),
-        (starts[2], starts[3], "3. Four ways to use the field through the year,\nfrom 45 years of NASA POWER weather\nand MODIS satellite data."),
-        (starts[3], starts[4], "4. Each colour is a crop, black is an empty field.\nEvery suggestion says what is not checked."),
-        (starts[4], total - 2.0, "Also in Hindi:\n\u201cSoybean, then sorghum. This is an estimated suggestion.\u201d"),
-        (total - 2.0, total, "Supports, does not replace, local experts.\nNext: all of India, more crops, orchards."),
+        (0.0, e_greet, "Field Aide: voice advice for rainfed farmers\nTeam Kartik and Amrita | NASA Space Apps 2026\nAdapting Farms with NASA Data"),
+        (e_greet, e_q1, "1. The app greets the farmer, in Hindi:\n“Hello. I will ask you a few questions\nabout your farm.”"),
+        (e_q1, e_wait, "2. It asks one question aloud and reads each picture:\n“Which district is your farm in?”"),
+        (e_wait, e_first, "3. Then it waits for the farmer's answer,\nspoken or touched."),
+        (e_first, starts[2], "4. It takes the answer and moves on to the next question\n(from here in English). Eight questions in all."),
+        (starts[2], starts[3], "5. After the last answer: four ways to use the field through the year,\nfrom 45 years of NASA POWER weather and MODIS satellite data."),
+        (starts[3], total - 2.2, "Each colour is a crop, black is an empty field.\nEvery suggestion says what is not checked."),
+        (total - 2.2, total, "Supports, does not replace, local experts.\nNext: all of India, more crops, orchards."),
     ]
     return [(a + LEAD, b + LEAD, text) for a, b, text in caps], total
 
@@ -282,9 +321,10 @@ def write_srt(caps):
 
 
 def compose(video, wav, dv, da, parts, srt, out):
-    """Cut and join the parts, put the phone screen on a dark canvas, add the captions (and the sound, if there is any)."""
+    """Cut and join the parts, put the phone screen on a dark canvas, add the splash and the captions, and the sound of the
+    parts that keep it (the other parts get silence)."""
     n = len(parts)
-    vparts = "".join(f"[0:v]trim=start={a + dv:.3f}:end={b + dv:.3f},setpts=PTS-STARTPTS[v{i}];" for i, (a, b) in enumerate(parts))
+    vparts = "".join(f"[0:v]trim=start={a + dv:.3f}:end={b + dv:.3f},setpts=PTS-STARTPTS[v{i}];" for i, (a, b, _) in enumerate(parts))
     vin = "".join(f"[v{i}]" for i in range(n))
     style = "FontName=DejaVu Sans,FontSize=7,Bold=1,PrimaryColour=&H00FFFFFF,BorderStyle=1,Outline=0,Shadow=0,Alignment=2,MarginV=12,MarginL=8,MarginR=8"
     fc = (
@@ -299,12 +339,14 @@ def compose(video, wav, dv, da, parts, srt, out):
     )
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(video)]
     if wav is not None:
-        aparts = "".join(
-            f"[1:a]atrim=start={a + da:.3f}:end={b + da:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st={max(0, b - a - 0.05):.3f}:d=0.05[a{i}];"
-            for i, (a, b) in enumerate(parts)
-        )
+        pieces = []
+        for i, (a, b, with_sound) in enumerate(parts):
+            if with_sound:
+                pieces.append(f"[1:a]atrim=start={a + da:.3f}:end={b + da:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st={max(0, b - a - 0.08):.3f}:d=0.08[a{i}];")
+            else:
+                pieces.append(f"anullsrc=r=48000:cl=stereo,atrim=duration={b - a:.3f}[a{i}];")
         ain = "".join(f"[a{i}]" for i in range(n))
-        fc = (aparts + f"{ain}concat=n={n}:v=0:a=1,loudnorm=I=-16:TP=-1.5[speech];"
+        fc = ("".join(pieces) + f"{ain}concat=n={n}:v=0:a=1[speech];"
               f"anullsrc=r=48000:cl=stereo,atrim=duration={LEAD}[quiet];[quiet][speech]concat=n=2:v=0:a=1[aa];" + fc)
         cmd += ["-i", str(wav)]
     cmd += ["-filter_complex", fc, "-map", "[out]"]
@@ -328,10 +370,10 @@ def main():
     compose(video, wav, dv, da, parts, srt, out)
     print("marks", {k: round(v, 1) for k, v in marks.items()})
     print("video lags the page clock by", round(dv, 2), "s; sound by", round(da, 2), "s")
-    print("parts", [(round(a, 1), round(b, 1)) for a, b in parts])
-    print("edited length", round(total, 1), "s ->", out)
-    if total > MAX_SECONDS:
-        print("WARNING: longer than", MAX_SECONDS, "s; the video was cut at that length. Shorten the holds in STEPS.")
+    print("parts", [(round(a, 1), round(b, 1), s) for a, b, s in parts])
+    print("length", round(total + LEAD, 1), "s with the splash ->", out)
+    if total + LEAD > MAX_SECONDS:
+        print("WARNING: longer than", MAX_SECONDS, "s; the video was cut at that length. Shorten the holds in the steps.")
 
 
 if __name__ == "__main__":

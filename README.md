@@ -137,7 +137,7 @@ Not done yet:
 
 - **The map is Google's keyless embed**, which is not an official, supported product, and the browser sends the farm's coordinates (rounded to about 100 m) to Google when it loads. Phone location needs HTTPS. Without a map, the app still works from the district tiles.
 - **Speech is the browser's built-in Hindi**, not Sarvam. It works best in Chrome or Edge on Android. Sarvam speech-to-text and text-to-speech is planned and needs an account and key.
-- **Deployment.** Live since 15 Nov 2026: app at https://field-shift-opal.vercel.app, engine API at https://space-apps-dzma.onrender.com (free tier: it sleeps when idle, so the first request can take about 30 seconds). Neither redeploys automatically on push yet; see `web/README.md`.
+- **Deployment.** Live since 15 Nov 2026: app at https://field-shift-opal.vercel.app, engine API at https://space-apps-dzma.onrender.com (free tier: it sleeps when idle, so the first request can take about 30 seconds). They redeploy after a push only while the watcher script runs on Amrita's PC; see `web/README.md`.
 - **All Hindi text is machine-drafted and has not been reviewed by a native speaker.** Marathi, the real language of the region, waits for a native reviewer.
 - **Crop pictures are drawn placeholders.** Real drawings or photos are needed.
 - **The engine ignores the water source** the farmer gives (see the engine review in docs/discussions.md).

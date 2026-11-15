@@ -27,8 +27,8 @@ Field Shift supports, and does not replace, the judgement of farmers and local a
 ## Links
 
 - Demo video: **[FILL after upload]**
-- Repository: https://github.com/kmcodes/space-apps **[FILL: confirm it is public before submitting]**
-- Live app: none. The app runs locally and is not deployed. State this plainly if the form asks.
+- Repository: https://github.com/kmcodes/space-apps (public: it clones without a login, checked 15 Nov)
+- Live app: https://field-shift-opal.vercel.app (engine API https://space-apps-dzma.onrender.com; free tier, wakes in about 30 seconds after a quiet spell, so open it a minute before judging)
 
 ## Feature-to-brief mapping
 

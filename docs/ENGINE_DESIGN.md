@@ -12,24 +12,24 @@ Anti-goals (a failure even if it runs): an invented number; a strategy shown wit
 
 **Farmer inputs** (from the dashboard or voice flow)
 
-| Input | Values |
-|---|---|
-| location | lat/lon of the plot (from phone GPS or a map pin). Districts akola, buldhana, washim remain as presets that fill in our three farm points |
-| current rotation | soybean_fallow (default), cotton, soybean_chickpea, ... |
-| water source | rainfed, well, canal_tank |
-| priority (1, optional 2nd) | water_saving, forage, nitrogen, erosion, organic_matter, market_income |
-| constraints | water_availability low/medium/high; equipment basic/sprayer; market_preference mandi/buyer/own_use |
+| Input                      | Values                                                                                                                                    |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| location                   | lat/lon of the plot (from phone GPS or a map pin). Districts akola, buldhana, washim remain as presets that fill in our three farm points |
+| current rotation           | soybean_fallow (default), cotton, soybean_chickpea, ...                                                                                   |
+| water source               | rainfed, well, canal_tank                                                                                                                 |
+| priority (1, optional 2nd) | water_saving, forage, nitrogen, erosion, organic_matter, market_income                                                                    |
+| constraints                | water_availability low/medium/high; equipment basic/sprayer; market_preference mandi/buyer/own_use                                        |
 
 **Data** (all already in the repo)
 
-| File | Gives |
-|---|---|
+| File                                                          | Gives                                                                                                                              |
+| ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | `data/processed/features_yearly.csv`, `features_summary.json` | per year: onset, withdrawal, kharif rain, dry spells, heat days, post-monsoon root wetness, cold and frost days (POWER, 1981-2025) |
-| `data/processed/power_<point>.csv` | daily weather, for stage-window calculations |
-| `data/processed/ndvi.csv` | MODIS NDVI, 2015-2025, bare window and winter greenness |
-| `data/processed/soil.csv` | clay, sand, silt, pH, SOC stock per point |
-| `data/crops.csv` | per-crop traits and validity flags (Amrita's sheet) |
-| `data/processed/mandi_monthly.csv`, `data/msp.csv` | prices and MSP |
+| `data/processed/power_<point>.csv`                            | daily weather, for stage-window calculations                                                                                       |
+| `data/processed/ndvi.csv`                                     | MODIS NDVI, 2015-2025, bare window and winter greenness                                                                            |
+| `data/processed/soil.csv`                                     | clay, sand, silt, pH, SOC stock per point                                                                                          |
+| `data/crops.csv`                                              | per-crop traits and validity flags (Amrita's sheet)                                                                                |
+| `data/processed/mandi_monthly.csv`, `data/msp.csv`            | prices and MSP                                                                                                                     |
 
 ## 2b. Input flow: voice inside the mobile app, location from the phone
 
@@ -52,35 +52,14 @@ The voice is an interface **inside the mobile app, which is a PWA** (installable
 
 **To verify at build time:** that the Sarvam STT/TTS calls work inside the same page as the Geolocation prompt, handles mic and location permissions cleanly on a real Android phone, and supports Hindi now and Marathi later. Demo on a real phone, not a laptop: desktop browsers often return Wi-Fi/IP locations that are kilometres off.
 
-## 2c. Coverage: which GPS points we can serve (tiles and snapping)
-
-Measured 14 Nov 2026. The downloaded soil tile covers **208 km east-west by 221 km north-south (about 46,000 km2), at 250 m pixels** (lon 76.058-78.058, lat 19.75-21.75). All three presets are inside it.
-
-| Layer | What we have | For a GPS point |
-|---|---|---|
-| Soil (SoilGrids) | the tile above | sampled at the point itself, **plot-scale (250 m)**, anywhere in the tile |
-| Weather features (POWER, ERA5) | computed at 3 points; grids are ~25-50 km | snapped to the nearest preset |
-| NDVI (MODIS) | 3 points (a region-wide area request is possible later) | snapped to the nearest preset |
-| Mandi prices | by district | nearest preset's district markets |
-| Crop windows (CRIDA) | one zone covering Akola, Buldhana, Washim | applies inside that zone only |
-
-The presets cover little of the tile: within 10 km of a preset is 2% of it, 25 km is 12%, 50 km is 37%, 100 km is 78%. The farthest point is 166 km from a preset.
-
-**Rule for now (data-driven, so adding tiles later needs no code change):**
-1. A **tile registry** lists each covered tile (bounds, resolution, source). Adding a tile later means adding one entry and its data.
-2. A point is **served** if it is inside the soil tile **and** within `MAX_SNAP_KM` (default 50 km) of a preset. Inside the tile but farther than that: "outside the areas we have built data for yet (Akola, Washim, Buldhana)".
-3. Every result states the **distance to the nearest preset** and each layer's level: "your spot (250 m)" for soil, "area (snapped, N km away)" for the rest. Evidence lines carry that resolution.
-4. A snapped layer more than 25 km from its preset is marked `degraded`.
-5. Product version later: more tiles, a region-wide NDVI raster, and weather fetched live for any point; the 50 km limit then goes away.
-
 ## 3. The four strategies (defined as data, not code)
 
-| id | name | crops and timing |
-|---|---|---|
-| S0 | Existing | farmer's current rotation (default soybean then fallow) |
-| S1 | Soybean then chickpea | soybean sown 15 Jun-15 Jul, chickpea sown 1-15 Oct |
-| S2 | Cotton + pigeon pea intercrop | both sown 15 Jun-10 Jul |
-| S3 | Soybean then sorghum / cover crop | sorghum (rabi) or sunn hemp / horse gram after soybean |
+| id  | name                              | crops and timing                                        |
+| --- | --------------------------------- | ------------------------------------------------------- |
+| S0  | Existing                          | farmer's current rotation (default soybean then fallow) |
+| S1  | Soybean then chickpea             | soybean sown 15 Jun-15 Jul, chickpea sown 1-15 Oct      |
+| S2  | Cotton + pigeon pea intercrop     | both sown 15 Jun-10 Jul                                 |
+| S3  | Soybean then sorghum / cover crop | sorghum (rabi) or sunn hemp / horse gram after soybean  |
 
 Each strategy is a list of (crop, role, sow window, duration) rows from `crops.csv`. Harvest = sowing + duration. The engine always shows all four. A strategy that fails a hard check is shown with a red flag and the reason, never hidden (the brief asks to compare at least three).
 
@@ -90,20 +69,20 @@ Per strategy, per year (1981-2025), compute component scores 0-100, then combine
 
 ### 4.1 Components (each traceable to named inputs)
 
-| Component | How it is computed | Inputs | Validity of inputs |
-|---|---|---|---|
-| `water_fit` | available water / crop need. Kharif crops: seasonal rain from onset vs `water_need_mm`. Rabi crops: residual moisture proxy (`wet_root_days_oct_dec`, `post_monsoon_gwetroot_mean`) scaled by clay (water-holding), vs a low rabi need | POWER, soil, crops | POWER degraded (50 km); GWETROOT is a modelled index; chickpea/sorghum need figures partly unverified |
-| `timing_fit` | does the sowing window fall after onset and does harvest land before the heat season. Uses onset and withdrawal distribution and the crop's duration | POWER, crops | degraded |
-| `heat_risk` (inverted) | days with `T2M_MAX` above `heat_threshold_c` inside the crop's sensitive stage window | POWER daily, crops | thresholds **unverified** |
-| `dry_spell_risk` (inverted) | whether a dry run of 10+ days overlaps the sensitive stage | POWER daily, crops | stage windows **unverified** |
-| `bare_days` (inverted) | days per year with no crop between harvest and next sowing, from the crop calendar. Cross-checked against NDVI Apr-May low | crops, NDVI | NDVI valid but 250 m mixed pixel |
-| `nitrogen` | midpoint of `n_fix_kg_ha` range, scaled 0-100 | crops | mostly unverified |
-| `erosion_cover` | `ground_cover` and `residue` ratings plus bare days | crops | ratings unverified |
-| `organic_matter` | `residue` rating, cover, with soil SOC as context only | crops, soil | ratings unverified |
-| `forage` | `fodder_value` rating | crops | unverified |
-| `market` | recent modal price vs MSP, and price spread (min-max) as volatility | mandi, msp | prices valid; price is a proxy, **no cost data so no margin** |
-| `pest_break` | rule: legume after cereal/oilseed, or deep-rooted legume with cotton, scores high; same family repeated scores low | crops | judgement, **unverified** |
-| `equipment_fit` | `equipment` field vs farmer's equipment | crops | judgement |
+| Component                   | How it is computed                                                                                                                                                                                                                     | Inputs             | Validity of inputs                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `water_fit`                 | available water / crop need. Kharif crops: seasonal rain from onset vs `water_need_mm`. Rabi crops: residual moisture proxy (`wet_root_days_oct_dec`, `post_monsoon_gwetroot_mean`) scaled by clay (water-holding), vs a low rabi need | POWER, soil, crops | POWER degraded (50 km); GWETROOT is a modelled index; chickpea/sorghum need figures partly unverified |
+| `timing_fit`                | does the sowing window fall after onset and does harvest land before the heat season. Uses onset and withdrawal distribution and the crop's duration                                                                                   | POWER, crops       | degraded                                                                                              |
+| `heat_risk` (inverted)      | days with `T2M_MAX` above `heat_threshold_c` inside the crop's sensitive stage window                                                                                                                                                  | POWER daily, crops | thresholds **unverified**                                                                             |
+| `dry_spell_risk` (inverted) | whether a dry run of 10+ days overlaps the sensitive stage                                                                                                                                                                             | POWER daily, crops | stage windows **unverified**                                                                          |
+| `bare_days` (inverted)      | days per year with no crop between harvest and next sowing, from the crop calendar. Cross-checked against NDVI Apr-May low                                                                                                             | crops, NDVI        | NDVI valid but 250 m mixed pixel                                                                      |
+| `nitrogen`                  | midpoint of `n_fix_kg_ha` range, scaled 0-100                                                                                                                                                                                          | crops              | mostly unverified                                                                                     |
+| `erosion_cover`             | `ground_cover` and `residue` ratings plus bare days                                                                                                                                                                                    | crops              | ratings unverified                                                                                    |
+| `organic_matter`            | `residue` rating, cover, with soil SOC as context only                                                                                                                                                                                 | crops, soil        | ratings unverified                                                                                    |
+| `forage`                    | `fodder_value` rating                                                                                                                                                                                                                  | crops              | unverified                                                                                            |
+| `market`                    | recent modal price vs MSP, and price spread (min-max) as volatility                                                                                                                                                                    | mandi, msp         | prices valid; price is a proxy, **no cost data so no margin**                                         |
+| `pest_break`                | rule: legume after cereal/oilseed, or deep-rooted legume with cotton, scores high; same family repeated scores low                                                                                                                     | crops              | judgement, **unverified**                                                                             |
+| `equipment_fit`             | `equipment` field vs farmer's equipment                                                                                                                                                                                                | crops              | judgement                                                                                             |
 
 Components that rely only on unverified inputs still score, but their evidence lines carry the `unverified` flag and lower the strategy's confidence.
 
@@ -113,16 +92,17 @@ Base weights (balanced farmer): `water_fit` 20, `timing_fit` 10, `heat_risk` 10,
 
 Priority multiplier on the matching components, then renormalise to 100:
 
-| Priority | Boosts (x2.5 first priority, x1.5 second) |
-|---|---|
-| water_saving | `water_fit`, `dry_spell_risk` |
-| forage | `forage` |
-| nitrogen | `nitrogen`, `pest_break` |
-| erosion | `erosion_cover`, `bare_days` |
-| organic_matter | `organic_matter`, `bare_days` |
-| market_income | `market` |
+| Priority       | Boosts (x2.5 first priority, x1.5 second) |
+| -------------- | ----------------------------------------- |
+| water_saving   | `water_fit`, `dry_spell_risk`             |
+| forage         | `forage`                                  |
+| nitrogen       | `nitrogen`, `pest_break`                  |
+| erosion        | `erosion_cover`, `bare_days`              |
+| organic_matter | `organic_matter`, `bare_days`             |
+| market_income  | `market`                                  |
 
 Constraints:
+
 - water_availability = low: `water_fit` weight x1.5 and a **red flag** on any strategy whose crop need exceeds the supply estimate. rainfed implies low for rabi.
 - equipment = basic: strategies needing a sprayer get `equipment_fit` 0 and a flag.
 - market_preference: adjusts `market` (mandi uses APMC price; own_use sets `market` to forage/food value instead). **[needs your call]**
@@ -234,23 +214,3 @@ Response: for each of 4 strategies: `name`, `total_score`, `score_band` (p20/p80
 - Crop traits are generalised; many are unverified.
 - Cross-check against ERA5 (independent reanalysis): both datasets show a significant rainfall rise (about 53-92 mm/decade) but they **disagree on temperature trend** and on **heat-day counts** (days above 40 C in Mar-May differ by up to 5x between datasets). Trends are not used for scoring, and any heat-day figure must be shown as a range with the `degraded` flag.
 - Scores rank hypotheses, they do not predict yield or profit.
-
-## 13. Implementation status (14 Nov 2026, evening)
-
-Built test-first in `engine/` and `api/` (134 tests). Run: `pytest`; `uvicorn api.main:app`.
-
-**Built:** crop loader (blank is `None`, never zero); the four strategies as data (with duplicate-of-S1 flag); six components: `water_fit`, `timing_fit` (with hand-off check between crops), `bare_days`, `nitrogen`, `forage`, `market`; weights with a fixed 40% (first) and 20% (second) priority share; the accepted combining rules (sequence = worse crop for risks and day-weighted average for benefits; mixed = main crop plus 30% of partner water; S3 variants scored separately); per-year scoring over 1981-2025 giving a median, p20-p80 band and rank stability; ERA5 cross-check on the components scored under both sources; evidence lines; template cards; coverage rule (tile registry, 50 km snap limit); `POST /compare`, `GET /health`.
-
-**Rules added during the build (not in the first design):**
-- **Data coverage.** A missing component used to be dropped and the rest renormalised, which let a gap flatter a strategy (Washim S2 topped a market-priority ranking because cotton prices are missing). Now each strategy reports `data_coverage`; below 70% it is `incomplete`, shown with its score but **not ranked**.
-- **Tie rule.** Strategies within 5 points of the top are reported as `tied_with_top`.
-- **No onset found** in a weather year is treated as a late monsoon (flag `no_onset_found`).
-- **Like-for-like cross-check:** `power_comparable` and `era5` use only components scored under both sources.
-
-**Not built yet (from this design):** `heat_risk` and `dry_spell_risk` components (the data is in `features_ranges.json`; the crop heat thresholds are in `docs/crop_gap_research.md`), pest-break and organic-matter components, equipment fit as a score (it is a card flag only), scenario slider, LLM narration and the number check, per-language text files, plot-scale soil at a GPS point (the soil rasters are in `data/raw/`, which is gitignored, so a server would need them bundled), the web app and voice.
-
-**Known weaknesses of the numbers (read before trusting a ranking):**
-- Rabi `water_fit` is a proxy from wet root-zone days against assumed need (`RABI_WET_DAYS_NEEDED`), not a water balance. It saturates at 100 in most years, so under a water-saving priority it can decide the ranking. It is always labelled `unverified`.
-- Kharif `water_fit` also saturates: median rain (750-820 mm) exceeds crop need (450-700 mm), so weather barely separates strategies; ratings from the crop sheet do. The per-year band shows the dry-year risk.
-- Confidence is grey for most strategies because most crop fields are still `unverified`. It will improve as `crops.csv` gaps are filled.
-- Every penalty size and weight in `engine/config.py` is an assumption to review.

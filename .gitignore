@@ -12,3 +12,7 @@ process_log.md
 secrets.md
 data/usage.jsonl
 .deploy/
+
+# demo video: raw footage and test renders (the final video and its captions can be committed)
+docs/demo/raw/
+docs/demo/*-test.mp4

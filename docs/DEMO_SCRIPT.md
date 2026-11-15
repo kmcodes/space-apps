@@ -28,7 +28,23 @@ A screen recording of the app being used, from the first tap to the results page
 
 The captions are also in [`docs/demo_captions.srt`](demo_captions.srt) with these timings, so an editor can import them as subtitles instead of typing them.
 
-## Before recording
+## Recording it automatically (Linux with PipeWire)
+
+`scripts/record_demo.py` makes the whole video: it drives Chrome at phone size through the call (with a visible tap marker), records the screen, records the app's own voice from the computer's audio output, cuts it down to under 30 seconds, and adds the captions on a dark portrait canvas (1080x1920). Output: `docs/demo/field-shift-demo.mp4`.
+
+```bash
+# once: pip install playwright, then: playwright install ffmpeg
+# the engine API and the web app must be running; open the API's /health first
+python scripts/record_demo.py --silent   # test run: Chrome stays muted, no sound is played or recorded
+python scripts/record_demo.py            # the real recording: the app speaks, so keep the computer quiet
+```
+
+- The page is shown at exactly a 390x844 phone layout, but zoomed to double size so the recording is sharp.
+- Run `--silent` first and look at `docs/demo/field-shift-demo-silent-test.mp4`. Run the real one once you are happy, and listen to it before uploading.
+- If the app's wording or screens change, the script stops with a message naming what it could not find. Edit `LABELS` or `STEPS` at the top of the script. `tests/test_record_demo.py` also fails when a label it looks for is gone from the app.
+- On another system, record a phone yourself (below) and caption it with `docs/demo_captions.srt`.
+
+## Before recording by hand
 
 - **Record the flow in English.** The app then speaks English, so the sound needs no subtitles. The Hindi appears only at the end, as screen text.
 - **Record on a phone or a clean window.** Use an Android phone in Chrome, or a Chrome window with a fresh profile and one tab. A normal desktop window shows your other tabs, bookmarks and extensions; the video would show them too.

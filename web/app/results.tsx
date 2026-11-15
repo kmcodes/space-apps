@@ -178,7 +178,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
   const [speaking, setSpeaking] = useState<Row | null>(null);
   const name = strategyName(s);
   const rows: { key: Row; label: string; icon: PictogramId; lines: string[] }[] = [
-    { key: "good", label: RESULTS.good, icon: "thumbs_up", lines: goodLines(s) },
+    { key: "good", label: RESULTS.good, icon: "yes", lines: goodLines(s) }, // a tick = checked; the thumbs-up is kept for "best choice"
     { key: "unknown", label: RESULTS.unknown, icon: "unknown", lines: unknownLines(s) },
     ...(risk ? [{ key: "vulnerable" as const, label: RESULTS.vulnerable, icon: "warning" as const, lines: vulnerableLines(s, risk) }] : []),
     { key: "expert", label: RESULTS.expert, icon: "expert", lines: expertLines(s) },

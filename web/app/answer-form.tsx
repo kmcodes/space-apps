@@ -8,9 +8,6 @@ import { useState } from "react";
 import { STEPS, SCRIPTS, type Answers } from "./call-script";
 import { useLang } from "./lang";
 
-export const DISCLAIMER =
-  "This tool supports, and does not replace, the judgement of farmers and local agricultural experts.";
-
 // The answers handed to the results page, from the call or from this form.
 export type Initial = Partial<{
   location: string;

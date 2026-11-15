@@ -6,7 +6,8 @@
 // - sources and validity flags sit behind a small "for experts" link.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DISCLAIMER, type Initial } from "./answer-form";
+import { type Initial } from "./answer-form";
+import Disclaimer from "./disclaimer";
 import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
 import { useLang } from "./lang";
 import { speakText, stopSpeech } from "./speech";
@@ -178,9 +179,6 @@ function AdviceBadge({ label, note }: { label: string; note?: boolean }) {
   );
 }
 
-function Disclaimer() {
-  return <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>;
-}
 
 function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () => void }) {
   const { lang } = useLang();

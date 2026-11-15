@@ -157,7 +157,7 @@ These are real screens of the running app at phone size, in the order a farmer m
 
 ### Start
 
-One tap starts the call, or the form can be used instead. A switch at the top changes the whole app between Hindi and English.
+One tap starts the call, or the form can be used instead. A switch at the top changes the whole app between Hindi and English: the call, the form, the results and the "supports, does not replace" bar at the bottom of every screen. The form asks the same questions as the call, in the chosen language, and opens the same results.
 
 <table>
 <tr>
@@ -406,7 +406,7 @@ tests/       156 tests, written first
 
 What works, and what does not yet.
 
-**Works today:** the voice-and-touch call in Hindi and English; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 156 passing tests.
+**Works today:** the voice-and-touch call in Hindi and English; the form, in either language, leading to the same results; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 156 passing tests.
 
 **Not done, or not good enough yet:**
 

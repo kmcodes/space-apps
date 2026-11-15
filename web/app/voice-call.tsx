@@ -5,7 +5,8 @@
 // When the questions are done, the answers go to <FieldShift>, which calls the engine and shows the results.
 
 import { useEffect, useRef, useState } from "react";
-import AnswerForm, { DISCLAIMER, type Initial } from "./answer-form";
+import AnswerForm, { type Initial } from "./answer-form";
+import Disclaimer from "./disclaimer";
 import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { isServed } from "./coverage";
 import { useLang } from "./lang";
@@ -38,9 +39,6 @@ function recognitionCtor(): RecognitionCtor | null {
 // Jan to Dec for a soybean then chickpea field: crop in the ground except the bare Mar to May window.
 const YEAR_PICTURE = [true, true, false, false, false, true, true, true, true, true, true, true];
 
-function Disclaimer() {
-  return <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>;
-}
 
 export default function VoiceCall() {
   const [phase, setPhase] = useState<Phase>("home");

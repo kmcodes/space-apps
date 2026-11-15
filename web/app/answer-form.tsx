@@ -81,7 +81,7 @@ export default function AnswerForm({ onSubmit }: { onSubmit: (answers: Initial) 
       </div>
       <button
         type="submit"
-        className="mt-6 w-full rounded-field border-[3px] border-monsoon bg-monsoon px-4 py-3.5 text-2xl font-extrabold leading-normal text-white"
+        className="mt-6 w-full rounded-field border-[3px] border-action bg-action px-4 py-3.5 text-2xl font-extrabold leading-normal text-white"
         lang={lang}
       >
         <span className="narrow">{S.formSubmit}</span>

@@ -23,9 +23,11 @@ export type Answers = Partial<Record<Step["id"], string>>;
 
 const SCRIPT_HI = {
   title: "फ़ील्ड शिफ़्ट",
-  tagline: "आपके लिए खेती के सुझाव। नीचे दिए बटनों में से अपनी पसंद चुनिए।",
-  start: "बोलने के लिए छुइए",
-  useForm: "फ़ॉर्म भरने के लिए छुइए",
+  greeting_title: "नमस्ते",
+  taglineLead: "आपके लिए खेती के सुझाव",
+  taglineRest: "नीचे दिए गए बटनों में से\nअपनी पसंद चुनिए।", // two lines on screen
+  start: "बोलने के लिए दबाइए",
+  useForm: "फ़ॉर्म भरने के लिए दबाइए",
   end: "बातचीत ख़त्म",
   again: "नई बातचीत",
   back: "वापस",
@@ -45,7 +47,9 @@ const SCRIPT_HI = {
 
 const SCRIPT_EN: typeof SCRIPT_HI = {
   title: "Field Shift",
-  tagline: "Farm suggestions for you. Pick your choice from the buttons below.",
+  greeting_title: "Namaste",
+  taglineLead: "Farm suggestions for you",
+  taglineRest: "Pick your choice\nfrom the buttons below.", // two lines on screen
   start: "Tap to speak",
   useForm: "Tap to fill the form",
   end: "End call",

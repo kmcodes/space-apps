@@ -292,7 +292,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
               <span className="narrow flex-1 text-2xl font-bold leading-tight" lang={lang}>
                 {r.label}
               </span>
-              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === r.key ? "text-monsoon" : "text-soil-soft"}`} />
+              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === r.key ? "text-action" : "text-soil-soft"}`} />
             </button>
             {open === r.key && (
               <ul className="space-y-1.5 pb-4 pl-5 pr-2 text-lg" lang={lang}>
@@ -308,7 +308,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
       </ol>
 
       <details className="mt-5">
-        <summary className="cursor-pointer text-sm font-semibold text-monsoon underline underline-offset-2" lang={lang}>
+        <summary className="cursor-pointer text-sm font-semibold text-action underline underline-offset-2" lang={lang}>
           {R.forExperts}
         </summary>
         <ul className="mt-2 space-y-2.5 text-sm">
@@ -376,7 +376,7 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
               <span className="narrow flex-1 text-2xl font-bold leading-tight" lang={lang}>
                 {e.title}
               </span>
-              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === e.key ? "text-monsoon" : "text-soil-soft"}`} />
+              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === e.key ? "text-action" : "text-soil-soft"}`} />
             </button>
             {open === e.key && (
               <p className="border-l-4 border-rule pb-4 pl-3 pr-2 text-lg" lang={lang}>
@@ -501,7 +501,7 @@ export default function Results({ answers: given, onRestart }: { answers: Initia
         {result?.served && (
           <button
             onClick={() => speakText(summarySpeech(list, result ? nearestPhrase(result, lang) : null, lang, result && answers.example ? districtName(result, lang) : null), lang)}
-            className="flex items-center gap-2 rounded-field border-2 border-monsoon px-3 py-1.5 text-base font-bold text-monsoon"
+            className="flex items-center gap-2 rounded-field border-2 border-action px-3 py-1.5 text-base font-bold text-action"
             lang={lang}
           >
             <SpeakerIcon className="h-5 w-5" />

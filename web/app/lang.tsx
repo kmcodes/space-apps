@@ -49,7 +49,7 @@ export function LangToggle() {
   ];
   return (
     <div className="mx-auto flex w-full max-w-xl justify-end px-4 pt-3">
-      <div role="group" aria-label="Language / भाषा" className="flex overflow-hidden rounded-field border-2 border-soil text-base font-bold">
+      <div role="group" aria-label="Language / भाषा" className="flex overflow-hidden rounded-field border-2 border-forest text-base font-bold">
         {choices.map((c) => (
           <button
             key={c.id}
@@ -57,7 +57,7 @@ export function LangToggle() {
             lang={c.tag}
             aria-pressed={lang === c.id}
             onClick={() => setLang(c.id)}
-            className={`px-3 py-1 ${lang === c.id ? "bg-soil text-white" : "bg-paper text-soil"}`}
+            className={`px-3 py-1 ${lang === c.id ? "bg-forest text-white" : "bg-paper text-forest"}`}
           >
             {c.label}
           </button>

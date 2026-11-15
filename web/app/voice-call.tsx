@@ -12,7 +12,6 @@ import { isServed } from "./coverage";
 import { useLang } from "./lang";
 import { FormIcon, MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
-import { cropColor } from "./results-script";
 import { guardUtterance, pickVoice, speechLang } from "./speech";
 import { wakeApi } from "./wake-api";
 
@@ -37,13 +36,12 @@ function recognitionCtor(): RecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-// Jan to Dec for a soybean then chickpea field: chickpea standing in Jan and Feb, the bare Mar to May window, soybean
-// from June to October and chickpea again from November. The colours are the crop colours of the results screens.
-const YEAR_PICTURE: (string | null)[] = ["chickpea", "chickpea", null, null, null, "soybean", "soybean", "soybean", "soybean", "soybean", "chickpea", "chickpea"];
-
 
 export default function VoiceCall() {
   const [phase, setPhase] = useState<Phase>("home");
+  useEffect(() => {
+    document.body.dataset.screen = phase; // globals.css colours the start screen's page
+  }, [phase]);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [status, setStatus] = useState<Status>("speaking");
@@ -377,45 +375,32 @@ export default function VoiceCall() {
 
   if (phase === "home") {
     return (
-      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-8">
-        <h1 className="narrow text-5xl font-extrabold leading-none" lang={lang}>
-          {S.title}
+      // Option 3 (approved 15 Nov): everything grouped in the middle of a light green page, greeting first.
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-4 pb-24 pt-4">
+        <h1 className="narrow flex items-center justify-center gap-3 text-6xl font-extrabold leading-normal text-forest" lang={lang}>
+          {S.greeting_title}
+          {/* folded hands */}
+          <span aria-hidden className="text-5xl leading-none">🙏</span>
         </h1>
-        <p className="mt-3 text-xl text-soil-soft" lang={lang}>
-          {S.tagline}
+        <p className="mt-2 text-center text-2xl font-semibold leading-snug text-forest" lang={lang}>
+          {S.taglineLead}
         </p>
-        {/* The year strip is this app's signature: green = crop in the ground, dark = bare field, blue band = monsoon.
-            Here it is only a picture of what the app is about, so it has no text. */}
-        <div className="mt-8" aria-hidden>
-          <div className="grid grid-cols-12 gap-px">
-            <span className="col-span-4 col-start-6 h-2 bg-monsoon" />
-          </div>
-          <div className="mt-1 grid grid-cols-12 gap-px">
-            {YEAR_PICTURE.map((crop, m) => (
-              <span key={m} style={{ background: crop ? cropColor(crop) : undefined }} className={`h-12 ${crop ? "" : "bg-soil"}`} />
-            ))}
-          </div>
-          <div className="mt-3 flex items-center justify-center gap-2">
-            <Pictogram id="soybean" className="h-10 w-10" />
-            <Pictogram id="then" className="h-5 w-5" />
-            <Pictogram id="chickpea" className="h-10 w-10" />
-            <Pictogram id="then" className="h-5 w-5" />
-            <Pictogram id="bare" className="h-10 w-10" />
-          </div>
-        </div>
+        <p className="mx-auto mt-1 whitespace-pre-line text-center text-xl leading-snug text-forest-soft" lang={lang}>
+          {S.taglineRest}
+        </p>
 
         {/* Two buttons of one type (same shape, size, text and icon), each label on one line.
             Speaking is the main action, so it is filled; the form is the same button outlined. */}
         <button
           onClick={start}
-          className="mt-8 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-monsoon px-4 py-3.5 text-left text-white"
+          className="mt-8 flex w-full items-center gap-3 rounded-field border-[3px] border-action bg-action px-4 py-3.5 text-left text-white"
         >
           <MicIcon className="h-8 w-8 shrink-0" />
           <span className="narrow min-w-0 flex-1 whitespace-nowrap py-1 text-2xl font-extrabold leading-normal" lang={lang}>
             {S.start}
           </span>
-          {/* Static sound bars: this button talks. */}
-          <span aria-hidden className="flex h-8 shrink-0 items-center gap-1">
+          {/* Moving sound bars: this button talks (globals.css .sound-wave). */}
+          <span aria-hidden className="sound-wave flex h-8 shrink-0 items-center gap-1">
             {[10, 20, 28, 16, 10].map((h, i) => (
               <span key={i} className="w-1 rounded-full bg-white/80" style={{ height: h }} />
             ))}
@@ -423,7 +408,7 @@ export default function VoiceCall() {
         </button>
         <button
           onClick={() => leave("form")}
-          className="mt-3 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-paper px-4 py-3.5 text-left text-monsoon"
+          className="mt-3 flex w-full items-center gap-3 rounded-field border-[3px] border-action bg-paper px-4 py-3.5 text-left text-action"
         >
           <FormIcon className="h-8 w-8 shrink-0" />
           <span className="narrow min-w-0 flex-1 whitespace-nowrap py-1 text-2xl font-extrabold leading-normal" lang={lang}>
@@ -458,7 +443,7 @@ export default function VoiceCall() {
         {/* One segment per question, like the year strip: answered, current, to come. No numbers, nothing to read. */}
         <div className="flex flex-1 gap-1" aria-hidden>
           {STEPS.map((st, i) => (
-            <span key={st.id} className={`h-2 flex-1 ${i < idx ? "bg-soil" : i === idx ? "bg-monsoon" : "bg-rule"}`} />
+            <span key={st.id} className={`h-2 flex-1 ${i < idx ? "bg-soil" : i === idx ? "bg-action" : "bg-rule"}`} />
           ))}
         </div>
         <button onClick={end} className="flex items-center gap-2 rounded-field bg-almanac px-3 py-2 text-base font-bold text-white" lang={lang}>
@@ -480,7 +465,7 @@ export default function VoiceCall() {
       >
         <span
           className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-field ${
-            status === "listening" ? "bg-monsoon text-white" : status === "speaking" ? "bg-soil text-white" : "border-2 border-monsoon text-monsoon"
+            status === "listening" ? "bg-action text-white" : status === "speaking" ? "bg-soil text-white" : "border-2 border-action text-action"
           }`}
         >
           {status === "speaking" ? <SpeakerIcon className="h-8 w-8" /> : <MicIcon className="h-8 w-8" />}
@@ -547,7 +532,7 @@ export default function VoiceCall() {
                   : picked !== null
                     ? "border-2 border-soil bg-paper p-3 opacity-40"
                     : reading === i
-                      ? "border-4 border-monsoon bg-monsoon-wash p-2.5"
+                      ? "border-4 border-action bg-action-wash p-2.5"
                       : "border-2 border-soil bg-paper p-3"
               }`}
             >

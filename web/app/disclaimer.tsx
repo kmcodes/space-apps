@@ -13,7 +13,7 @@ export const DISCLAIMER: L = {
 export default function Disclaimer() {
   const { lang } = useLang();
   return (
-    <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil" lang={lang}>
+    <p className="fixed inset-x-0 bottom-0 z-10 bg-forest px-4 py-2.5 text-center text-sm font-semibold text-white" lang={lang}>
       {DISCLAIMER[lang]}
     </p>
   );

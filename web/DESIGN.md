@@ -48,3 +48,11 @@ One family, Anek Devanagari, because it has Latin and Devanagari in one design: 
 - No motion beyond the loading state. Reduced-motion is respected.
 - Every interactive element shows a visible focus outline.
 - The disclaimer banner is always on screen.
+
+## Update, 15 Nov 2026 night: green start screen (approved by Amrita)
+
+- Start screen (option 3): everything grouped in the middle of a light green page: "नमस्ते 🙏" / "Namaste 🙏", then "आपके लिए खेती के सुझाव" / "Farm suggestions for you" on one line, then "नीचे दिए गए बटनों में से / अपनी पसंद चुनिए।" / "Pick your choice / from the buttons below." on two lines, then the two buttons. The year-bar picture is gone.
+- Buttons and anything you can press are green (`action`, #2f6b2b) on every screen. Blue (`monsoon`) is kept only where it means rain or kharif.
+- Language switch and the disclaimer bar are dark green (`forest`, #1f4a1c) with white text, on every screen.
+- The speak button's sound bars move (`.sound-wave` in globals.css); motion stops when the phone asks for reduced motion.
+- Hindi button labels: "बोलने के लिए दबाइए", "फ़ॉर्म भरने के लिए दबाइए".

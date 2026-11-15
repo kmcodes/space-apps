@@ -37,6 +37,10 @@ import {
 } from "./results-script";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+// Retries for a sleeping API host: wait this long before each try (the first is immediate). About 25 s of waiting
+// between tries, plus each try may itself wait up to ATTEMPT_TIMEOUT_MS while the host wakes.
+const RETRY_DELAYS_MS = [0, 3000, 8000, 15000];
+const ATTEMPT_TIMEOUT_MS = 45000;
 
 type Row = "good" | "unknown" | "vulnerable" | "expert";
 
@@ -342,34 +346,64 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
   const [selected, setSelected] = useState<string | null>(null);
   const [learn, setLearn] = useState(false);
 
+  const [waking, setWaking] = useState(false);
+
   useEffect(() => {
     let alive = true;
+    let controller: AbortController | null = null; // the attempt in flight, so leaving the page cancels it
+    const body = JSON.stringify({
+      location: answers.location,
+      lat: answers.lat,
+      lon: answers.lon,
+      current_rotation: answers.rotation,
+      water_source: answers.water_source,
+      priorities: [answers.priority1, answers.priority2].filter((p, i, all) => p && all.indexOf(p) === i),
+      constraints: { water_availability: answers.water_level, equipment: answers.equipment, market: answers.market },
+    });
     (async () => {
-      try {
-        const res = await fetch(`${API_URL}/compare`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            location: answers.location,
-            lat: answers.lat,
-            lon: answers.lon,
-            current_rotation: answers.rotation,
-            water_source: answers.water_source,
-            priorities: [answers.priority1, answers.priority2].filter((p, i, all) => p && all.indexOf(p) === i),
-            constraints: { water_availability: answers.water_level, equipment: answers.equipment, market: answers.market },
-          }),
-        });
-        if (!res.ok) throw new Error(String(res.status));
-        const data: Result = await res.json();
+      // The free API host sleeps when idle and takes up to about a minute to wake, so retry quietly before giving up.
+      // Network errors, time-outs and 5xx answers are retried; a 4xx means the request itself is wrong, so it is not.
+      for (let i = 0; i < RETRY_DELAYS_MS.length; i++) {
+        if (i > 0) {
+          if (i === 1 && alive) {
+            setWaking(true);
+            speakHindi(RESULTS.waking);
+          }
+          await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[i]));
+        }
         if (!alive) return;
-        setResult(data);
-        speakHindi(data.served ? summarySpeech(choices(data), nearestPhrase(data)) : RESULTS.outOfArea);
-      } catch {
-        if (alive) setFailed(true);
+        const attemptController = new AbortController();
+        controller = attemptController;
+        const timer = setTimeout(() => attemptController.abort(), ATTEMPT_TIMEOUT_MS);
+        try {
+          const res = await fetch(`${API_URL}/compare`, {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body,
+            signal: attemptController.signal,
+          });
+          if (res.status >= 400 && res.status < 500) break; // not worth retrying
+          if (!res.ok) continue;
+          const data: Result = await res.json();
+          if (!alive) return;
+          setWaking(false);
+          setResult(data);
+          speakHindi(data.served ? summarySpeech(choices(data), nearestPhrase(data)) : RESULTS.outOfArea);
+          return;
+        } catch {
+          if (!alive) return;
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      if (alive) {
+        setWaking(false);
+        setFailed(true);
       }
     })();
     return () => {
       alive = false;
+      controller?.abort();
       stopSpeech();
     };
   }, [answers, attempt]);
@@ -420,7 +454,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
 
       {!result && !failed && (
         <p className="mt-6 text-xl font-semibold text-soil-soft" lang="hi" role="status">
-          {RESULTS.loading}
+          {waking ? RESULTS.waking : RESULTS.loading}
         </p>
       )}
       {failed && (

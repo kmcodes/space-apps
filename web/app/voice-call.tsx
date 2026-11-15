@@ -10,6 +10,7 @@ import { SCRIPT, STEPS, matchOption, type Answers, type Option } from "./call-sc
 import { MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
 import { guardUtterance, pickHindiVoice } from "./speech";
+import { wakeApi } from "./wake-api";
 
 type Phase = "home" | "call" | "results" | "form";
 type Status = "speaking" | "listening" | "tap";
@@ -64,6 +65,7 @@ export default function VoiceCall() {
   const geo = useRef<"pending" | "ok" | "none">("none");
 
   useEffect(() => {
+    wakeApi(); // the API host may be asleep; start waking it now
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCanListen(recognitionCtor() !== null);
     const synth = window.speechSynthesis;
@@ -232,6 +234,7 @@ export default function VoiceCall() {
 
   function start() {
     stopAudio();
+    wakeApi(); // no-op if the page already pinged a moment ago
     answersRef.current = {};
     setAnswers({});
     setNotice("");

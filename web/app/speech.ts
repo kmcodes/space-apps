@@ -15,7 +15,6 @@ export function pickHindiVoice(synth: SpeechSynthesis): SpeechSynthesisVoice | u
 // if speech has not started within 2.5 s, or has run far longer than the text needs. It fires only once.
 export function guardUtterance(u: SpeechSynthesisUtterance, text: string, done: () => void) {
   let finished = false;
-  let startTimer: ReturnType<typeof setTimeout> | undefined;
   let endTimer: ReturnType<typeof setTimeout> | undefined;
   const finish = () => {
     if (finished) return;
@@ -29,7 +28,8 @@ export function guardUtterance(u: SpeechSynthesisUtterance, text: string, done: 
     endTimer = setTimeout(finish, 4000 + text.length * 200);
   };
   u.onend = u.onerror = finish;
-  startTimer = setTimeout(finish, 2500);
+  // Declared last but only read inside the callbacks above, which run later, so it is set by then.
+  const startTimer = setTimeout(finish, 2500);
 }
 
 let current = 0; // bumped on every speak or stop, so a cancelled utterance never fires its callback

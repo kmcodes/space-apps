@@ -136,4 +136,8 @@ Also from the web build: `water_source` is collected on the form and sent, but t
 
 Amrita asked for an x-axis timeline on the results. Added in `web/app/results.tsx` (`MonthAxis`, Kartik's file, changed by Amrita for his review) and `MONTH_HI_SHORT` in `web/app/results-script.ts`: a tick per month (thicker at the start of kharif, rabi and summer) and all twelve short Hindi month names, June first, coloured by season. The same timeline sits under the full bar on the one-choice screen and under each small bar in the choices list. The short month names are machine-drafted and need a native speaker's check.
 
-Also noticed: `npm run lint` fails on `web/app/speech.ts` line 18 (`startTimer` should be `const`). Not changed.
+Also noticed: `npm run lint` failed on `web/app/speech.ts` line 18 (`startTimer` should be `const`). Fixed later the same evening at Amrita's request.
+
+## Selected option is now clearly marked (Amrita, 15 Nov 2026, evening)
+
+In `web/app/voice-call.tsx` (Kartik's file, changed by Amrita for his review): when an option is chosen, by tap or by voice, its tile gets a thick green outline and a tick, the other tiles dim, and the app waits 0.7 s (`PICK_HOLD_MS`) before the next question so the farmer sees what was taken. A second tap during that pause is ignored. Before, the app moved on the instant a tile was tapped.

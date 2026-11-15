@@ -45,6 +45,9 @@ export default function VoiceCall() {
   const [answers, setAnswers] = useState<Answers>({});
   const [status, setStatus] = useState<Status>("speaking");
   const [reading, setReading] = useState(-1); // which tile is being read aloud right now
+  // The tile just chosen (by tap or by voice): outlined in green with a tick for a moment before the next question.
+  const [picked, setPicked] = useState<string | null>(null);
+  const pickedRef = useRef<string | null>(null);
   const [notice, setNotice] = useState("");
   // Found out after load (browser only), so the first render matches the server.
   const [canListen, setCanListen] = useState(true);
@@ -167,6 +170,8 @@ export default function VoiceCall() {
     silences.current = 0;
     setStatus("speaking");
     setReading(-1);
+    pickedRef.current = null;
+    setPicked(null);
     const step = STEPS[i];
     const labels = step.options(answersRef.current).map((o) => o.label);
     const token = run.current;
@@ -184,8 +189,21 @@ export default function VoiceCall() {
     speak(step.question, () => readFrom(0));
   }
 
+  const PICK_HOLD_MS = 700; // long enough to see which tile was taken, short enough not to feel slow
+
   function choose(option: Option) {
+    if (pickedRef.current !== null) return; // one answer per question; ignore a second tap while it is shown
     stopAudio();
+    setReading(-1);
+    pickedRef.current = option.value;
+    setPicked(option.value);
+    const token = run.current;
+    window.setTimeout(() => {
+      if (token === run.current) advance(option); // not if the call was ended meanwhile
+    }, PICK_HOLD_MS);
+  }
+
+  function advance(option: Option) {
     const i = idxRef.current;
     const next = { ...answersRef.current, [STEPS[i].id]: option.value };
     answersRef.current = next;
@@ -403,10 +421,24 @@ export default function VoiceCall() {
           <li key={o.value || "none"} className="last:odd:col-span-2">
             <button
               onClick={() => choose(o)}
-              className={`flex h-full min-h-44 w-full flex-col items-center justify-center gap-3 rounded-field text-center ${
-                reading === i ? "border-4 border-monsoon bg-monsoon-wash p-2.5" : "border-2 border-soil bg-paper p-3"
+              aria-pressed={picked === o.value}
+              className={`relative flex h-full min-h-44 w-full flex-col items-center justify-center gap-3 rounded-field text-center ${
+                picked === o.value
+                  ? "border-[6px] border-crop bg-crop/15 p-2 outline outline-4 outline-offset-2 outline-crop"
+                  : picked !== null
+                    ? "border-2 border-soil bg-paper p-3 opacity-40"
+                    : reading === i
+                      ? "border-4 border-monsoon bg-monsoon-wash p-2.5"
+                      : "border-2 border-soil bg-paper p-3"
               }`}
             >
+              {picked === o.value && (
+                <span aria-hidden className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-crop text-white">
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12.5l4.5 4.5L19 7.5" />
+                  </svg>
+                </span>
+              )}
               <span className="flex items-center justify-center gap-1">
                 {o.pics.map((id, k) => (
                   <Pictogram key={k} id={id} className={id === "then" ? "h-5 w-5" : o.pics.length > 1 ? "h-12 w-12" : "h-20 w-20"} />

@@ -23,7 +23,7 @@ export type Answers = Partial<Record<Step["id"], string>>;
 
 const SCRIPT_HI = {
   title: "फ़ील्ड शिफ़्ट",
-  tagline: "आपके खेत के लिए खेती के सुझाव। नीचे दिए बटनों में से अपनी पसंद चुनिए।",
+  tagline: "आपके लिए खेती के सुझाव। नीचे दिए बटनों में से अपनी पसंद चुनिए।",
   start: "बोलने के लिए छुइए",
   useForm: "फ़ॉर्म भरने के लिए छुइए",
   end: "बातचीत ख़त्म",
@@ -42,7 +42,7 @@ const SCRIPT_HI = {
 
 const SCRIPT_EN: typeof SCRIPT_HI = {
   title: "Field Shift",
-  tagline: "Farm suggestions for your farm. Pick your choice from the buttons below.",
+  tagline: "Farm suggestions for you. Pick your choice from the buttons below.",
   start: "Tap to speak",
   useForm: "Tap to fill the form",
   end: "End call",

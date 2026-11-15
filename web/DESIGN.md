@@ -2,6 +2,8 @@
 
 Every screen in `web/` follows this. Change it here first, then in `app/globals.css`.
 
+The app is voice-first: see `docs/VOICE_APP_PLAN.md` for the conversation flow and the screens for non-readers. A style refresh is planned for the end.
+
 Reference used while designing: https://github.com/funboy322/avoid-ai-design (its catalogue as a checklist; its scanner was not run).
 
 ## Where the look comes from

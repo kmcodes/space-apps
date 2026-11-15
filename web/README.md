@@ -25,7 +25,7 @@ Open http://localhost:3000.
 
 ## Files
 
-- `app/field-shift.tsx`: the form, the year board and the rotation sections (client component).
+- `app/answer-form.tsx`: "Tap to fill the form": the call's questions as a form, in the chosen language; its answers go to the same results page as the call.
 - `DESIGN.md`: colours, type and layout rules. Read before changing any styling.
 - `app/manifest.ts`, `public/icon.svg`: make the site installable to a phone's home screen.
 - `app/layout.tsx`, `app/globals.css`: page shell and base styles.
@@ -33,7 +33,7 @@ Open http://localhost:3000.
 ## Not built yet
 
 - GPS and the map pin. Location is a choice of the three presets.
-- Voice (Sarvam) and Hindi text. All text is English and lives in `app/field-shift.tsx`.
+- Voice through Sarvam (the browser's speech stands in). Hindi and English text live in `app/call-script.ts` and `app/results-script.ts`.
 - Offline cache (service worker).
 - A way to see the year board for one of the "other second crops".
 - PNG icons. The manifest has an SVG icon only; some phones want 192 and 512 px PNGs to offer install.

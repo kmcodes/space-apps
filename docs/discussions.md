@@ -149,3 +149,11 @@ Amrita saw "इंजन से जवाब नहीं मिला" once on 
 ## Start screen buttons (Amrita, 15 Nov 2026, evening)
 
 In `web/app/voice-call.tsx` and `web/app/call-script.ts` (Kartik's files, changed by Amrita for his review): the two start buttons are now one button type (same shape, size, text and icon), each label on one line. Speaking stays filled blue; the form is the same button outlined, with a new `FormIcon` in `web/app/pictograms.tsx`. Labels: "Tap to speak" / "बोलने के लिए छुइए" and "Tap to fill the form" / "फ़ॉर्म भरने के लिए छुइए". Checked to fit on one line at 320, 375 and 390 px in both languages. The Hindi wording is machine-drafted.
+
+## The form follows the language switch and uses the shared results (Amrita, 15 Nov 2026, night)
+
+Problem: "Tap to fill the form" stayed in English when the switch said हिंदी, and after submitting it showed its own older results page (English only, scores out of 100, none of the picture results, spoken rows, timeline or retry).
+
+Fix: `web/app/answer-form.tsx` replaces `web/app/field-shift.tsx` (removed). The form takes its questions and choices from `STEPS` in `call-script.ts`, so it follows the switch and always matches the call; the map question is left out and the district is asked directly. On submit, `voice-call.tsx` hands the answers to the same `Results` page as the call. `DISCLAIMER` and the `Initial` type moved to `answer-form.tsx`. New text: `formTitle` and `formSubmit` in both languages (Hindi machine-drafted). Checked in both languages: all eight questions and choices in the right language, the second priority never offers the first, and submitting shows the shared results with four choices.
+
+Still open: the second-priority question reads "If not, say no" / "नहीं हो तो नहीं बोलिए", which is call wording; and the yellow disclaimer is English on every screen.

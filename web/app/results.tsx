@@ -6,7 +6,7 @@
 // - sources and validity flags sit behind a small "for experts" link.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DISCLAIMER, type Initial } from "./field-shift";
+import { DISCLAIMER, type Initial } from "./answer-form";
 import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
 import { useLang } from "./lang";
 import { speakText, stopSpeech } from "./speech";

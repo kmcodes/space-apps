@@ -39,6 +39,8 @@ const SCRIPT_HI = {
   mapLoading: "नक्शा खुल रहा है… रुकिए।",
   noMic: "माइक्रोफ़ोन की इजाज़त नहीं मिली। तस्वीर छुकर जवाब दीजिए।",
   outside: "आपकी जगह अभी हमारे इलाके के बाहर है। उदाहरण देखने के लिए ज़िला चुनिए।",
+  formTitle: "अपने खेत के बारे में बताइए",
+  formSubmit: "तरीके देखिए",
 };
 
 const SCRIPT_EN: typeof SCRIPT_HI = {
@@ -59,6 +61,8 @@ const SCRIPT_EN: typeof SCRIPT_HI = {
   mapLoading: "Opening the map… please wait.",
   noMic: "Microphone permission was not given. Please answer by touching a picture.",
   outside: "Your location is outside our area for now. Choose a district to see an example.",
+  formTitle: "Tell us about your farm",
+  formSubmit: "Show the options",
 };
 
 export const SCRIPTS: Record<Lang, typeof SCRIPT_HI> = { hi: SCRIPT_HI, en: SCRIPT_EN };

@@ -5,7 +5,7 @@
 // When the questions are done, the answers go to <FieldShift>, which calls the engine and shows the results.
 
 import { useEffect, useRef, useState } from "react";
-import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
+import AnswerForm, { DISCLAIMER, type Initial } from "./answer-form";
 import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { isServed } from "./coverage";
 import { useLang } from "./lang";
@@ -364,7 +364,13 @@ export default function VoiceCall() {
             {S.back}
           </button>
         </div>
-        <FieldShift />
+        <AnswerForm
+          onSubmit={(a) => {
+            setFinal(a);
+            setPhase("results"); // the same results page as the voice call
+          }}
+        />
+        <Disclaimer />
       </>
     );
   }

@@ -1,0 +1,36 @@
+1
+00:00:00,000 --> 00:00:01,303
+Field Aide: voice advice for rainfed farmers
+Team Kartik and Amrita
+NASA Space Apps 2026: Adapting Farms with NASA Data
+
+2
+00:00:01,303 --> 00:00:05,306
+1. One tap starts a call.
+The app asks the questions aloud.
+
+3
+00:00:05,306 --> 00:00:16,071
+2. Answer by voice or by touching a picture.
+Eight short questions.
+
+4
+00:00:16,071 --> 00:00:20,471
+3. Four ways to use the field through the year,
+from 45 years of NASA POWER weather
+and MODIS satellite data.
+
+5
+00:00:20,471 --> 00:00:25,571
+4. Each colour is a crop, black is an empty field.
+Every suggestion says what is not checked.
+
+6
+00:00:25,571 --> 00:00:27,217
+Also in Hindi:
+“Soybean, then sorghum. This is an estimated suggestion.”
+
+7
+00:00:27,217 --> 00:00:29,217
+Supports, does not replace, local experts.
+Next: all of India, more crops, orchards.

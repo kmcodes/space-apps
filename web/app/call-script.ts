@@ -48,7 +48,7 @@ const SCRIPT_HI = {
 };
 
 const SCRIPT_EN: typeof SCRIPT_HI = {
-  title: "Field Aid",
+  title: "Field Aide",
   greeting_title: "Namaste",
   taglineLead: "Farm suggestions for you",
   taglineRest: "Pick your choice from the buttons below.", // one line where it fits, wraps on narrow phones

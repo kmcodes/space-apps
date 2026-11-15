@@ -1,6 +1,6 @@
 1
 00:00:00,000 --> 00:00:03,000
-Field Shift: voice advice for rainfed farmers
+Field Aide: voice advice for rainfed farmers
 Team Kartik and Amrita | NASA Space Apps 2026
 Adapting Farms with NASA Data
 

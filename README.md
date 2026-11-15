@@ -1,13 +1,14 @@
-# Field Aid
+# Field Aide
 
 **A voice and picture assistant, in Hindi and English, that helps rainfed farmers in Vidarbha compare ways to use their land through the year, built on NASA Earth data.**
 
 Built for the NASA Space Apps Challenge 2026 (14–15 Nov), challenge [Adapting Farms with NASA Data](https://www.spaceappschallenge.org/2026/challenges/adapting-farms-with-nasa-data/). Team: Kartik and Amrita.
 
 - **Try it:** https://field-shift-opal.vercel.app (open on an Android phone in Chrome, so voice works)
+  (The address still carries the earlier working name, "field-shift". Only the app's name changed.)
 - **Engine API:** https://space-apps-dzma.onrender.com (`/health`, `/docs`). It sleeps when idle; the app wakes it when the page opens, so the first answer can take up to about a minute.
 
-> **Field Aid supports, and does not replace, the judgement of farmers and local agricultural experts.** Every suggestion is a hypothesis for local review, and today every suggestion is labelled an *estimate*.
+> **Field Aide supports, and does not replace, the judgement of farmers and local agricultural experts.** Every suggestion is a hypothesis for local review, and today every suggestion is labelled an *estimate*.
 
 **Contents:** [1. The goal](#1-the-goal) · [2. Our approach](#2-our-approach) · [3. The app, screen by screen](#3-the-app-screen-by-screen) · [4. Future steps](#4-future-steps) · [Run it](#run-it) · [Data and credits](#data-and-credits) · [How it is built](#how-it-is-built) · [Honest status](#honest-status) · [Team and AI use](#team-and-ai-use)
 
@@ -81,7 +82,7 @@ Each option gets six part-scores from the evidence:
 
 The **farmer's answers set the weights**. The first goal gets a fixed 40% of the total and the second 20%; the rest follows base weights. Low water availability raises the weight of water fit, and "for my own use" removes the market part. The weights used are returned with every result, and every tunable number lives in one file, [`engine/config.py`](engine/config.py).
 
-Rules the engine follows, each covered by tests (156 in all):
+Rules the engine follows, each covered by tests (169 in all):
 
 - **No missing input is ever scored as zero**, and a data gap never flatters an option. An option scored on less than 70% of its intended weight is shown as incomplete and not ranked.
 - **Ranges, not single numbers.** Scores are computed across years and shown as a band. Options within 5 points of the top are called a tie rather than ranked.
@@ -313,7 +314,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 ```bash
 # engine API (from the repo root)
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # requirements.txt alone is enough to run the API
-.venv/bin/python -m pytest                                   # 156 tests
+.venv/bin/python -m pytest                                   # 169 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 
 # web app (second terminal)
@@ -391,7 +392,7 @@ web/         Next.js PWA: voice call, picture questions, results, Hindi and Engl
 voice/       reserved for the Sarvam speech integration (empty for now)
 scripts/     screenshots and deployment helpers
 docs/        design, crop sheet, data quality, plans, demo script, submission text
-tests/       156 tests, written first
+tests/       169 tests, written first
 ```
 
 - Engine design and the rules behind every score: [docs/ENGINE_DESIGN.md](docs/ENGINE_DESIGN.md)
@@ -406,7 +407,7 @@ tests/       156 tests, written first
 
 What works, and what does not yet.
 
-**Works today:** the voice-and-touch call in Hindi and English; the form, in either language, leading to the same results; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 156 passing tests.
+**Works today:** the voice-and-touch call in Hindi and English; the form, in either language, leading to the same results; the four-option engine over three districts; the year bars with bare windows and sensitive months; the checked and estimated labels; the explainers; the out-of-area example flow; live deployment; 169 passing tests.
 
 **Not done, or not good enough yet:**
 

@@ -14,7 +14,7 @@ from engine.compare import Engine
 from engine.coverage import presets
 from engine.strategies import EXISTING
 
-app = FastAPI(title="Field Aid engine", version="0.1")
+app = FastAPI(title="Field Aide engine", version="0.1")
 origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",")]
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 engine = Engine.from_repo()

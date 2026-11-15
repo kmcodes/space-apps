@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 // Makes the site installable to a phone's home screen (PWA).
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Field Aid",
-    short_name: "Field Aid",
+    name: "Field Aide",
+    short_name: "Field Aide",
     description: "Compare crop rotations for rainfed farms in Vidarbha.",
     start_url: "/",
     display: "standalone",

@@ -1,4 +1,4 @@
-"""Records the 30-second demo video of the app (docs/DEMO_SCRIPT.md) as docs/demo/field-shift-demo.mp4.
+"""Records the 30-second demo video of the app (docs/DEMO_SCRIPT.md) as docs/demo/field-aide-demo.mp4.
 
 What you get: a phone-sized screen recording of the voice call, in English, with a tap marker, the app's OWN voice as the only
 sound, and captions in a strip under the phone screen, on a dark portrait canvas (1080x1920).
@@ -69,6 +69,42 @@ document.addEventListener('pointerdown', (e) => {
 """ % LABELS
 
 
+# A sync mark at the start: a one-frame magenta flash and a 1 kHz beep, started in the same instant. The script finds the flash
+# in the video and the beep in the sound, which tells it exactly how each lags the page clock (Playwright's video starts about
+# a second after the page, and the sound file starts when the recorder does), so picture and sound stay together after cutting.
+SYNC_JS = """() => {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;inset:0;background:#ff00ff;z-index:999999';
+  document.body.appendChild(d);
+  try {
+    const ctx = new AudioContext(); const o = ctx.createOscillator(); const g = ctx.createGain();
+    o.frequency.value = 1000; g.gain.value = 0.5; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.15);
+  } catch (e) {}
+  setTimeout(() => d.remove(), 300);
+}"""
+
+
+def find_flash(video):
+    """When (in video time) the magenta flash first shows: the first frame whose average blue-difference is high."""
+    out = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-t", "20", "-i", str(video), "-vf",
+                          "signalstats,metadata=print:key=lavfi.signalstats.UAVG:file=-", "-an", "-f", "null", "-"],
+                         capture_output=True, text=True).stdout
+    for t, u in re.findall(r"pts_time:([0-9.]+)\s*\n[^\n]*UAVG=([0-9.]+)", out):
+        if float(u) > 180:
+            return float(t)
+    sys.exit("the sync flash is not in the video")
+
+
+def find_beep(wav):
+    """When (in sound-file time) the beep starts: the end of the first silence."""
+    err = subprocess.run(["ffmpeg", "-hide_banner", "-i", str(wav), "-af", "silencedetect=n=-35dB:d=0.1", "-f", "null", "-"],
+                         capture_output=True, text=True).stderr
+    m = re.search(r"silence_end: ([0-9.]+)", err)
+    if not m:
+        sys.exit("the sync beep is not in the sound (is something else playing, or is the sound muted?)")
+    return float(m.group(1))
+
+
 def srt_time(t):
     t = max(0.0, t)
     ms = min(999, int(round((t % 1) * 1000)))
@@ -86,6 +122,7 @@ def default_sink_id():
 
 
 def record(url, channel, headed, silent):
+    """Returns the video, the sound (or None), the marks (page time) and how far video and sound lag the page clock."""
     OUT.mkdir(parents=True, exist_ok=True)
     raw = OUT / "raw"
     raw.mkdir(exist_ok=True)
@@ -107,7 +144,9 @@ def record(url, channel, headed, silent):
                 rec.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 rec.kill()
-    return video, wav, marks, t_page - t_audio  # the sound file starts this much before the page
+    dv = find_flash(video) - marks["sync"]                      # video time = page time + dv
+    da = (find_beep(wav) - marks["sync"]) if wav else 0.0       # sound time = page time + da
+    return video, wav, marks, dv, da
 
 
 def _record_page(url, channel, headed, silent, raw):
@@ -117,7 +156,8 @@ def _record_page(url, channel, headed, silent, raw):
     # Chrome's Google voices need extensions on. Muting is kept only for --silent.
     ignore = ["--disable-extensions", "--disable-component-extensions-with-background-pages"] + ([] if silent else ["--mute-audio"])
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel=channel, headless=not headed, ignore_default_args=ignore)
+        browser = p.chromium.launch(channel=channel, headless=not headed, ignore_default_args=ignore,
+                                    args=["--autoplay-policy=no-user-gesture-required"])
         ctx = browser.new_context(
             viewport={"width": 780, "height": 1688}, device_scale_factor=1, is_mobile=True, has_touch=True, locale="en-IN",
             record_video_dir=str(raw), record_video_size={"width": 780, "height": 1688},
@@ -140,8 +180,11 @@ def _record_page(url, channel, headed, silent, raw):
         n_voices = page.evaluate("async () => { await new Promise(r => setTimeout(r, 1500)); return speechSynthesis.getVoices().length; }")
         if n_voices == 0:
             sys.exit("Chrome has no voices here: try --headed, or check that Chrome's Google voices are installed")
+        page.evaluate(SYNC_JS)
+        marks["sync"] = now()
+        page.wait_for_timeout(700)  # the flash and the beep are over before the home screen is used
         marks["home"] = now()
-        page.wait_for_timeout(1600)  # the home screen for a moment
+        page.wait_for_timeout(1300)  # the home screen for a moment
 
         marks["tap_start"] = now()
         start_button.click()
@@ -179,7 +222,7 @@ def _record_page(url, channel, headed, silent, raw):
 
         marks["tap_hindi"] = now()
         page.get_by_role("button", name=LABELS["hindi"]).click()
-        page.wait_for_timeout(2500)
+        page.wait_for_timeout(3300)  # long enough to hear the Hindi voice start and to read its subtitle
         marks["end"] = now()
         video = page.video.path()
         ctx.close()
@@ -216,12 +259,12 @@ def captions(parts, m):
     e_tap = edited(m["tap_start"])
     e_first = edited(m["first_answer"])
     return [
-        (0.0, e_tap, "Field Aid: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
+        (0.0, e_tap, "Field Aide: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
         (e_tap, e_first, "1. One tap starts a call.\nThe app asks the questions aloud."),
         (e_first, starts[2], "2. Answer by voice or by touching a picture.\nEight short questions."),
         (starts[2], starts[3], "3. Four ways to use the field through the year,\nfrom 45 years of NASA POWER weather\nand MODIS satellite data."),
         (starts[3], starts[4], "4. Each colour is a crop, black is an empty field.\nEvery suggestion says what is not checked."),
-        (starts[4], total - 2.0, "Hindi and English."),
+        (starts[4], total - 2.0, "Also in Hindi:\n\u201cSoybean, then sorghum. This is an estimated suggestion.\u201d"),
         (total - 2.0, total, "Supports, does not replace, local experts.\nNext: all of India, more crops, orchards."),
     ], total
 
@@ -233,10 +276,10 @@ def write_srt(caps):
     return path
 
 
-def compose(video, wav, delta, parts, srt, out):
+def compose(video, wav, dv, da, parts, srt, out):
     """Cut and join the parts, put the phone screen on a dark canvas, add the captions (and the sound, if there is any)."""
     n = len(parts)
-    vparts = "".join(f"[0:v]trim=start={a:.3f}:end={b:.3f},setpts=PTS-STARTPTS[v{i}];" for i, (a, b) in enumerate(parts))
+    vparts = "".join(f"[0:v]trim=start={a + dv:.3f}:end={b + dv:.3f},setpts=PTS-STARTPTS[v{i}];" for i, (a, b) in enumerate(parts))
     vin = "".join(f"[v{i}]" for i in range(n))
     style = "FontName=DejaVu Sans,FontSize=7,Bold=1,PrimaryColour=&H00FFFFFF,BorderStyle=1,Outline=0,Shadow=0,Alignment=2,MarginV=12,MarginL=8,MarginR=8"
     fc = (
@@ -248,7 +291,7 @@ def compose(video, wav, delta, parts, srt, out):
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(video)]
     if wav is not None:
         aparts = "".join(
-            f"[1:a]atrim=start={a + delta:.3f}:end={b + delta:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st={max(0, b - a - 0.05):.3f}:d=0.05[a{i}];"
+            f"[1:a]atrim=start={a + da:.3f}:end={b + da:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.03,afade=t=out:st={max(0, b - a - 0.05):.3f}:d=0.05[a{i}];"
             for i, (a, b) in enumerate(parts)
         )
         ain = "".join(f"[a{i}]" for i in range(n))
@@ -267,13 +310,14 @@ def main():
     ap.add_argument("--headed", action="store_true", help="show the Chrome window while recording")
     ap.add_argument("--silent", action="store_true", help="test run: no sound is played or recorded")
     args = ap.parse_args()
-    video, wav, marks, delta = record(args.url, args.channel, args.headed, args.silent)
+    video, wav, marks, dv, da = record(args.url, args.channel, args.headed, args.silent)
     parts = plan(marks)
     caps, total = captions(parts, marks)
     srt = write_srt(caps)
-    out = OUT / ("field-shift-demo-silent-test.mp4" if args.silent else "field-shift-demo.mp4")
-    compose(video, wav, delta, parts, srt, out)
+    out = OUT / ("field-aide-demo-silent-test.mp4" if args.silent else "field-aide-demo.mp4")
+    compose(video, wav, dv, da, parts, srt, out)
     print("marks", {k: round(v, 1) for k, v in marks.items()})
+    print("video lags the page clock by", round(dv, 2), "s; sound by", round(da, 2), "s")
     print("parts", [(round(a, 1), round(b, 1)) for a, b in parts])
     print("edited length", round(total, 1), "s ->", out)
     if total > MAX_SECONDS:

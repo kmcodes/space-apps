@@ -4,7 +4,7 @@ Text to paste into the Space Apps project page, plus the feature-to-brief mappin
 
 ## Project title
 
-Field Aid
+Field Aide
 
 ## One-line summary (under 200 characters)
 
@@ -12,7 +12,7 @@ A Hindi voice call for rainfed farmers in Vidarbha that compares four ways to us
 
 ## Project description (paste into the page)
 
-Many rainfed farmers in Vidarbha, Maharashtra (Akola, Buldhana, Washim) leave a field bare for months after soybean, and many of them cannot read. Field Aid is a decision-support tool built for them.
+Many rainfed farmers in Vidarbha, Maharashtra (Akola, Buldhana, Washim) leave a field bare for months after soybean, and many of them cannot read. Field Aide is a decision-support tool built for them.
 
 The farmer taps once and a Hindi voice calls (or an English one: a switch at the top changes the whole app). The phone shows the farm on a satellite map and the farmer confirms the pin. Then the app asks a few questions aloud (current rotation, water source, what matters most, water available, equipment, where they sell). Each option is read while its picture lights up, so the picture and the word are linked. Every question can be answered by voice or by touching.
 
@@ -22,7 +22,7 @@ NASA POWER daily weather (1981 to 2025) drives the rain, water, monsoon and heat
 
 We kept strict rules. No strategy is shown without its gaps and risks. Every piece of evidence names its dataset, period and a validity flag. A missing input is never scored as zero. Where two datasets disagree we show both. No language model writes any text: every sentence is a template filled from engine fields, so no number is invented.
 
-Field Aid supports, and does not replace, the judgement of farmers and local agricultural experts. Every suggestion is a hypothesis for local review.
+Field Aide supports, and does not replace, the judgement of farmers and local agricultural experts. Every suggestion is a hypothesis for local review.
 
 ## Links
 
@@ -80,7 +80,7 @@ Yes. We used Claude Code (Anthropic), an AI coding assistant, to help write the 
 
 | Form field | Our answer |
 |---|---|
-| Project name | Field Aid |
+| Project name | Field Aide |
 | High-level summary | "One-line summary" and "Project description" above |
 | Link to final project | The live app, https://field-shift-opal.vercel.app, or the repo, https://github.com/kmcodes/space-apps (full URL, public, no login) |
 | Detailed description | "Project description" above, plus the README |

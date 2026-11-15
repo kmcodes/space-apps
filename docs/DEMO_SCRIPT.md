@@ -18,7 +18,7 @@ A screen recording of the app being used, from the first tap to the results page
 
 | Time | On screen | Caption (large, English) | Sound |
 |---|---|---|---|
-| 0:00–0:03 | Home screen in English | **Field Aid: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
+| 0:00–0:03 | Home screen in English | **Field Aide: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
 | 0:03–0:07 | Tap **Tap to speak**. The call starts. | **1. One tap starts a call. The app asks the questions aloud.** | the app's greeting |
 | 0:07–0:15 | Tap **Akola**. Then three quick cuts: what is grown now, where the water comes from, what matters most. Tap a picture each time. | **2. Answer by voice or by touching a picture. Eight short questions.** | the app's voice, cut off by each tap |
 | 0:15–0:20 | The results list appears: four options with coloured year bars and the legend | **3. Four ways to use the field through the year, from 45 years of NASA POWER weather and MODIS satellite data.** | the start of the spoken summary |
@@ -30,7 +30,7 @@ The captions are also in [`docs/demo_captions.srt`](demo_captions.srt) with thes
 
 ## Recording it automatically (Linux with PipeWire)
 
-`scripts/record_demo.py` makes the whole video: it drives Chrome at phone size through the call (with a visible tap marker), records the screen, records the app's own voice from the computer's audio output, cuts it down to under 30 seconds, and adds the captions on a dark portrait canvas (1080x1920). Output: `docs/demo/field-shift-demo.mp4`.
+`scripts/record_demo.py` makes the whole video: it drives Chrome at phone size through the call (with a visible tap marker), records the screen, records the app's own voice from the computer's audio output, cuts it down to under 30 seconds, and adds the captions on a dark portrait canvas (1080x1920). Output: `docs/demo/field-aide-demo.mp4`.
 
 ```bash
 # once: pip install playwright, then: playwright install ffmpeg
@@ -40,7 +40,7 @@ python scripts/record_demo.py            # the real recording: the app speaks, s
 ```
 
 - The page is shown at exactly a 390x844 phone layout, but zoomed to double size so the recording is sharp.
-- Run `--silent` first and look at `docs/demo/field-shift-demo-silent-test.mp4`. Run the real one once you are happy, and listen to it before uploading.
+- Run `--silent` first and look at `docs/demo/field-aide-demo-silent-test.mp4`. Run the real one once you are happy, and listen to it before uploading.
 - If the app's wording or screens change, the script stops with a message naming what it could not find. Edit `LABELS` or `STEPS` at the top of the script. `tests/test_record_demo.py` also fails when a label it looks for is gone from the app.
 - On another system, record a phone yourself (below) and caption it with `docs/demo_captions.srt`.
 
@@ -69,7 +69,7 @@ Upload to YouTube as **Unlisted** (a link with no login works) or to Google Driv
 
 ## Video description (paste under the video)
 
-> Field Aid, a project for the NASA Space Apps Challenge 2026 ("Adapting Farms with NASA Data"). A voice and picture assistant for rainfed farmers in Vidarbha, built on NASA POWER weather and MODIS satellite data. Audio: the spoken voice is the browser's built-in machine-generated text-to-speech. Code, text and data scripts were written with AI assistance (Claude Code, Anthropic); no AI model runs inside the product. Code: https://github.com/kmcodes/space-apps
+> Field Aide, a project for the NASA Space Apps Challenge 2026 ("Adapting Farms with NASA Data"). A voice and picture assistant for rainfed farmers in Vidarbha, built on NASA POWER weather and MODIS satellite data. Audio: the spoken voice is the browser's built-in machine-generated text-to-speech. Code, text and data scripts were written with AI assistance (Claude Code, Anthropic); no AI model runs inside the product. Code: https://github.com/kmcodes/space-apps
 
 ## Do not show or say
 

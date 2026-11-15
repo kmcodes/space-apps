@@ -1,4 +1,4 @@
-# Field Aid design notes
+# Field Aide design notes
 
 Every screen in `web/` follows this. Change it here first, then in `app/globals.css`.
 

@@ -12,7 +12,7 @@ const anek = Anek_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "Field Aid",
+  title: "Field Aide",
   description: "Compare crop rotations for rainfed farms in Vidarbha, with NASA evidence and the unknowns for each.",
 };
 

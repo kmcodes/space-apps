@@ -63,3 +63,16 @@ def test_the_on_screen_labels_the_script_looks_for_still_exist_in_the_app():
 
 def test_the_script_taps_one_tile_for_each_of_the_eight_questions():
     assert len(R.STEPS) == 8
+
+
+def test_the_hindi_labels_the_screenshot_script_taps_still_exist_in_the_app():
+    """scripts/readme_screenshots.py finds buttons by their Hindi text. If this fails, the Hindi wording changed: update the script."""
+    import re
+    import unicodedata
+
+    nfc = lambda text: unicodedata.normalize("NFC", text)  # noqa: E731
+    web = nfc("".join(p.read_text(encoding="utf8") for p in (ROOT / "web/app").glob("*.ts*")))
+    script = (ROOT / "scripts/readme_screenshots.py").read_text(encoding="utf8")
+    labels = set(re.findall(r'"([^"\n]*[\u0900-\u097F][^"\n]*)"', script))
+    missing = sorted(label for label in labels if nfc(label) not in web)
+    assert missing == [], f"not found in the app's text: {missing}; update scripts/readme_screenshots.py"

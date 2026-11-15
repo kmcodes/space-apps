@@ -22,7 +22,7 @@ export type Step = {
 export type Answers = Partial<Record<Step["id"], string>>;
 
 const SCRIPT_HI = {
-  title: "फ़ील्ड शिफ़्ट",
+  title: "फ़ील्ड एड",
   greeting_title: "नमस्ते",
   taglineLead: "आपके लिए खेती के सुझाव",
   taglineRest: "नीचे दिए गए बटनों में से अपनी पसंद चुनिए।", // one line where it fits, wraps on narrow phones
@@ -48,7 +48,7 @@ const SCRIPT_HI = {
 };
 
 const SCRIPT_EN: typeof SCRIPT_HI = {
-  title: "Field Shift",
+  title: "Field Aid",
   greeting_title: "Namaste",
   taglineLead: "Farm suggestions for you",
   taglineRest: "Pick your choice from the buttons below.", // one line where it fits, wraps on narrow phones

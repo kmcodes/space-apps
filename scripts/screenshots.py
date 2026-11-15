@@ -50,7 +50,7 @@ def main():
         page.wait_for_timeout(1500)
         shot(page, "01-start", full=False)
 
-        page.get_by_role("button", name="बोलने के लिए छुइए").click()  # one tap starts the call
+        page.get_by_role("button", name="बोलने के लिए दबाइए").click()  # one tap starts the call
         for i, label in enumerate(ANSWERS):
             t = tile(page, label)
             t.wait_for(timeout=TILE_WAIT_MS)
@@ -83,7 +83,7 @@ def main():
         page = ctx.new_page()
         page.goto(URL, wait_until="networkidle")
         page.wait_for_timeout(1000)
-        page.get_by_role("button", name="फ़ॉर्म भरने के लिए छुइए").click()
+        page.get_by_role("button", name="फ़ॉर्म भरने के लिए दबाइए").click()
         page.wait_for_timeout(1000)
         shot(page, "14-form")
         browser.close()

@@ -107,7 +107,7 @@ def main():
         page.get_by_role("button", name="हिन्दी").click()
         page.wait_for_timeout(500)
 
-        page.get_by_role("button", name="बोलने के लिए छुइए").click()  # start the call
+        page.get_by_role("button", name="बोलने के लिए दबाइए").click()  # start the call
         answer_all(page)
         page.get_by_text("किसी तरीके को छुइए").wait_for(timeout=180_000)  # the engine may need to wake
         page.wait_for_timeout(1500)
@@ -150,7 +150,7 @@ def main():
         ctx, page = new_page(browser, geolocation=BANGALORE)
         page.goto(args.url, wait_until="networkidle")
         page.wait_for_timeout(1000)
-        page.get_by_role("button", name="बोलने के लिए छुइए").click()
+        page.get_by_role("button", name="बोलने के लिए दबाइए").click()
         t = tile(page, "अकोला")
         t.wait_for(timeout=TILE_WAIT_MS)
         page.wait_for_timeout(800)

@@ -161,3 +161,7 @@ Still open: the second-priority question reads "If not, say no" / "नहीं 
 ## Sunn hemp and horse gram: scored, not shown, and now said so (Amrita, 15 Nov 2026, night)
 
 The engine scores sunn hemp and horse gram as S3 variants, but no screen shows them (the old form results page that listed them is gone). Decision: keep them hidden for the hackathon, because their data is too thin (unverified sowing windows, horse gram sown before soybean is harvested, no mandi prices, and variants skip the coverage rule; engine review problem 2), and say so openly. Added an explainer "दूसरी फ़सलें" / "Other crops" in `web/app/results-script.ts` (Kartik's file, for his review) and a line in the README's honest-status list. Proper fix later: apply the coverage rule to variants and fix the horse gram sowing window, then show them flagged as "too little data".
+
+## App name: Field Aid (Amrita, 15 Nov 2026, night)
+
+The app is now called **Field Aid** ("Field Shift" is the challenge's name). Changed in the page title, the installed-app name (`web/app/manifest.ts`) and the script titles (`call-script.ts`; Hindi "फ़ील्ड एड", machine-drafted). README, demo script and other docs still say Field Shift in places; the Vercel address (`field-shift-opal…`) stays.

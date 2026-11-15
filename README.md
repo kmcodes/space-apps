@@ -22,7 +22,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 
 ```bash
 # engine API (from the repo root)
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # requirements.txt alone is enough to run the API
 .venv/bin/python -m pytest                                   # 146 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 

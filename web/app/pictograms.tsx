@@ -10,6 +10,13 @@ export type PictogramId =
   | "cotton"
   | "chickpea"
   | "bare"
+  | "pigeon_pea"
+  | "sorghum"
+  | "plus"
+  | "thumbs_up"
+  | "unknown"
+  | "expert"
+  | "sun"
   | "then"
   | "rain"
   | "well"
@@ -81,6 +88,52 @@ const SHAPES: Record<PictogramId, ReactNode> = {
     <>
       <rect x="6" y="24" width="36" height="18" className="fill-soil stroke-soil" />
       <path d="M12 30l5 4-3 5M24 28l4 5-4 4M34 31l3 4-2 4" className="stroke-limewash" strokeWidth={1.6} />
+    </>
+  ),
+  pigeon_pea: (
+    <>
+      <path d="M24 42V14" className="stroke-soil" />
+      <path d="M24 35c-7 0-10-3-10-8 7 0 10 3 10 8z" className="fill-crop stroke-soil" />
+      <path d="M24 28c7 0 10-3 10-8-7 0-10 3-10 8z" className="fill-crop stroke-soil" />
+      <circle cx="17" cy="15" r="3.5" className="fill-turmeric stroke-soil" />
+      <circle cx="31" cy="13" r="3.5" className="fill-turmeric stroke-soil" />
+      <circle cx="24" cy="8" r="3.5" className="fill-turmeric stroke-soil" />
+      <path d="M6 42h36" className="stroke-soil" />
+    </>
+  ),
+  sorghum: (
+    <>
+      <path d="M24 42V20" className="stroke-soil" />
+      <ellipse cx="24" cy="13" rx="6" ry="9" className="fill-soil-soft stroke-soil" />
+      <path d="M24 37c-8 0-12-4-14-9M24 32c8 0 12-4 14-9" className="stroke-crop" strokeWidth={3} />
+      <path d="M6 42h36" className="stroke-soil" />
+    </>
+  ),
+  plus: <path d="M24 12v24M12 24h24" className="stroke-soil-soft" />,
+  thumbs_up: (
+    <>
+      <path d="M8 22h8v19H8z" className="fill-paper stroke-soil" />
+      <path d="M16 24l7-14c3 0 5 2 4 6l-1 6h11c3 0 5 3 4 6l-3 12c-1 3-3 4-5 4H16z" className="fill-crop stroke-soil" />
+    </>
+  ),
+  unknown: (
+    <>
+      <circle cx="24" cy="24" r="17" className="fill-turmeric-wash stroke-soil" />
+      <path d="M18.5 19a5.5 5.5 0 1 1 8.5 4.6c-2 1.3-3 2.4-3 4.9" className="stroke-soil" strokeWidth={3} />
+      <path d="M24 35v.5" className="stroke-soil" strokeWidth={3.5} />
+    </>
+  ),
+  expert: (
+    <>
+      <circle cx="17" cy="17" r="6" className="fill-paper stroke-soil" />
+      <path d="M5 41c0-8 5-12 12-12s12 4 12 12z" className="fill-monsoon-wash stroke-soil" />
+      <path d="M28 7h15v11h-6l-4 4v-4h-5z" className="fill-paper stroke-soil" />
+    </>
+  ),
+  sun: (
+    <>
+      <circle cx="24" cy="29" r="8" className="fill-turmeric stroke-soil" />
+      <path d="M24 10v6M9 29h6M33 29h6M13.5 18.5l4 4M34.5 18.5l-4 4M6 40h36" className="stroke-soil" />
     </>
   ),
   then: <path d="M8 24h30M30 15l9 9-9 9" className="stroke-soil-soft" />,

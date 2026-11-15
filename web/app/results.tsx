@@ -1,0 +1,329 @@
+"use client";
+
+// The results for a farmer who may not read (docs/VOICE_APP_PLAN.md):
+// - a list of choices, best first, with a thumbs-up on the top ones and no scores;
+// - for one choice: the 12-month year bar (kharif and rabi grouped), then three picture rows that speak when tapped;
+// - sources and validity flags sit behind a small "for experts" link.
+
+import { useEffect, useState } from "react";
+import { DISCLAIMER, type Initial } from "./field-shift";
+import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
+import { speakHindi, stopSpeech } from "./speech";
+import {
+  RESULTS,
+  SEASONS,
+  choices,
+  expertLines,
+  goodLines,
+  picsFor,
+  runs,
+  strategyName,
+  strategyPics,
+  summarySpeech,
+  unknownLines,
+  yearBar,
+  type Choice,
+  type Result,
+  type Strategy,
+} from "./results-script";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+
+type Row = "good" | "unknown" | "expert";
+
+function Pics({ pics, className }: { pics: PictogramId[]; className: string }) {
+  return (
+    <span className="flex items-center gap-1" aria-hidden>
+      {pics.map((id, i) => (
+        <Pictogram key={i} id={id} className={id === "then" || id === "plus" ? "h-5 w-5" : className} />
+      ))}
+    </span>
+  );
+}
+
+/* Twelve months, June first, so the kharif block and the rabi block each sit together.
+   Green = a crop in the ground, dark = bare field. The compact version has no pictures. */
+function YearBar({ s, full }: { s: Strategy; full?: boolean }) {
+  const bar = yearBar(s.calendar, s.kind === "mixed");
+  const gap = (i: number) => (i === 4 || i === 9 ? "border-r-[6px] border-limewash" : "");
+  return (
+    <div aria-hidden>
+      {full && (
+        <div className="grid grid-cols-12">
+          {SEASONS.map((se, i) => (
+            <div
+              key={se.key}
+              style={{ gridColumn: `${se.from + 1} / span ${se.length}` }}
+              className={`flex flex-col items-center justify-end pb-1 ${i < 2 ? "border-r-[6px] border-limewash" : ""} ${
+                se.key === "kharif" ? "bg-monsoon-wash" : se.key === "rabi" ? "bg-turmeric-wash" : "bg-rule"
+              }`}
+            >
+              {se.key !== "summer" && <Pictogram id={se.key === "kharif" ? "rain" : "sun"} className="h-8 w-8" />}
+              <span className="narrow text-sm font-bold" lang="hi">
+                {RESULTS[se.key]}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className={`grid grid-cols-12 ${full ? "mt-1" : ""}`}>
+        {bar.map((crops, i) => (
+          <span key={i} className={`${full ? "h-10" : "h-3.5"} ${crops.length ? "bg-crop" : "bg-soil"} ${gap(i)}`} />
+        ))}
+      </div>
+      {full && (
+        <div className="mt-1 grid grid-cols-12">
+          {runs(bar).map((r) => (
+            <div key={r.start} style={{ gridColumn: `${r.start + 1} / span ${r.length}` }} className="flex min-w-0 items-center justify-center">
+              <Pics pics={r.crops.length ? picsFor(r.crops, "plus") : ["bare"]} className="h-8 w-8 min-w-0 shrink" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Disclaimer() {
+  return <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>;
+}
+
+function Detail({ c, onBack }: { c: Choice; onBack: () => void }) {
+  const s = c.strategy;
+  const [open, setOpen] = useState<Row | null>(null);
+  const [speaking, setSpeaking] = useState<Row | null>(null);
+  const name = strategyName(s);
+  const rows: { key: Row; label: string; icon: PictogramId; lines: string[] }[] = [
+    { key: "good", label: RESULTS.good, icon: "thumbs_up", lines: goodLines(s) },
+    { key: "unknown", label: RESULTS.unknown, icon: "unknown", lines: unknownLines(s) },
+    { key: "expert", label: RESULTS.expert, icon: "expert", lines: expertLines(s) },
+  ];
+
+  useEffect(() => {
+    speakHindi(`${name}। तीन बातें छुइए: ${RESULTS.good}, ${RESULTS.unknown}, और ${RESULTS.expert}।`);
+    return stopSpeech;
+  }, [name]);
+
+  function tap(r: (typeof rows)[number]) {
+    setOpen(r.key);
+    setSpeaking(r.key);
+    speakHindi(`${r.label}। ${r.lines.join(" ")}`, () => setSpeaking(null));
+  }
+
+  return (
+    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
+      <button
+        onClick={() => {
+          stopSpeech();
+          onBack();
+        }}
+        className="flex items-center gap-1 self-start rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
+        lang="hi"
+      >
+        <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+        {RESULTS.back}
+      </button>
+
+      <div className="mt-5 flex items-center gap-3">
+        {c.top && <Pictogram id="thumbs_up" className="h-14 w-14 shrink-0" />}
+        <div>
+          <Pics pics={strategyPics(s)} className="h-12 w-12" />
+          <h2 className="narrow mt-1 text-3xl font-extrabold leading-tight" lang="hi">
+            {name}
+          </h2>
+          {c.current && (
+            <p className="text-base font-semibold text-soil-soft" lang="hi">
+              {RESULTS.current}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <YearBar s={s} full />
+      </div>
+
+      <ol className="mt-6 border-t-2 border-soil">
+        {rows.map((r) => (
+          <li key={r.key} className="border-b border-rule">
+            <button onClick={() => tap(r)} className="flex min-h-24 w-full items-center gap-4 py-3 text-left">
+              <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-field border-2 border-soil bg-paper p-1.5">
+                <Pictogram id={r.icon} />
+              </span>
+              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang="hi">
+                {r.label}
+              </span>
+              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === r.key ? "text-monsoon" : "text-soil-soft"}`} />
+            </button>
+            {open === r.key && (
+              <ul className="space-y-1.5 pb-4 pl-5 pr-2 text-lg" lang="hi">
+                {r.lines.map((l, i) => (
+                  <li key={i} className="border-l-4 border-rule pl-3">
+                    {l}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <details className="mt-5">
+        <summary className="cursor-pointer text-sm font-semibold text-monsoon underline underline-offset-2" lang="hi">
+          {RESULTS.forExperts}
+        </summary>
+        <ul className="mt-2 space-y-2.5 text-sm">
+          {s.evidence.map((e, i) => (
+            <li key={i} className="border-l-4 border-rule pl-3">
+              <p>{e.claim}</p>
+              <p className="text-soil-soft">
+                Source: {e.dataset ?? "not given"}. Period: {e.period ?? "not given"}. Check status: {e.validity}.
+              </p>
+            </li>
+          ))}
+        </ul>
+      </details>
+      <Disclaimer />
+    </main>
+  );
+}
+
+export default function Results({ answers, onRestart }: { answers: Initial; onRestart: () => void }) {
+  const [result, setResult] = useState<Result | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch(`${API_URL}/compare`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            location: answers.location,
+            current_rotation: answers.rotation,
+            water_source: answers.water_source,
+            priorities: [answers.priority1, answers.priority2].filter((p, i, all) => p && all.indexOf(p) === i),
+            constraints: { water_availability: answers.water_level, equipment: answers.equipment, market: answers.market },
+          }),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        const data: Result = await res.json();
+        if (!alive) return;
+        setResult(data);
+        speakHindi(data.served ? summarySpeech(choices(data)) : "माफ़ कीजिए, इस जगह के लिए हमारे पास जानकारी नहीं है।");
+      } catch {
+        if (alive) setFailed(true);
+      }
+    })();
+    return () => {
+      alive = false;
+      stopSpeech();
+    };
+  }, [answers, attempt]);
+
+  const list = result?.served ? choices(result) : [];
+  const chosen = list.find((c) => c.strategy.id === selected);
+
+  if (chosen) return <Detail c={chosen} onBack={() => setSelected(null)} />;
+
+  return (
+    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
+      <div className="flex items-center justify-between gap-3">
+        <button
+          onClick={() => {
+            stopSpeech();
+            onRestart();
+          }}
+          className="rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
+          lang="hi"
+        >
+          {RESULTS.again}
+        </button>
+        {result?.served && (
+          <button
+            onClick={() => speakHindi(summarySpeech(list))}
+            className="flex items-center gap-2 rounded-field border-2 border-monsoon px-3 py-1.5 text-base font-bold text-monsoon"
+            lang="hi"
+          >
+            <SpeakerIcon className="h-5 w-5" />
+            {RESULTS.replay}
+          </button>
+        )}
+      </div>
+
+      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang="hi">
+        {RESULTS.title}
+      </h1>
+
+      {!result && !failed && (
+        <p className="mt-6 text-xl font-semibold text-soil-soft" lang="hi" role="status">
+          {RESULTS.loading}
+        </p>
+      )}
+      {failed && (
+        <div className="mt-6 border-l-4 border-almanac p-3" role="alert">
+          <p className="text-lg font-semibold text-almanac" lang="hi">
+            {RESULTS.error}
+          </p>
+          <button
+            onClick={() => {
+              setFailed(false);
+              setAttempt((n) => n + 1);
+            }}
+            className="mt-3 rounded-field border-2 border-almanac px-3 py-1.5 text-base font-bold text-almanac"
+            lang="hi"
+          >
+            {RESULTS.retry}
+          </button>
+        </div>
+      )}
+      {result && !result.served && <p className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3 text-base">{result.reason}</p>}
+
+      {list.length > 0 && (
+        <>
+          <p className="mt-2 text-lg text-soil-soft" lang="hi">
+            {RESULTS.tapHint}
+          </p>
+          <ul className="mt-4 space-y-3">
+            {list.map((c) => (
+              <li key={c.strategy.id}>
+                <button
+                  onClick={() => setSelected(c.strategy.id)}
+                  className={`flex w-full items-center gap-3 rounded-field bg-paper text-left ${c.top ? "border-4 border-soil p-2.5" : "border-2 border-soil p-3"}`}
+                >
+                  <span className="flex h-14 w-14 shrink-0 items-center justify-center">
+                    {c.top ? (
+                      <Pictogram id="thumbs_up" />
+                    ) : c.strategy.incomplete ? (
+                      <Pictogram id="unknown" />
+                    ) : null}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <Pics pics={strategyPics(c.strategy)} className="h-10 w-10" />
+                    <span className="narrow mt-1 block text-xl font-bold leading-tight" lang="hi">
+                      {strategyName(c.strategy)}
+                    </span>
+                    {(c.current || c.strategy.incomplete) && (
+                      <span className="block text-sm font-semibold text-soil-soft" lang="hi">
+                        {c.strategy.incomplete ? RESULTS.notRanked : RESULTS.current}
+                      </span>
+                    )}
+                    <span className="mt-2 block">
+                      <YearBar s={c.strategy} />
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+      <Disclaimer />
+    </main>
+  );
+}

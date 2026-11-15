@@ -8,6 +8,8 @@ import { useEffect, useRef, useState } from "react";
 import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
 import { SCRIPT, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
+import Results from "./results";
+import { pickHindiVoice } from "./speech";
 
 type Phase = "home" | "call" | "results" | "form";
 type Status = "speaking" | "listening" | "tap";
@@ -28,16 +30,6 @@ type RecognitionCtor = new () => Recognition;
 function recognitionCtor(): RecognitionCtor | null {
   const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor };
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
-}
-
-// The app speaks as a woman ("दिखाती हूँ"), so pick a female Hindi voice when the device has a choice.
-// Voices do not say their gender; these are the common names (Google Hindi, Microsoft Kalpana, Apple Lekha).
-const MALE_VOICE = /hemant|ravi|madhur|prabhat|\bmale\b/i;
-const FEMALE_VOICE = /female|kalpana|swara|lekha|google/i;
-
-function pickHindiVoice(synth: SpeechSynthesis): SpeechSynthesisVoice | undefined {
-  const hindi = synth.getVoices().filter((v) => v.lang.toLowerCase().startsWith("hi"));
-  return hindi.find((v) => FEMALE_VOICE.test(v.name)) ?? hindi.find((v) => !MALE_VOICE.test(v.name)) ?? hindi[0];
 }
 
 // Jan to Dec for a soybean then chickpea field: crop in the ground except the bare Mar to May window.
@@ -224,15 +216,17 @@ export default function VoiceCall() {
     setPhase(to);
   }
 
-  if (phase === "results" || phase === "form") {
+  if (phase === "results") return <Results answers={answers as Initial} onRestart={() => leave("home")} />;
+
+  if (phase === "form") {
     return (
       <>
         <div className="mx-auto w-full max-w-xl px-4 pt-3">
           <button onClick={() => leave("home")} className="rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold" lang="hi">
-            {phase === "results" ? SCRIPT.again : SCRIPT.back}
+            {SCRIPT.back}
           </button>
         </div>
-        <FieldShift initial={phase === "results" ? (answers as Initial) : undefined} />
+        <FieldShift />
       </>
     );
   }

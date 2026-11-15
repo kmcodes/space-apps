@@ -116,3 +116,18 @@ Horse gram shows the highest number in the whole response while it has no price 
 ### Crop sheet follow-up (Amrita)
 
 `docs/crop_gap_research.md` gives verified values that conflict with `data/crops.csv`: chickpea heat threshold 35 C (sheet 32), horse gram duration 120-180 days (sheet 85-110), sunn hemp nitrogen 50-60 kg/ha (sheet 150-165). To be merged into the sheet, which also starts on issue 6. Not done yet.
+
+## Deployment: decisions needed (Amrita, 15 Nov 2026, 10:35)
+
+The web app in `web/` runs locally against the API (see `web/README.md`). Nothing is deployed. Two decisions for Kartik:
+
+1. **Whose Vercel account hosts the web app?** Kartik owns the GitHub repo, so importing it from his account gives a redeploy on every push. The alternative is Amrita deploying from her PC with the Vercel command-line tool.
+2. **Where does the engine API run?** The docs name Vercel for the PWA but no host for the Python API. It needs a public HTTPS address before the deployed web app can work. One option is Render's free tier, which runs FastAPI from the repo but sleeps when idle, so the first request after a pause can take up to a minute.
+
+Things to settle with the API host:
+
+- `requirements.txt` includes `earthaccess` and `pytest`, which the API does not need at run time. A slimmer requirements file for the host would install faster.
+- `ALLOWED_ORIGINS` should be set to the web app's address. The default is open.
+- The usage log and `/admin/stats` need their token set on the host.
+
+Also from the web build: `water_source` is collected on the form and sent, but the engine ignores it (engine review, problem 3).

@@ -2,7 +2,7 @@ crop,role,season,sow_start,sow_end,duration_days_min,duration_days_max,water_nee
 soybean,main,kharif,06-15,07-15,85,110,450,700,1.15,0.50,medium,medium,flowering and pod fill,35,yes,,,medium,medium,low,low,basic,duration_days_max;sensitive_stage;heat_threshold_c;ratings
 cotton,main,kharif,06-15,06-30,180,195,700,1300,1.15-1.20,0.70-0.50,high,medium,flowering and boll formation,35,no,0,0,none,medium,low,low,sprayer,sensitive_stage;heat_threshold_c;ratings
 chickpea,second crop,rabi,10-01,10-15,85,110,200,300,1.00,0.35,low,high,flowering and pod fill,35,yes,23,97,medium,low,low,low,basic,duration_days;water_need_mm;ratings
-pigeon_pea,intercrop,kharif,06-15,07-10,150,180,,,,,medium,high,flowering and pod fill,35,yes,4,200,medium,high,medium,low,basic,duration_days;sensitive_stage;heat_threshold_c;ratings
+pigeon_pea,intercrop,kharif,06-15,07-10,150,180,550,670,1.10,0.79,medium,high,flowering and pod fill,35,yes,4,200,medium,high,medium,low,basic,duration_days_min;water_need_mm;sensitive_stage;heat_threshold_c;ratings
 sorghum_kharif,main,kharif,06-15,07-10,120,130,450,650,1.00-1.10,0.55,medium,high,flowering and grain fill,38,no,0,0,none,medium,high,high,basic,sensitive_stage;heat_threshold_c;ratings
 sorghum_rabi,second crop,rabi,09-15,10-15,120,130,450,650,1.00-1.10,0.55,medium,high,flowering and grain fill,38,no,0,0,none,medium,high,high,basic,sow_start;sow_end;sensitive_stage;heat_threshold_c;ratings
 sunn_hemp,cover crop,,,,60,90,,,,,medium,medium,,,yes,50,60,medium,high,high,low,basic,sow_start;sow_end;ratings

@@ -59,7 +59,7 @@ Field Shift supports, and does not replace, the judgement of farmers and local a
 - ISRIC SoilGrids (clay, sand, pH, soil carbon): soil context.
 - ERA5 reanalysis (Copernicus/ECMWF) through Open-Meteo, CC BY 4.0: independent cross-check of POWER.
 - Agmarknet mandi prices via data.gov.in, and announced minimum support prices: market score.
-- Crop parameters from FAO-56, FAO Irrigation Water Management Training Manual 3, ICAR-CRIDA Akola contingency plan, ICRISAT and FAO ECOCROP. Each value is marked valid or unverified in `data/crops.csv`.
+- Crop parameters from FAO-56, FAO Irrigation Water Management Training Manual 3, ICAR-CRIDA Akola contingency plan, the PDKV Akola lysimeter study (MahaPOCRA), ICRISAT and FAO ECOCROP. Each value is marked valid or unverified in `data/crops.csv`.
 - Google Maps keyless embed for the satellite map (not an official product; coordinates rounded to about 100 m are sent to Google).
 
 ## What is not done (say this plainly)

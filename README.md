@@ -30,7 +30,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 ```bash
 # engine API (from the repo root)
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # requirements.txt alone is enough to run the API
-.venv/bin/python -m pytest                                   # 146 tests
+.venv/bin/python -m pytest                                   # 153 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 
 # web app (second terminal)
@@ -77,7 +77,7 @@ NASA SMAP soil moisture was searched in the catalogue but is not used.
 | ISRIC SoilGrids (clay, sand, pH, soil carbon) | Soil context |
 | ERA5 reanalysis (Copernicus/ECMWF) through Open-Meteo, CC BY 4.0 | Independent cross-check of POWER |
 | Agmarknet mandi prices via data.gov.in, and announced minimum support prices | Market score |
-| Crop parameters: FAO-56, FAO Irrigation Water Management Training Manual 3, ICAR-CRIDA Akola contingency plan, ICRISAT, FAO ECOCROP | Crop sheet (`data/crops.csv`); each value is marked valid or unverified |
+| Crop parameters: FAO-56, FAO Irrigation Water Management Training Manual 3, ICAR-CRIDA Akola contingency plan, PDKV Akola lysimeter study (MahaPOCRA), ICRISAT, FAO ECOCROP | Crop sheet (`data/crops.csv`); each value is marked valid or unverified |
 
 Every number in the crop sheet is marked **valid** (the source was opened and the number read) or **unverified**. See [docs/crop_sheet.md](docs/crop_sheet.md) and [docs/crop_gap_research.md](docs/crop_gap_research.md).
 
@@ -107,7 +107,7 @@ api/         POST /compare, GET /health, GET /admin/stats
 web/         Next.js PWA: voice call, picture questions, results
 voice/       reserved for the Sarvam speech integration (empty for now)
 docs/        design, crop sheet, data quality, plans
-tests/       146 tests, written first
+tests/       153 tests, written first
 ```
 
 - Engine design and the rules behind every score: [docs/ENGINE_DESIGN.md](docs/ENGINE_DESIGN.md).

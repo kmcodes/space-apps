@@ -1,3 +1,6 @@
+import copy
+from dataclasses import replace
+
 import pytest
 
 from engine.compare import Engine
@@ -11,6 +14,18 @@ LINE_FIELDS = {"claim", "value", "dataset", "period", "resolution", "validity", 
 
 def run(**over):
     return ENGINE.compare({**REQ, **over})
+
+
+def engine_with_blank_pigeon_pea_water_need():
+    """The pigeon pea water need now has a derived value. The rules for a missing input (a gap is not a zero, a
+    strategy with too little scored weight is not ranked) are still tested, on a copy where it is blank again."""
+    blank = copy.copy(ENGINE)
+    blank.crops = {**ENGINE.crops, "pigeon_pea": replace(ENGINE.crops["pigeon_pea"], water_need_mm_min=None, water_need_mm_max=None)}
+    return blank
+
+
+def run_blank(**over):
+    return engine_with_blank_pigeon_pea_water_need().compare({**REQ, **over})
 
 
 def test_returns_four_strategies_in_order_with_the_expected_keys():
@@ -43,8 +58,8 @@ def test_every_evidence_line_carries_dataset_period_and_validity():
             assert line["dataset"] and line["period"] and line["validity"] in {"valid", "degraded", "unverified"}
 
 
-def test_blank_is_not_zero_pigeon_pea_water_need_is_a_gap_for_the_intercrop():
-    s2 = {s["id"]: s for s in run()["strategies"]}["S2"]
+def test_blank_is_not_zero_a_blank_pigeon_pea_water_need_is_a_gap_for_the_intercrop():
+    s2 = {s["id"]: s for s in run_blank()["strategies"]}["S2"]
     assert s2["components"]["water_fit"]["status"] == "missing"
     assert s2["components"]["water_fit"]["score"] is None
     assert any("water" in g.lower() and "pigeon" in g.lower() for g in s2["card"]["gaps"])
@@ -123,7 +138,7 @@ def test_scores_within_five_points_of_the_top_are_reported_as_a_tie():
 
 
 def test_a_strategy_scored_on_too_little_of_the_intended_weight_is_incomplete_and_not_ranked():
-    out = run(priorities=["water_saving"])  # S2 has no water fit (pigeon pea need is blank): water is 55% of the weight
+    out = run_blank(priorities=["water_saving"])  # S2 has no water fit (pigeon pea need blank): water is 55% of the weight
     s2 = {s["id"]: s for s in out["strategies"]}["S2"]
     assert s2["data_coverage"] < 0.7
     assert s2["incomplete"] is True
@@ -132,10 +147,21 @@ def test_a_strategy_scored_on_too_little_of_the_intended_weight_is_incomplete_an
 
 
 def test_a_strategy_with_a_small_gap_is_still_ranked():
-    out = run(priorities=["market_income"])  # water fit is only a small share of the weight here
+    out = run_blank(priorities=["market_income"])  # water fit is only a small share of the weight here
     s2 = {s["id"]: s for s in out["strategies"]}["S2"]
     assert s2["incomplete"] is False
     assert "S2" in out["ranking"]
+
+
+def test_cotton_with_pigeon_pea_is_scored_on_every_part_and_ranked_once_pigeon_pea_has_a_water_need():
+    out = run(priorities=["water_saving"])
+    s2 = {s["id"]: s for s in out["strategies"]}["S2"]
+    assert s2["data_coverage"] == 1.0
+    assert s2["incomplete"] is False
+    assert "S2" in out["ranking"]
+    water = s2["components"]["water_fit"]
+    assert water["status"] == "ok" and water["score"] is not None
+    assert water["validity"] == "unverified"  # the water need is derived by us, so the result stays an estimate
 
 
 def test_a_missing_price_does_not_win_a_market_priority():

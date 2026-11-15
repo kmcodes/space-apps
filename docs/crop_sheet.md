@@ -40,15 +40,18 @@ Market income is not here. It comes from `data/processed/mandi_monthly.csv` and 
 | Duration | cotton 180-195, sorghum 120-130 | FAO Irrigation Water Management Training Manual 3, ch. 2 | valid |
 | Duration | soybean min 85 | FAO-56 Table 11, tropics row | valid |
 | Duration | soybean max 110 | Typical for local varieties; FAO manual's global 135-150 does not fit (see checks) | unverified |
-| Duration | chickpea, pigeon pea | ICRISAT via search summaries, and general practice | unverified |
+| Duration | pigeon pea max 180 | PDKV Akola lysimeter study (MahaPOCRA, Phase X report, Table 3): stages 24 + 52 + 58 + 46 = 180 days; sown 24 and 30 June, harvested 20 and 28 December | valid |
+| Duration | pigeon pea min 150, chickpea | ICRISAT via search summaries, and general practice | unverified |
 | Duration | horse gram 120-180 | ECHO plant sheet: "in 120-180 days the seed is mature" (40-50 days to pasture) | valid |
 | Duration | sunn hemp 60-90 | Feedipedia: fixes N "within 60-90 days"; "ploughed in 2 months after sowing" | valid |
 | Water need (mm) | cotton 700-1300, soybean 450-700, sorghum 450-650 | FAO Training Manual 3, ch. 2 | valid |
 | Water need (mm) | chickpea 200-300 | ICRISAT literature via search summary | unverified |
 | Water need (mm) | horse gram 400-800 | Sources conflict (400-800, 640-750, ~800) | unverified |
-| Water need (mm) | pigeon pea, sunn hemp | No figure found | missing |
+| Water need (mm) | pigeon pea 550-670 | **Derived by us**, not published: PDKV measured Kc x NASA POWER reference evapotranspiration at the Akola point, 1981-2025, 180 days from a 24 June sowing. FAO-56 Penman-Monteith (2 m/s default wind) gives a mean of about 600 mm, Hargreaves about 640 mm; the range is the lower quartile of the first to the upper quartile of the second. Calculation: `pipeline/pigeon_pea_water_need.py` | unverified |
+| Water need (mm) | sunn hemp | No figure found | missing |
 | Kc mid, Kc end | soybean, cotton, chickpea, sorghum | FAO-56 Table 12 | valid |
-| Kc | pigeon pea, sunn hemp, horse gram | Not listed in FAO-56 | missing |
+| Kc mid, Kc end | pigeon pea 1.10, 0.79 | PDKV Akola lysimeter study (MahaPOCRA, Phases IX and X), mean of kharif 2022 and 2023: initial 0.53, development 0.81, mid 1.10, late 0.79 (FAO-modified values in the same report: 0.50, 0.78, 1.08, 0.76) | valid |
+| Kc | sunn hemp, horse gram | Not listed in FAO-56 | missing |
 | N fixation (kg/ha) | chickpea 23-97, pigeon pea 4-200 | CGIAR source via search summary. ICRISAT Patancheru estimate for pigeon pea: about 69 per season | unverified |
 | N fixation (kg/ha) | sunn hemp 50-60 | Feedipedia: "can fix about 50-60 kg N/ha within 60-90 days". Replaces 150-165 (Tropical Forages, search summary only) | valid |
 | N fixation (kg/ha) | soybean, horse gram | Not looked up; rating only | missing |
@@ -85,7 +88,7 @@ Links:
 
 1. Sunn hemp has no sowing window for a slot after soybean, and the sources read so far do not support one: Feedipedia says it is "mainly grown during the rainy season" as green manure and needs at least 25 mm of water a week for full growth and nitrogen fixation.
 2. Rabi sorghum and horse gram sowing windows are not from a Vidarbha source.
-3. Pigeon pea has no water-need or Kc figure. Its rating is a judgement.
+3. Pigeon pea's water need is our own derivation (see the sources table), not a published figure, and its low/medium/high ratings are still judgements. The PDKV report's taluka-wise water requirement tables (its Appendix D) were not in the PDF we could open; they would replace our derivation.
 4. All heat thresholds, sensitive stages and low/medium/high ratings are unverified.
 5. Durations depend on variety. The table gives ranges, not a variety recommendation.
 6. Cotton is rated `sprayer` for equipment as a judgement (pest pressure); confirm.
@@ -93,5 +96,7 @@ Links:
 8. Horse gram at 120-180 days sown in October matures between February and April, which runs into the hot season.
 
 ## Change log
+
+- 15 Nov 2026: pigeon pea. Read the measured Kc (0.53, 0.81, 1.10, 0.79), stage lengths (180 days) and sowing dates from the PDKV Akola lysimeter reports (Phases IX and X) and marked those fields valid. Derived the seasonal water need (550-670 mm) from that Kc and POWER weather and marked it unverified. Effect: "Cotton with pigeon pea" is now scored on all its parts and ranked (before, its water fit was missing and it was not ranked). Water fit stays an estimate. Tests that used the blank pigeon pea water need as their example of a missing input now blank it in a copy of the engine.
 
 - 15 Nov 2026: merged three verified values from `docs/crop_gap_research.md` after re-opening each source: chickpea heat threshold 32 to 35 C; horse gram duration 85-110 to 120-180 days; sunn hemp nitrogen 150-165 to 50-60 kg/ha, duration 45-60 to 60-90 days, and its `n_fixation` rating high to medium (rating is still a judgement).

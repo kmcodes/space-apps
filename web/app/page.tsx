@@ -1,5 +1,5 @@
-import FieldShift from "./field-shift";
+import VoiceCall from "./voice-call";
 
 export default function Home() {
-  return <FieldShift />;
+  return <VoiceCall />;
 }

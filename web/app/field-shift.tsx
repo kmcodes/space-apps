@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Where the engine API runs. Set NEXT_PUBLIC_API_URL for a deployed build.
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
-const DISCLAIMER =
+export const DISCLAIMER =
   "This tool supports, and does not replace, the judgement of farmers and local agricultural experts.";
 
 const LOCATIONS = [
@@ -341,21 +341,37 @@ function StrategySection({ s, standing }: { s: Strategy; standing: string }) {
   );
 }
 
-export default function FieldShift() {
-  const [location, setLocation] = useState("akola");
-  const [rotation, setRotation] = useState("soybean_fallow");
-  const [waterSource, setWaterSource] = useState("rainfed");
-  const [priority1, setPriority1] = useState("water_saving");
-  const [priority2, setPriority2] = useState("");
-  const [waterLevel, setWaterLevel] = useState("low");
-  const [equipment, setEquipment] = useState("basic");
-  const [market, setMarket] = useState("mandi");
+// Answers handed over by the voice call. When given, the comparison runs on load.
+export type Initial = Partial<{
+  location: string;
+  rotation: string;
+  water_source: string;
+  priority1: string;
+  priority2: string;
+  water_level: string;
+  equipment: string;
+  market: string;
+}>;
+
+export default function FieldShift({ initial }: { initial?: Initial } = {}) {
+  const [location, setLocation] = useState(initial?.location ?? "akola");
+  const [rotation, setRotation] = useState(initial?.rotation ?? "soybean_fallow");
+  const [waterSource, setWaterSource] = useState(initial?.water_source ?? "rainfed");
+  const [priority1, setPriority1] = useState(initial?.priority1 ?? "water_saving");
+  const [priority2, setPriority2] = useState(initial?.priority2 ?? "");
+  const [waterLevel, setWaterLevel] = useState(initial?.water_level ?? "low");
+  const [equipment, setEquipment] = useState(initial?.equipment ?? "basic");
+  const [market, setMarket] = useState(initial?.market ?? "mandi");
   const [result, setResult] = useState<Result | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function compare(e: React.FormEvent) {
+  function compare(e: React.FormEvent) {
     e.preventDefault();
+    void run();
+  }
+
+  async function run() {
     setLoading(true);
     setError("");
     try {
@@ -379,6 +395,12 @@ export default function FieldShift() {
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    if (initial) void run();
+    // Runs once on load; the call hands over complete answers.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const served = result?.served ? result : null;
   const ranked = served

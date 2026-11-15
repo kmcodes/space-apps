@@ -65,7 +65,7 @@ Field Shift supports, and does not replace, the judgement of farmers and local a
 ## What is not done (say this plainly)
 
 - Speech uses the browser's built-in Hindi (Chrome on Android works best). Sarvam speech is planned, not built.
-- Not deployed. Voice and phone location need HTTPS, so the demo is a recorded video plus a local run.
+- Hosted on free tiers (Vercel and Render): the API sleeps when idle and takes about 30 seconds to wake. Redeploys after a push depend on a watcher script on Amrita's PC.
 - All Hindi text is machine-drafted and has not been reviewed by a native speaker. Marathi is not done.
 - Crop pictures are drawn placeholders.
 - The engine ignores the water source the farmer gives.

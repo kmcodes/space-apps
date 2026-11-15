@@ -3,11 +3,13 @@
 CORS: set ALLOWED_ORIGINS (comma separated) for the deployed PWA. Default is open, which is fine for a demo only.
 """
 import os
+import time
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, model_validator
 
+from api.usage import record, router as usage_router
 from engine.compare import Engine
 from engine.coverage import presets
 from engine.strategies import EXISTING
@@ -16,6 +18,7 @@ app = FastAPI(title="Field Shift engine", version="0.1")
 origins = [o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "*").split(",")]
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"])
 engine = Engine.from_repo()
+app.include_router(usage_router)
 
 
 class CompareRequest(BaseModel):
@@ -45,7 +48,10 @@ def health():
 
 @app.post("/compare")
 def compare(req: CompareRequest):
+    started = time.perf_counter()
     try:
-        return engine.compare(req.model_dump())
+        out = engine.compare(req.model_dump())
+        record(req.model_dump(), bool(out.get("served")), started)
+        return out
     except ValueError as e:  # e.g. an unknown priority
         raise HTTPException(status_code=422, detail=str(e))

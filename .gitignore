@@ -10,3 +10,4 @@ node_modules/
 .~lock*
 process_log.md
 secrets.md
+data/usage.jsonl

@@ -52,3 +52,67 @@ As of 17:10 on Saturday, `engine/`, `api/`, `web/` and `voice/` are empty. Propo
 6. **Scenario slider:** cut for now.
 7. **Language:** Hindi for the demo is fine. No Marathi reviewer identified yet.
 8. **Who drives which file:** to agree.
+
+## Review of engine v0 code (Amrita, 15 Nov 2026, 10:10)
+
+Reviewed at commit `c31270d`. Requirements installed in a fresh `.venv`, all 134 tests pass, and `Engine.compare` returns four scored strategies for every input tried (Akola and Washim; default, forage, water saving with low water, market income, nitrogen; current rotation cotton). Run directly, not through a live server.
+
+### Status of the seven design issues
+
+| # | Issue | Status |
+|---|---|---|
+| 1 | Blank values scored as zero | Fixed. Blank is a gap, and a strategy below 70% coverage is not ranked. |
+| 2 | Nitrogen from range midpoint | Fixed. Uses the rating. |
+| 3 | Sensitive stages as day numbers | Not needed yet. Heat and dry-spell scoring are not in v0. |
+| 4 | Combining crops into a strategy | Fixed (sequence, mixed, variants). |
+| 5 | Uneven priority boost | Fixed. First priority gets a fixed 40%. Forage as priority now puts S3 first. |
+| 6 | Confidence grey everywhere | **Open, and it happened.** S1, S2 and S3 show confidence 0.0 for every input tried. |
+| 7 | Market score as income | Fixed. Renamed price signal; MSP-only is a gap. |
+
+### New problems
+
+**1. Leaving the field empty can beat growing a second crop (serious).**
+In a sequence, nitrogen, forage and market are averaged over the days a crop is in the ground (`score.py`, `_combine(..., "mean", days)`), so fallow days are ignored.
+
+| Akola, default inputs | nitrogen | forage | market |
+|---|---|---|---|
+| S0 soybean then fallow | 60.0 | 25.0 | 38.9 |
+| S1 soybean then chickpea | 60.0 | 25.0 | 32.0 |
+
+Adding chickpea gives no nitrogen benefit and lowers the price signal. With `market_income` as the priority the ranking is S0, S1, S3, S2: the existing soybean-then-fallow rotation comes first. Suggested fix: average benefits over the whole year (divide by 365), so empty days count as zero. Needs a decision.
+
+**2. Variants skip the coverage rule.**
+`score_variants` returns a total with no coverage check, and the response carries only `total_score`.
+
+| S3 variant (Akola, default) | total | coverage | missing |
+|---|---|---|---|
+| sorghum_rabi (default) | 62.5 | 1.00 | none |
+| sunn_hemp | 54.4 | 0.25 | water_fit, timing_fit, market, bare_days |
+| horse_gram | 77.7 | 0.80 | market |
+
+Horse gram shows the highest number in the whole response while it has no price data, and its duration in `crops.csv` is probably too short (see `docs/crop_gap_research.md` section 3). Suggested fix: apply `MIN_COVERAGE` to variants and return `data_coverage` and `incomplete` for each.
+
+**3. `water_source` is accepted by the API but never used by the engine.** A farmer with a well gets the same result as a rainfed one.
+
+**4. Water and timing barely separate the strategies.** In the median year almost every strategy scores 98-100 on `water_fit` and `timing_fit`. Only cotton alone differs (water 74.9). Most of the ranking comes from bare days, the price signal and the unverified ratings.
+
+**5. Cards.**
+- Dates appear as "day 166 of the year"; a farmer needs "15 June".
+- The gaps list repeats "relies on unverified inputs or a proxy" once per component, with no detail on which input.
+- Risks are one generic sentence. The S1 card does not say it needs a short-duration soybean, which `docs/crop_sheet.md` flags as the main risk.
+
+**6. Small.** README says 129 tests; there are 134. In Washim, S2 is ranked on 73% coverage with both water and market missing, just above the 70% line.
+
+### Market inputs behind those scores (Akola, last 12 months)
+
+| Crop | Median price (Rs/q) | MSP (Rs/q) | Ratio | Score |
+|---|---|---|---|---|
+| soybean | 6,120 | 5,708 | 1.07 | 38.9 |
+| chickpea | 5,692 | 5,875 | 0.97 | 25.1 |
+| cotton | 8,010 | 8,267 | 0.97 | 25.6 |
+| pigeon pea | 7,514 | 8,450 | 0.89 | 12.6 |
+| sorghum | 2,428 | 4,023 | 0.60 | 0.0 |
+
+### Crop sheet follow-up (Amrita)
+
+`docs/crop_gap_research.md` gives verified values that conflict with `data/crops.csv`: chickpea heat threshold 35 C (sheet 32), horse gram duration 120-180 days (sheet 85-110), sunn hemp nitrogen 50-60 kg/ha (sheet 150-165). To be merged into the sheet, which also starts on issue 6. Not done yet.

@@ -418,6 +418,7 @@ What works, and what does not yet.
 - **Crop pictures are drawn placeholders.** Real drawings or photos are needed.
 - **The engine ignores the water source** the farmer gives (see the engine review in docs/discussions.md).
 - **Scenario slider** is not built.
+- **Sunn hemp and horse gram are scored but not shown.** The engine scores them as alternatives to sorghum after soybean, but their data is too thin to show as options: the sowing windows are unverified (horse gram is even sown before the soybean is harvested), there are no mandi prices, and the engine does not yet apply its data-coverage rule to these alternatives. The app says so on its explainers screen ("दूसरी फ़सलें" / "Other crops"). The crops a farmer can name as their current rotation are limited to three (soybean then empty field, cotton, soybean then chickpea).
 - **Cover-crop variants** (sunn hemp, horse gram) are scored but not shown.
 
 **Limits to keep in mind:** weather is area-scale (about 25–50 km), satellite pixels are 250 m and mixed, rain is reanalysis and not gauge data, the water proxy for rabi crops is rough, and all penalties in the scoring are our own assumptions, written down in `engine/config.py`. Treat the output as a conversation starter for a local expert.

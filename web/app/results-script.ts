@@ -521,7 +521,7 @@ export function vulnerableLines(s: Strategy, risk: SeasonRisk, lang: Lang): stri
 
 export type Explainer = { key: string; title: string; pics: PictogramId[]; text: string };
 
-const EXPLAINERS: Record<Lang, Record<"et" | "soil_moisture" | "ndvi" | "balance" | "satellite", { title: string; text: string }> & { frostTitle: string; frost: (data: string) => string; frostFound: string; frostNone: string }> = {
+const EXPLAINERS: Record<Lang, Record<"et" | "soil_moisture" | "ndvi" | "balance" | "satellite" | "other_crops", { title: string; text: string }> & { frostTitle: string; frost: (data: string) => string; frostFound: string; frostNone: string }> = {
   hi: {
     et: {
       title: "वाष्पोत्सर्जन",
@@ -542,6 +542,10 @@ const EXPLAINERS: Record<Lang, Record<"et" | "soil_moisture" | "ndvi" | "balance
     satellite: {
       title: "उपग्रह और ज़मीन",
       text: "उपग्रह ऊपर से बड़े इलाके की तस्वीर देता है, पर आपका अपना खेत अलग से नहीं देखता। हमारा मौसम का आँकड़ा लगभग पचास किलोमीटर के इलाके का है, और हरापन ढाई सौ मीटर के टुकड़े का। आपका खेत असल में कैसा है, यह आप और आपके कृषि अधिकारी जानते हैं। इसलिए दोनों को साथ मिलाकर देखिए।",
+    },
+    other_crops: {
+      title: "दूसरी फ़सलें",
+      text: "सोयाबीन के बाद ज्वार के अलावा हमने सनई और कुलथी भी जाँचीं। इनके बारे में भरोसेमंद जानकारी अभी कम है, जैसे बुवाई का सही समय और मंडी के दाम, इसलिए इन्हें अभी विकल्प के रूप में नहीं दिखाते। जानकारी पक्की होने पर इन्हें जोड़ेंगे। अपने कृषि अधिकारी से इनके बारे में पूछ सकते हैं।",
     },
     frostTitle: "पाला",
     frost: (data) => `बहुत ठंडी रात में पौधों पर बर्फ़ जम जाना पाला है। इससे फ़सल जल सकती है।${data} यह इलाके का आँकड़ा है, आपके खेत का नहीं।`,
@@ -569,6 +573,10 @@ const EXPLAINERS: Record<Lang, Record<"et" | "soil_moisture" | "ndvi" | "balance
       title: "Satellite and ground",
       text: "A satellite gives a picture of a large area from above, but it does not see your own field separately. Our weather figure is for an area of about fifty kilometres, and the greenness is for a patch of two hundred and fifty metres. How your field really is, you and your agriculture officer know. So look at both together.",
     },
+    other_crops: {
+      title: "Other crops",
+      text: "Besides sorghum after soybean, we also looked at sunn hemp and horse gram. There is not yet enough reliable information about them, such as the right sowing time and mandi prices, so we do not show them as options for now. We will add them when the information is firmer. You can ask your agriculture officer about them.",
+    },
     frostTitle: "Frost",
     frost: (data) => `On a very cold night, ice can form on plants. This is frost. It can burn a crop.${data} This is a figure for the area, not for your field.`,
     frostFound: " Some frost nights were found in the 1981 to 2025 data.",
@@ -587,5 +595,7 @@ export function explainers(risk: SeasonRisk | undefined, lang: Lang): Explainer[
     { key: "frost", title: e.frostTitle, pics: ["snow"], text: e.frost(frostData) },
     { key: "balance", title: e.balance.title, pics: ["balance"], text: e.balance.text },
     { key: "satellite", title: e.satellite.title, pics: ["satellite", "plus", "farmer"], text: e.satellite.text },
+    // Sunn hemp and horse gram are scored by the engine (S3 variants) but not shown as options: their data is too thin.
+    { key: "other_crops", title: e.other_crops.title, pics: ["unknown"], text: e.other_crops.text },
   ];
 }

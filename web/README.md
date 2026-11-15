@@ -38,9 +38,21 @@ Open http://localhost:3000.
 - A way to see the year board for one of the "other second crops".
 - PNG icons. The manifest has an SVG icon only; some phones want 192 and 512 px PNGs to offer install.
 
-## Deploying (not done yet)
+## Deploying
 
-Waiting on a decision about whose accounts host it. See `docs/discussions.md`.
+Live, 15 Nov 2026:
+
+- Web app: Vercel project `field-shift` on Amrita's Vercel account, https://field-shift-opal.vercel.app
+- Engine API: Render web service `space-apps` (region Ohio, Free) on Amrita's Render account, https://space-apps-dzma.onrender.com
+
+Neither is connected to GitHub, because the repo belongs to Kartik's account. Render deploys from the public repo link; Vercel was deployed from Amrita's PC with the command-line tool. **After pushing changes, redeploy by hand:**
+
+- API: on Render, Manual Deploy, then Deploy latest commit.
+- Web app: from `web/`, run `npx vercel deploy --prod --yes --build-env NEXT_PUBLIC_API_URL=https://space-apps-dzma.onrender.com` (needs `npx vercel login` once on that PC).
+
+For automatic deploys on every push, Kartik connects Render and Vercel to `kmcodes/space-apps` from his GitHub account.
+
+General settings, for any host:
 
 Web app on Vercel:
 

@@ -16,6 +16,13 @@ The app is built for farmers who may not read: a voice call in Hindi, picture an
 
 Rules we kept: no strategy is shown without its gaps and risks; every evidence line cites its dataset, period and a validity flag (valid, degraded, unverified); a missing input is never scored as zero and a data gap never flatters a strategy; where two datasets disagree we show the range and do not pick one.
 
+## Live
+
+- App: https://field-shift-opal.vercel.app (open on an Android phone in Chrome for voice)
+- Engine API: https://space-apps-dzma.onrender.com (`/health`, `/docs`)
+
+The API sleeps after about 15 minutes idle. Open `/health` a minute before a demo.
+
 ## Run it
 
 You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
@@ -130,7 +137,7 @@ Not done yet:
 
 - **The map is Google's keyless embed**, which is not an official, supported product, and the browser sends the farm's coordinates (rounded to about 100 m) to Google when it loads. Phone location needs HTTPS. Without a map, the app still works from the district tiles.
 - **Speech is the browser's built-in Hindi**, not Sarvam. It works best in Chrome or Edge on Android. Sarvam speech-to-text and text-to-speech is planned and needs an account and key.
-- **Deployment.** Nothing is hosted yet, so voice cannot be tried on a phone until it is on HTTPS.
+- **Deployment.** Live since 15 Nov 2026: app at https://field-shift-opal.vercel.app, engine API at https://space-apps-dzma.onrender.com (free tier: it sleeps when idle, so the first request can take about 30 seconds). Neither redeploys automatically on push yet; see `web/README.md`.
 - **All Hindi text is machine-drafted and has not been reviewed by a native speaker.** Marathi, the real language of the region, waits for a native reviewer.
 - **Crop pictures are drawn placeholders.** Real drawings or photos are needed.
 - **The engine ignores the water source** the farmer gives (see the engine review in docs/discussions.md).

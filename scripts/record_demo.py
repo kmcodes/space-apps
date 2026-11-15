@@ -37,6 +37,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "docs" / "demo"
 MAX_SECONDS = 29.5  # the official limit is 30 seconds; stay under it
+LEAD = 1.2          # a splash with the app's name opens the video; it is also the first frame, so it shows before anyone presses play
+SPLASH_BG = "0x1f4a1c"  # the app's dark green (--color-forest in web/app/globals.css); the name is in white
+APP_NAME = "Field Aide"
+SPLASH_FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 # Everything on screen that the script looks for, in one place (English, because the video is recorded in English).
 LABELS = {
@@ -233,17 +237,17 @@ def _record_page(url, channel, headed, silent, raw):
 def plan(m):
     """The parts to keep, as (start, end) in page time: a jump-cut edit of the whole call."""
     return [
-        (m["home"], m["tap_start"] + 2.8),                 # home screen, the tap, the start of the greeting
+        (m["home"] + 0.3, m["tap_start"] + 2.6),           # home screen, the tap, the start of the greeting
         (m["q1_visible"] - 0.3, m["last_tap"] + 0.9),      # the questions, answered one after another
-        (m["results"] - 0.2, m["results"] + 4.2),          # the results list, summary starting
+        (m["results"] - 0.2, m["results"] + 3.6),          # the results list, summary starting
         (m["tap_option"] - 0.3, m["tap_estimate"] + 3.0),  # one option, then the "estimated advice" row
         (m["tap_hindi"] - 0.2, m["end"]),                  # the same screen in Hindi
     ]
 
 
 def captions(parts, m):
-    """Captions timed on the EDITED video: where each part starts is the sum of the parts before it.
-    Returns (list of (start, end, text), total length)."""
+    """Captions timed on the EDITED video: where each part starts is the sum of the parts before it, after the LEAD-second splash.
+    Returns (list of (start, end, text), length of the film without the splash)."""
     starts, t = [], 0.0
     for a, b in parts:
         starts.append(t)
@@ -258,7 +262,7 @@ def captions(parts, m):
 
     e_tap = edited(m["tap_start"])
     e_first = edited(m["first_answer"])
-    return [
+    caps = [
         (0.0, e_tap, "Field Aide: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
         (e_tap, e_first, "1. One tap starts a call.\nThe app asks the questions aloud."),
         (e_first, starts[2], "2. Answer by voice or by touching a picture.\nEight short questions."),
@@ -266,7 +270,8 @@ def captions(parts, m):
         (starts[3], starts[4], "4. Each colour is a crop, black is an empty field.\nEvery suggestion says what is not checked."),
         (starts[4], total - 2.0, "Also in Hindi:\n\u201cSoybean, then sorghum. This is an estimated suggestion.\u201d"),
         (total - 2.0, total, "Supports, does not replace, local experts.\nNext: all of India, more crops, orchards."),
-    ], total
+    ]
+    return [(a + LEAD, b + LEAD, text) for a, b, text in caps], total
 
 
 def write_srt(caps):
@@ -285,7 +290,11 @@ def compose(video, wav, dv, da, parts, srt, out):
     fc = (
         vparts + f"{vin}concat=n={n}:v=1:a=0[vv];"
         "[vv]scale=-2:1500,format=yuv420p[app];color=c=0x2b2320:s=1080x1920:r=30[bg];"
-        "[bg][app]overlay=(W-w)/2:70:shortest=1[v];"
+        "[bg][app]overlay=(W-w)/2:70:shortest=1[film];"
+        f"color=c={SPLASH_BG}:s=1080x1920:r=30:d={LEAD},format=yuv420p,"
+        f"drawtext=fontfile={SPLASH_FONT}:text='{APP_NAME}':fontcolor=white:fontsize=170:x=(w-text_w)/2:y=(h-text_h)/2,"
+        f"fade=t=out:st={LEAD - 0.2:.2f}:d=0.2[splash];"
+        "[splash][film]concat=n=2:v=1:a=0[v];"
         f"[v]subtitles='{srt.as_posix()}':original_size=1080x1920:force_style='{style}'[out]"
     )
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(video)]
@@ -295,7 +304,8 @@ def compose(video, wav, dv, da, parts, srt, out):
             for i, (a, b) in enumerate(parts)
         )
         ain = "".join(f"[a{i}]" for i in range(n))
-        fc = aparts + f"{ain}concat=n={n}:v=0:a=1,loudnorm=I=-16:TP=-1.5[aa];" + fc
+        fc = (aparts + f"{ain}concat=n={n}:v=0:a=1,loudnorm=I=-16:TP=-1.5[speech];"
+              f"anullsrc=r=48000:cl=stereo,atrim=duration={LEAD}[quiet];[quiet][speech]concat=n=2:v=0:a=1[aa];" + fc)
         cmd += ["-i", str(wav)]
     cmd += ["-filter_complex", fc, "-map", "[out]"]
     cmd += ["-map", "[aa]", "-c:a", "aac", "-b:a", "128k"] if wav is not None else ["-an"]

@@ -10,8 +10,8 @@ R = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(R)
 
 # Times (seconds into the recording) from a real run.
-MARKS = {"home": 4.0, "tap_start": 5.6, "q1_visible": 12.0, "first_answer": 12.9, "last_tap": 22.7, "results": 29.2,
-         "tap_option": 33.6, "tap_estimate": 35.4, "tap_hindi": 38.9, "end": 41.6}
+MARKS = {"sync": 3.6, "home": 4.3, "tap_start": 5.6, "q1_visible": 11.9, "first_answer": 12.8, "last_tap": 22.6, "results": 29.0,
+         "tap_option": 33.4, "tap_estimate": 35.2, "tap_hindi": 38.7, "end": 42.2}
 
 
 def test_the_kept_parts_are_in_order_and_do_not_overlap():
@@ -22,12 +22,12 @@ def test_the_kept_parts_are_in_order_and_do_not_overlap():
 
 def test_the_edited_video_is_under_the_30_second_limit():
     caps, total = R.captions(R.plan(MARKS), MARKS)
-    assert total <= R.MAX_SECONDS < 30
+    assert total + R.LEAD <= R.MAX_SECONDS < 30  # the splash counts too
 
 
 def test_captions_cover_the_whole_video_one_after_another():
     caps, total = R.captions(R.plan(MARKS), MARKS)
-    assert caps[0][0] == 0.0 and abs(caps[-1][1] - total) < 1e-6
+    assert abs(caps[0][0] - R.LEAD) < 1e-6 and abs(caps[-1][1] - (total + R.LEAD)) < 1e-6  # nothing is captioned during the splash
     for (a1, b1, _), (a2, b2, _) in zip(caps, caps[1:]):
         assert a1 < b1 and abs(b1 - a2) < 1e-6  # no gap and no overlap
     assert all(text.strip() for _, _, text in caps)
@@ -76,3 +76,12 @@ def test_the_hindi_labels_the_screenshot_script_taps_still_exist_in_the_app():
     labels = set(re.findall(r'"([^"\n]*[\u0900-\u097F][^"\n]*)"', script))
     missing = sorted(label for label in labels if nfc(label) not in web)
     assert missing == [], f"not found in the app's text: {missing}; update scripts/readme_screenshots.py"
+
+
+def test_the_splash_shows_the_apps_name_in_white_on_the_apps_own_green():
+    css = (ROOT / "web/app/globals.css").read_text(encoding="utf8")
+    forest = css.split("--color-forest:")[1].split(";")[0].strip().lstrip("#").lower()
+    assert R.SPLASH_BG.lower() == "0x" + forest
+    assert 1.0 <= R.LEAD <= 2.0  # long enough to read, short enough for the 30 seconds
+    title = (ROOT / "web/app/call-script.ts").read_text(encoding="utf8")
+    assert f'title: "{R.APP_NAME}"' in title, "the splash name differs from the app's name"

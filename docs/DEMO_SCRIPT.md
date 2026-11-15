@@ -16,9 +16,12 @@ A screen recording of the app being used, from the first tap to the results page
 
 ## Shot list (30 seconds)
 
+The tool adds the 1.2-second splash in front, so the times below run about a second later in the final file. The whole video, splash included, stays under 30 seconds (about 29.4).
+
 | Time | On screen | Caption (large, English) | Sound |
 |---|---|---|---|
-| 0:00–0:03 | Home screen in English | **Field Aide: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
+| 0:00–0:01 | **Splash:** "Field Aide" in white on the app's dark green. It is also the first frame, so it shows before anyone presses play. | none (no caption) | none |
+| 0:01–0:03 | Home screen in English | **Field Aide: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
 | 0:03–0:07 | Tap **Tap to speak**. The call starts. | **1. One tap starts a call. The app asks the questions aloud.** | the app's greeting |
 | 0:07–0:15 | Tap **Akola**. Then three quick cuts: what is grown now, where the water comes from, what matters most. Tap a picture each time. | **2. Answer by voice or by touching a picture. Eight short questions.** | the app's voice, cut off by each tap |
 | 0:15–0:20 | The results list appears: four options with coloured year bars and the legend | **3. Four ways to use the field through the year, from 45 years of NASA POWER weather and MODIS satellite data.** | the start of the spoken summary |

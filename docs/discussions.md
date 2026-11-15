@@ -162,6 +162,8 @@ Still open: the second-priority question reads "If not, say no" / "नहीं 
 
 The engine scores sunn hemp and horse gram as S3 variants, but no screen shows them (the old form results page that listed them is gone). Decision: keep them hidden for the hackathon, because their data is too thin (unverified sowing windows, horse gram sown before soybean is harvested, no mandi prices, and variants skip the coverage rule; engine review problem 2), and say so openly. Added an explainer "दूसरी फ़सलें" / "Other crops" in `web/app/results-script.ts` (Kartik's file, for his review) and a line in the README's honest-status list. Proper fix later: apply the coverage rule to variants and fix the horse gram sowing window, then show them flagged as "too little data".
 
-## App name: Field Aid (Amrita, 15 Nov 2026, night)
+## App name: Field Aide (decided by Kartik, 15 Nov 2026, night; Amrita first applied the spelling "Field Aid")
+
+**Final spelling: Field Aide** ("aide" = a trusted assistant). Everything below was written when the spelling was still "Field Aid"; every place that shows the name now says Field Aide.
 
 The app is now called **Field Aid** ("Field Shift" is the challenge's name). So far only the script titles changed (`call-script.ts`; Hindi "फ़ील्ड एड", machine-drafted). Later the same night Amrita asked for it everywhere: page title, installed-app name (`web/app/manifest.ts`), API title, demo recorder, README, web README, design notes, demo script and submission pack now say Field Aid. This file keeps the old name where it records history. The Vercel address (`field-shift-opal…`) and the language-storage key stay as they are. README, demo script and other docs still say Field Shift in places; the Vercel address (`field-shift-opal…`) stays.

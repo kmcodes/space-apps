@@ -353,6 +353,7 @@ export type Initial = Partial<{
   market: string;
   lat: number; // from the phone, rounded to about 100 m
   lon: number;
+  example?: boolean; // the farmer is outside our area and picked a district to see an example
 }>;
 
 export default function FieldShift({ initial }: { initial?: Initial } = {}) {

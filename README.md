@@ -10,7 +10,7 @@ The app is built for farmers who may not read: a voice call in Hindi, picture an
 
 ## What it does
 
-1. **A voice call.** One tap starts a conversation in Hindi, or in English: a switch at the top of every screen changes the whole app (questions, spoken text, results). The app first checks the farm location: if the phone gives one, it shows a satellite map with a red pin and asks "is this your farm?"; if not (or the answer is no), it asks the district. Then it asks seven more questions aloud (current rotation, water source, one or two priorities, water available, equipment, where they sell), reads each option while its picture lights up, and listens. Every answer can also be tapped.
+1. **A voice call.** One tap starts a conversation in Hindi, or in English: a switch at the top of every screen changes the whole app (questions, spoken text, results). The app first checks the farm location: if the phone gives one, it shows a satellite map with a red pin and asks "is this your farm?"; if not (or the answer is no), it asks the district. A phone outside our area (inside the soil tile and within 50 km of a preset is the rule, the same in the app and the engine) skips the map, says so, and asks the district to show an example, labelled as not the farmer's own farm. Then it asks seven more questions aloud (current rotation, water source, one or two priorities, water available, equipment, where they sell), reads each option while its picture lights up, and listens. Every answer can also be tapped.
 2. **An engine compares four rotations.** Your current one, soybean then chickpea, cotton with pigeon pea, and soybean then sorghum (or a cover crop). Each is scored by transparent rules from weather, satellite greenness, soil and market data. The farmer's priority sets the weights, and the weights are shown.
 3. **Results for non-readers.** Choices are ordered best first with a thumbs-up on the top ones and no scores. Each choice has a 12-month year bar (June to May, kharif and rabi grouped; green is a crop in the ground, dark is a bare field) and three picture rows that speak when tapped: the checked advice (जाँचा हुआ सुझाव), the estimates (अनुमानित सुझाव), the sensitive months, and what to ask an expert. Every choice carries a badge, "अनुमानित सुझाव" (estimated suggestion), until all its inputs are checked; today none are, so every suggestion is labelled an estimate. Sources and validity flags sit behind a "for experts" link.
 
@@ -30,7 +30,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 ```bash
 # engine API (from the repo root)
 python3 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # requirements.txt alone is enough to run the API
-.venv/bin/python -m pytest                                   # 153 tests
+.venv/bin/python -m pytest                                   # 156 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 
 # web app (second terminal)
@@ -107,7 +107,7 @@ api/         POST /compare, GET /health, GET /admin/stats
 web/         Next.js PWA: voice call, picture questions, results
 voice/       reserved for the Sarvam speech integration (empty for now)
 docs/        design, crop sheet, data quality, plans
-tests/       153 tests, written first
+tests/       156 tests, written first
 ```
 
 - Engine design and the rules behind every score: [docs/ENGINE_DESIGN.md](docs/ENGINE_DESIGN.md).

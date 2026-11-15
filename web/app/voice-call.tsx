@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState } from "react";
 import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
 import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
+import { isServed } from "./coverage";
 import { useLang } from "./lang";
 import { FormIcon, MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
@@ -62,6 +63,7 @@ export default function VoiceCall() {
   const mapReadyRef = useRef(false);
   const mapTimer = useRef<number | undefined>(undefined);
   const mapWaiting = useRef(false); // the call is at the farm question and waiting for the map
+  const outsideRef = useRef(false); // the phone's location is outside the area we cover: no map, ask the district
 
   const run = useRef(0); // bumped to cancel any speech or listening still in flight
   const idxRef = useRef(0);
@@ -253,12 +255,13 @@ export default function VoiceCall() {
     const next = { ...answersRef.current, [STEPS[i].id]: option.value };
     answersRef.current = next;
     setAnswers(next);
+    setNotice((n) => (n === "outside" ? "" : n)); // the "outside our area" line was for the district question
     // "Yes, that is my farm" makes the district question unnecessary; "no" falls back to the district tiles.
     const nextIdx = STEPS[i].id === "farm" ? (option.value === "yes" ? i + 2 : i + 1) : i + 1;
     if (nextIdx < STEPS.length) ask(nextIdx);
     else {
       const { farm, ...rest } = next;
-      setFinal(farm === "yes" && coordsRef.current ? { ...rest, location: undefined, ...coordsRef.current } : rest);
+      setFinal(farm === "yes" && coordsRef.current ? { ...rest, location: undefined, ...coordsRef.current } : { ...rest, ...(outsideRef.current ? { example: true } : {}) });
       setStatus("speaking");
       speak(SCRIPTS[langRef.current].closing, () => setPhase("results"));
     }
@@ -285,6 +288,11 @@ export default function VoiceCall() {
       setTimeout(() => token === run.current && begin(waited + 300), 300);
       return;
     }
+    if (outsideRef.current) {
+      setNotice("outside");
+      speak(SCRIPTS[langRef.current].outside, () => ask(1));
+      return;
+    }
     ask(coordsRef.current ? 0 : 1);
   }
 
@@ -294,6 +302,7 @@ export default function VoiceCall() {
     answersRef.current = {};
     setAnswers({});
     setNotice("");
+    outsideRef.current = false;
     setPhase("call");
     setIdx(0);
     idxRef.current = 0;
@@ -313,7 +322,15 @@ export default function VoiceCall() {
       navigator.geolocation.getCurrentPosition(
         (p) => {
           // Rounded to about 100 m: the engine's data is far coarser than that, and less is stored or sent.
-          coordsRef.current = { lat: Math.round(p.coords.latitude * 1000) / 1000, lon: Math.round(p.coords.longitude * 1000) / 1000 };
+          const lat = Math.round(p.coords.latitude * 1000) / 1000;
+          const lon = Math.round(p.coords.longitude * 1000) / 1000;
+          if (!isServed(lat, lon)) {
+            // Outside the area we cover: say so now, skip the map and ask the district instead, to show an example.
+            outsideRef.current = true;
+            geo.current = "none";
+            return;
+          }
+          coordsRef.current = { lat, lon };
           setCoords(coordsRef.current);
           geo.current = "ok";
         },
@@ -476,7 +493,7 @@ export default function VoiceCall() {
 
       {notice && (
         <p className="mt-3 border-l-4 border-almanac p-3 text-sm font-semibold text-almanac" lang={lang}>
-          {notice === "noMic" ? S.noMic : notice}
+          {notice === "noMic" ? S.noMic : notice === "outside" ? S.outside : notice}
         </p>
       )}
 

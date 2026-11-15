@@ -8,7 +8,7 @@ Length: about 230 spoken words at a calm pace, plus the Hindi the app speaks its
 
 - **Record online.** The map is Google's embed and needs internet.
 - **Use Chrome, at phone width** (DevTools, device toolbar, a phone preset). Record the screen with the app audio on.
-- **Set the location to Akola:** DevTools, three-dot menu, More tools, Sensors, Location, custom 20.700 N, 77.008 E. Put a small caption on screen, "demo location: Akola", so nobody thinks it is a real phone fix. A judge's own phone would be outside the region, and the app then says so in Hindi.
+- **Set the location to Akola:** DevTools, three-dot menu, More tools, Sensors, Location, custom 20.700 N, 77.008 E. Put a small caption on screen, "demo location: Akola", so nobody thinks it is a real phone fix. A judge's own phone would be outside the region: the app then says so, skips the map and asks for a district, and the results are labelled as an example, not their farm.
 - **Check the machine has a Hindi voice.** In Chrome the "Google हिन्दी" voice is usual on Android and Windows; many Linux machines have none. Test one question before recording. If there is no Hindi voice, record on an Android phone instead.
 - **Run both servers fresh** and do one full run first, so the engine's cache is warm and results appear in a second or two.
 - **Answers to use** (all can be tapped): farm = yes; rotation = soybean then empty field; water = rain only; priority = saving water, second = animal fodder; water available = low; equipment = no; sell = mandi. This gives a clear "soybean then sorghum" top choice and shows the hot-month and dry-spell markers.

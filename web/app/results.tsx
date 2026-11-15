@@ -5,7 +5,7 @@
 // - for one choice: the 12-month year bar (kharif and rabi grouped), then three picture rows that speak when tapped;
 // - sources and validity flags sit behind a small "for experts" link.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DISCLAIMER, type Initial } from "./field-shift";
 import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
 import { useLang } from "./lang";
@@ -18,8 +18,11 @@ import {
   expertLines,
   explainers,
   fromJune,
+  DISTRICT_IDS,
   adviceKind,
   adviceLabel,
+  districtLabel,
+  districtName,
   goodLines,
   picsFor,
   riskRuns,
@@ -350,9 +353,15 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
   );
 }
 
-export default function Results({ answers, onRestart }: { answers: Initial; onRestart: () => void }) {
+export default function Results({ answers: given, onRestart }: { answers: Initial; onRestart: () => void }) {
   const { lang } = useLang();
   const R = resultsText(lang);
+  // A farmer outside our area can pick a district here to see an example. The other answers are kept, so nothing is asked twice.
+  const [pickedDistrict, setPickedDistrict] = useState<string | null>(null);
+  const answers = useMemo<Initial>(
+    () => (pickedDistrict ? { ...given, location: pickedDistrict, lat: undefined, lon: undefined, example: true } : given),
+    [given, pickedDistrict],
+  );
   const [result, setResult] = useState<Result | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -407,7 +416,12 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
           setWaking(false);
           setResult(data);
           const l = langRef.current;
-          speakText(data.served ? summarySpeech(choices(data), nearestPhrase(data, l), l) : resultsText(l).outOfArea, l);
+          speakText(
+            data.served
+              ? summarySpeech(choices(data), nearestPhrase(data, l), l, answers.example ? districtName(data, l) : null)
+              : `${resultsText(l).outOfArea} ${resultsText(l).exampleHint}`,
+            l,
+          );
           return;
         } catch {
           if (!alive) return;
@@ -448,7 +462,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
         </button>
         {result?.served && (
           <button
-            onClick={() => speakText(summarySpeech(list, result ? nearestPhrase(result, lang) : null, lang), lang)}
+            onClick={() => speakText(summarySpeech(list, result ? nearestPhrase(result, lang) : null, lang, result && answers.example ? districtName(result, lang) : null), lang)}
             className="flex items-center gap-2 rounded-field border-2 border-monsoon px-3 py-1.5 text-base font-bold text-monsoon"
             lang={lang}
           >
@@ -465,7 +479,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
       {result?.served && nearestPhrase(result, lang) && (
         <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-soil-soft" lang={lang}>
           <Pictogram id="pin" className="h-6 w-6" />
-          {R.where}: {nearestPhrase(result, lang)}
+          {answers.example ? `${R.exampleLabel}: ${districtName(result, lang)}` : `${R.where}: ${nearestPhrase(result, lang)}`}
         </p>
       )}
 
@@ -502,6 +516,28 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
             {R.outOfArea}
           </p>
           <p className="mt-2 text-sm text-soil-soft">{result.reason}</p>
+          <p className="mt-4 text-lg font-bold" lang={lang}>
+            {R.exampleHint}
+          </p>
+          <ul className="mt-2 grid grid-cols-3 gap-2">
+            {DISTRICT_IDS.map((d) => (
+              <li key={d}>
+                <button
+                  onClick={() => {
+                    stopSpeech();
+                    setResult(null);
+                    setFailed(false);
+                    setPickedDistrict(d);
+                  }}
+                  className="flex min-h-28 w-full flex-col items-center justify-center gap-1 rounded-field border-2 border-soil bg-paper p-2 text-center"
+                  lang={lang}
+                >
+                  <Pictogram id="pin" className="h-12 w-12" />
+                  <span className="narrow text-lg font-bold leading-tight">{districtLabel(d, lang)}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
 

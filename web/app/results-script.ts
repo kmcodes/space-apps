@@ -41,7 +41,9 @@ const RESULTS_HI = {
   retry: "फिर से कोशिश करें",
   title: "आपके खेत के लिए तरीके",
   where: "आपकी जगह",
-  outOfArea: "इस जगह के लिए हमारे पास अभी जानकारी नहीं है। हम अभी अकोला, बुलढाणा और वाशिम के लिए काम करते हैं। नई बातचीत में ज़िला चुनिए।",
+  outOfArea: "इस जगह के लिए हमारे पास अभी जानकारी नहीं है। हम अभी अकोला, बुलढाणा और वाशिम के लिए काम करते हैं।",
+  exampleHint: "उदाहरण देखने के लिए ज़िला छुइए।",
+  exampleLabel: "उदाहरण (आपका खेत नहीं)",
   replay: "फिर सुनिए",
   again: "नई बातचीत",
   back: "वापस",
@@ -78,6 +80,7 @@ const RESULTS_HI = {
   mixedName: (names: string[]) => `${names.join(" और ")} साथ-साथ`,
   thenName: (names: string[]) => names.join(", फिर "),
   sayWhere: (where: string) => `आपकी जगह ${where} है।`,
+  sayExample: (district: string) => `ये ${district} के उदाहरण हैं, आपके अपने खेत के नहीं।`,
   sayCount: (n: number) => `आपके खेत के लिए ${n} तरीके देखे।`,
   sayKind: (kind: string) => `यह ${kind} है।`,
   sayBest: (name: string) => `सबसे अच्छा लगा: ${name}।`,
@@ -96,7 +99,9 @@ const RESULTS_EN: typeof RESULTS_HI = {
   retry: "Try again",
   title: "Options for your farm",
   where: "Your location",
-  outOfArea: "We do not have information for this place yet. For now we work only for Akola, Buldhana and Washim. Choose a district in a new call.",
+  outOfArea: "We do not have information for this place yet. For now we work only for Akola, Buldhana and Washim.",
+  exampleHint: "Touch a district to see an example.",
+  exampleLabel: "Example (not your farm)",
   replay: "Listen again",
   again: "New call",
   back: "Back",
@@ -132,6 +137,7 @@ const RESULTS_EN: typeof RESULTS_HI = {
   mixedName: (names) => `${names.map(lowerAfterFirst).join(" and ")} together`,
   thenName: (names) => names.map(lowerAfterFirst).join(", then "),
   sayWhere: (where) => `Your location is ${where}.`,
+  sayExample: (district) => `These are examples for ${district}, not for your own farm.`,
   sayCount: (n) => `I looked at ${n} options for your farm.`,
   sayKind: (kind) => `This is ${kind.toLowerCase()}.`,
   sayBest: (name) => `Looks best: ${name}.`,
@@ -373,6 +379,16 @@ const DISTRICTS: Record<Lang, Record<string, string>> = {
   en: { akola: "Akola", buldhana: "Buldhana", washim: "Washim" },
 };
 
+/** The districts the farmer can pick when their own place is outside our area. */
+export const DISTRICT_IDS = ["akola", "buldhana", "washim"] as const;
+export const districtLabel = (id: string, lang: Lang) => DISTRICTS[lang][id] ?? id;
+
+/** "वाशिम" / "Washim": the district the results are for. */
+export function districtName(result: Result, lang: Lang): string | null {
+  const d = result.location?.nearest;
+  return d ? districtLabel(d, lang) : null;
+}
+
 /** "वाशिम के पास" / "near Washim": the district whose weather and satellite data stand in for the farm. */
 export function nearestPhrase(result: Result, lang: Lang): string | null {
   const d = result.location?.nearest;
@@ -380,12 +396,14 @@ export function nearestPhrase(result: Result, lang: Lang): string | null {
 }
 
 /** Spoken when the results arrive: where, how many ways, which is best, the main caution. */
-export function summarySpeech(list: Choice[], where: string | null | undefined, lang: Lang): string {
+/** `exampleFor` is the district name when the farmer is outside our area and picked a district: say so, not "your location". */
+export function summarySpeech(list: Choice[], where: string | null | undefined, lang: Lang, exampleFor?: string | null): string {
   const t = resultsText(lang);
   const ranked = list.filter((c) => !c.strategy.incomplete);
   const top = ranked.filter((c) => c.top).map((c) => strategyName(c.strategy, lang));
   const kind = adviceLabel(ranked.map((c) => adviceKind(c.strategy)), lang);
-  const parts = [...(where ? [t.sayWhere(where)] : []), t.sayCount(list.length), `${t.sayKind(kind)} ${kind === t.estimate ? t.estimateNote : ""}`.trim()];
+  const place = exampleFor ? [t.sayExample(exampleFor)] : where ? [t.sayWhere(where)] : [];
+  const parts = [...place, t.sayCount(list.length), `${t.sayKind(kind)} ${kind === t.estimate ? t.estimateNote : ""}`.trim()];
   if (top.length === 1) parts.push(t.sayBest(top[0]));
   else if (top.length > 1) parts.push(t.sayTied(top));
   else parts.push(t.sayNoBest);

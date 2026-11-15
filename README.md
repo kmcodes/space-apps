@@ -193,7 +193,7 @@ Each question is read aloud; each option's picture lights up as it is read; the 
 <td align="center"><img src="docs/screenshots/flow/08-water-level.png" width="180" alt="How much water"><br><sub>9. How much water is available</sub></td>
 <td align="center"><img src="docs/screenshots/flow/09-equipment.png" width="180" alt="Equipment"><br><sub>10. Sprayer or sowing machine</sub></td>
 <td align="center"><img src="docs/screenshots/flow/10-market.png" width="180" alt="Where do you sell"><br><sub>11. Where the crop is sold</sub></td>
-<td></td>
+<td align="center"><img src="docs/screenshots/flow/04-rotation-english.png" width="180" alt="The same question in English"><br><sub>The same question in English</sub></td>
 </tr>
 </table>
 

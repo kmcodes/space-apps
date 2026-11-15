@@ -10,7 +10,7 @@ The app is built for farmers who may not read: a voice call in Hindi, picture an
 
 ## What it does
 
-1. **A voice call.** One tap starts a conversation in Hindi. The app asks eight questions aloud (district, current rotation, water source, one or two priorities, water available, equipment, where they sell), reads each option while its picture lights up, and listens. Every answer can also be tapped.
+1. **A voice call.** One tap starts a conversation in Hindi. The app first checks the farm location: if the phone gives one, it shows a satellite map with a red pin and asks "is this your farm?"; if not (or the answer is no), it asks the district. Then it asks seven more questions aloud (current rotation, water source, one or two priorities, water available, equipment, where they sell), reads each option while its picture lights up, and listens. Every answer can also be tapped.
 2. **An engine compares four rotations.** Your current one, soybean then chickpea, cotton with pigeon pea, and soybean then sorghum (or a cover crop). Each is scored by transparent rules from weather, satellite greenness, soil and market data. The farmer's priority sets the weights, and the weights are shown.
 3. **Results for non-readers.** Choices are ordered best first with a thumbs-up on the top ones and no scores. Each choice has a 12-month year bar (June to May, kharif and rabi grouped; green is a crop in the ground, dark is a bare field) and three picture rows that speak when tapped: what is good, what we do not know, what to ask an expert. Sources and validity flags sit behind a "for experts" link.
 
@@ -112,11 +112,12 @@ Honest list of what works and what does not yet.
 | Satellite versus ground data explained | Not built |
 | Uncertainty and where local validation is needed | Done |
 | Timeline | Done (year bar) |
-| Map of the farm location | Not built (planned: GPS, a map with a pin to confirm) |
+| Map of the farm location | Done: phone location, satellite map with a pin, farmer confirms; district tiles if the phone gives no location |
 | Scenario slider | Not built |
 
 Not done yet:
 
+- **The map is Google's keyless embed**, which is not an official, supported product, and the browser sends the farm's coordinates (rounded to about 100 m) to Google when it loads. Phone location needs HTTPS. Without a map, the app still works from the district tiles.
 - **Speech is the browser's built-in Hindi**, not Sarvam. It works best in Chrome or Edge on Android. Sarvam speech-to-text and text-to-speech is planned and needs an account and key.
 - **Deployment.** Nothing is hosted yet, so voice cannot be tried on a phone until it is on HTTPS.
 - **All Hindi text is machine-drafted and has not been reviewed by a native speaker.** Marathi, the real language of the region, waits for a native reviewer.

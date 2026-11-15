@@ -13,7 +13,7 @@ export type Option = {
 };
 
 export type Step = {
-  id: "location" | "rotation" | "water_source" | "priority1" | "priority2" | "water_level" | "equipment" | "market";
+  id: "farm" | "location" | "rotation" | "water_source" | "priority1" | "priority2" | "water_level" | "equipment" | "market";
   question: string;
   options: (answers: Answers) => Option[];
 };
@@ -34,8 +34,15 @@ export const SCRIPT = {
   speaking: "सुनिए…",
   listening: "आपकी बारी — बोलिए",
   tapOnly: "तस्वीर छुइए",
+  mapNote: "लाल निशान आपके फ़ोन की जगह है।",
   noMic: "माइक्रोफ़ोन की इजाज़त नहीं मिली। तस्वीर छुकर जवाब दीजिए।",
 };
+
+// Asked only when the phone gave a location: the map shows a red pin and the farmer confirms it.
+const FARM: Option[] = [
+  { value: "yes", label: "हाँ, यही है", pics: ["yes"], words: ["हाँ", "हां", "हा", "जी", "है", "यही", "सही", "yes"] },
+  { value: "no", label: "नहीं", pics: ["no"], words: ["नहीं", "नही", "ना", "गलत", "no"] },
+];
 
 const LOCATIONS: Option[] = [
   { value: "akola", label: "अकोला", pics: ["pin"], words: ["अकोला", "akola"] },
@@ -84,6 +91,7 @@ const MARKETS: Option[] = [
 ];
 
 export const STEPS: Step[] = [
+  { id: "farm", question: "क्या लाल निशान की जगह आपका खेत है?", options: () => FARM },
   { id: "location", question: "आपका खेत किस ज़िले में है?", options: () => LOCATIONS },
   { id: "rotation", question: "अभी आप खेत में क्या बोते हैं?", options: () => ROTATIONS },
   { id: "water_source", question: "आपके खेत में पानी कहाँ से आता है?", options: () => WATER_SOURCES },

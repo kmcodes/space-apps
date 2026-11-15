@@ -27,6 +27,7 @@ export type Result = {
   tied_with_top: string[];
   strategies: Strategy[];
   site_evidence: Evidence[];
+  location?: { nearest: string };
 };
 
 export const RESULTS = {
@@ -34,6 +35,8 @@ export const RESULTS = {
   error: "इंजन से जवाब नहीं मिला। फिर से कोशिश कीजिए।",
   retry: "फिर से कोशिश करें",
   title: "आपके खेत के लिए तरीके",
+  where: "आपकी जगह",
+  outOfArea: "इस जगह के लिए हमारे पास अभी जानकारी नहीं है। हम अभी अकोला, बुलढाणा और वाशिम के लिए काम करते हैं। नई बातचीत में ज़िला चुनिए।",
   replay: "फिर सुनिए",
   again: "नई बातचीत",
   back: "वापस",
@@ -217,11 +220,19 @@ export function expertLines(s: Strategy): string[] {
   return lines;
 }
 
-/** Spoken when the results arrive: how many ways, which is best, the main caution. */
-export function summarySpeech(list: Choice[]): string {
+const DISTRICT_HI: Record<string, string> = { akola: "अकोला", buldhana: "बुलढाणा", washim: "वाशिम" };
+
+/** "वाशिम के पास": the district whose weather and satellite data stand in for the farm. */
+export function nearestPhrase(result: Result): string | null {
+  const d = result.location?.nearest;
+  return d ? `${DISTRICT_HI[d] ?? d} के पास` : null;
+}
+
+/** Spoken when the results arrive: where, how many ways, which is best, the main caution. */
+export function summarySpeech(list: Choice[], where?: string | null): string {
   const ranked = list.filter((c) => !c.strategy.incomplete);
   const top = ranked.filter((c) => c.top).map((c) => strategyName(c.strategy));
-  const parts = [`आपके खेत के लिए ${list.length} तरीके देखे।`];
+  const parts = [...(where ? [`आपकी जगह ${where} है।`] : []), `आपके खेत के लिए ${list.length} तरीके देखे।`];
   if (top.length === 1) parts.push(`सबसे अच्छा लगा: ${top[0]}।`);
   else if (top.length > 1) parts.push(`ये लगभग बराबर अच्छे लगे: ${top.join(" और ")}।`);
   else parts.push("इस बार कोई साफ़ सबसे अच्छा तरीका नहीं मिला।");

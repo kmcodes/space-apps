@@ -49,12 +49,16 @@ export default function VoiceCall() {
   // Found out after load (browser only), so the first render matches the server.
   const [canListen, setCanListen] = useState(true);
   const [hindiVoice, setHindiVoice] = useState<boolean | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null); // the phone's location, if it gave one
+  const [final, setFinal] = useState<Initial | null>(null); // the answers handed to the results page
 
   const run = useRef(0); // bumped to cancel any speech or listening still in flight
   const idxRef = useRef(0);
   const answersRef = useRef<Answers>({});
   const recRef = useRef<Recognition | null>(null);
   const silences = useRef(0);
+  const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
+  const geo = useRef<"pending" | "ok" | "none">("none");
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -186,11 +190,26 @@ export default function VoiceCall() {
     const next = { ...answersRef.current, [STEPS[i].id]: option.value };
     answersRef.current = next;
     setAnswers(next);
-    if (i + 1 < STEPS.length) ask(i + 1);
+    // "Yes, that is my farm" makes the district question unnecessary; "no" falls back to the district tiles.
+    const nextIdx = STEPS[i].id === "farm" ? (option.value === "yes" ? i + 2 : i + 1) : i + 1;
+    if (nextIdx < STEPS.length) ask(nextIdx);
     else {
+      const { farm, ...rest } = next;
+      setFinal(farm === "yes" && coordsRef.current ? { ...rest, location: undefined, ...coordsRef.current } : rest);
       setStatus("speaking");
       speak(SCRIPT.closing, () => setPhase("results"));
     }
+  }
+
+  // Once the greeting is done: if the phone gave a location, confirm it on a map; otherwise ask the district.
+  // The location prompt may still be open, so wait a little for it.
+  function begin(waited = 0) {
+    const token = run.current;
+    if (geo.current === "pending" && waited < 10000) {
+      setTimeout(() => token === run.current && begin(waited + 300), 300);
+      return;
+    }
+    ask(coordsRef.current ? 0 : 1);
   }
 
   function start() {
@@ -202,7 +221,27 @@ export default function VoiceCall() {
     setIdx(0);
     idxRef.current = 0;
     setStatus("speaking");
-    speak(SCRIPT.greeting, () => ask(0));
+    setFinal(null);
+    coordsRef.current = null;
+    setCoords(null);
+    geo.current = "none";
+    // Geolocation only works on HTTPS or localhost. Elsewhere the call simply asks the district.
+    if (window.isSecureContext && navigator.geolocation) {
+      geo.current = "pending";
+      navigator.geolocation.getCurrentPosition(
+        (p) => {
+          // Rounded to about 100 m: the engine's data is far coarser than that, and less is stored or sent.
+          coordsRef.current = { lat: Math.round(p.coords.latitude * 1000) / 1000, lon: Math.round(p.coords.longitude * 1000) / 1000 };
+          setCoords(coordsRef.current);
+          geo.current = "ok";
+        },
+        () => {
+          geo.current = "none";
+        },
+        { timeout: 12000, maximumAge: 60000 },
+      );
+    }
+    speak(SCRIPT.greeting, () => begin());
   }
 
   function end() {
@@ -216,7 +255,7 @@ export default function VoiceCall() {
     setPhase(to);
   }
 
-  if (phase === "results") return <Results answers={answers as Initial} onRestart={() => leave("home")} />;
+  if (phase === "results" && final) return <Results answers={final} onRestart={() => leave("home")} />;
 
   if (phase === "form") {
     return (
@@ -340,6 +379,23 @@ export default function VoiceCall() {
         <p className="mt-3 border-l-4 border-almanac p-3 text-sm font-semibold text-almanac" lang="hi">
           {notice}
         </p>
+      )}
+
+      {step.id === "farm" && coords && (
+        <>
+          {/* Google's keyless embed, satellite view. The browser sends these coordinates to Google when it loads. */}
+          <iframe
+            title="map"
+            className="mt-4 h-64 w-full rounded-field border-2 border-soil"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+            sandbox="allow-scripts allow-same-origin"
+            src={`https://www.google.com/maps?q=${coords.lat},${coords.lon}&z=16&t=k&output=embed`}
+          />
+          <p className="mt-1 text-sm text-soil-soft" lang="hi">
+            {SCRIPT.mapNote}
+          </p>
+        </>
       )}
 
       <ul className="mt-5 grid grid-cols-2 gap-3">

@@ -351,6 +351,8 @@ export type Initial = Partial<{
   water_level: string;
   equipment: string;
   market: string;
+  lat: number; // from the phone, rounded to about 100 m
+  lon: number;
 }>;
 
 export default function FieldShift({ initial }: { initial?: Initial } = {}) {

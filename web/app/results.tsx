@@ -19,6 +19,7 @@ import {
   runs,
   strategyName,
   strategyPics,
+  nearestPhrase,
   summarySpeech,
   unknownLines,
   yearBar,
@@ -205,6 +206,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             location: answers.location,
+            lat: answers.lat,
+            lon: answers.lon,
             current_rotation: answers.rotation,
             water_source: answers.water_source,
             priorities: [answers.priority1, answers.priority2].filter((p, i, all) => p && all.indexOf(p) === i),
@@ -215,7 +218,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
         const data: Result = await res.json();
         if (!alive) return;
         setResult(data);
-        speakHindi(data.served ? summarySpeech(choices(data)) : "माफ़ कीजिए, इस जगह के लिए हमारे पास जानकारी नहीं है।");
+        speakHindi(data.served ? summarySpeech(choices(data), nearestPhrase(data)) : RESULTS.outOfArea);
       } catch {
         if (alive) setFailed(true);
       }
@@ -246,7 +249,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
         </button>
         {result?.served && (
           <button
-            onClick={() => speakHindi(summarySpeech(list))}
+            onClick={() => speakHindi(summarySpeech(list, result ? nearestPhrase(result) : null))}
             className="flex items-center gap-2 rounded-field border-2 border-monsoon px-3 py-1.5 text-base font-bold text-monsoon"
             lang="hi"
           >
@@ -259,6 +262,13 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
       <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang="hi">
         {RESULTS.title}
       </h1>
+
+      {result?.served && nearestPhrase(result) && (
+        <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-soil-soft" lang="hi">
+          <Pictogram id="pin" className="h-6 w-6" />
+          {RESULTS.where}: {nearestPhrase(result)}
+        </p>
+      )}
 
       {!result && !failed && (
         <p className="mt-6 text-xl font-semibold text-soil-soft" lang="hi" role="status">
@@ -282,7 +292,14 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
           </button>
         </div>
       )}
-      {result && !result.served && <p className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3 text-base">{result.reason}</p>}
+      {result && !result.served && (
+        <div className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3">
+          <p className="text-lg font-semibold" lang="hi">
+            {RESULTS.outOfArea}
+          </p>
+          <p className="mt-2 text-sm text-soil-soft">{result.reason}</p>
+        </div>
+      )}
 
       {list.length > 0 && (
         <>

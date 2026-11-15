@@ -42,7 +42,7 @@ def log(msg):
 
 
 def git(*args, cwd=CLONE):
-    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True).stdout.strip()
+    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True, encoding="utf-8", errors="replace").stdout.strip()
 
 
 def render_hook():
@@ -106,7 +106,7 @@ def deploy_vercel():
     log("Vercel: deploying web/ ...")
     r = subprocess.run([NPX, "--yes", "vercel@latest", "deploy", "--prod", "--yes",
                         "--build-env", f"NEXT_PUBLIC_API_URL={API_URL}"],
-                       cwd=CLONE / "web", capture_output=True, text=True)
+                       cwd=CLONE / "web", capture_output=True, text=True, encoding="utf-8", errors="replace")
     if r.returncode == 0:
         log("Vercel: live at https://field-shift-opal.vercel.app")
         return True
@@ -140,6 +140,8 @@ def check_once():
 
 
 def main():
+    # Commit messages can be Hindi; a Windows console may not print them, so never let printing stop a deploy.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     once = "--once" in sys.argv
     log(f"watching {REPO_URL} ({BRANCH}) every {INTERVAL_S}s. Ctrl-C to stop.")
     if not render_hook():

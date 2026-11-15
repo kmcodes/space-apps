@@ -198,7 +198,7 @@ Each question is read aloud; each option's picture lights up as it is read; the 
 
 ### The results
 
-The four options come back best first, with a thumbs-up on the top choice (or choices, when they are a tie) and **no scores**. Each shows its 12-month year bar: green is a crop in the ground, dark is a bare field, with kharif and rabi grouped. A dashed badge says the advice is an estimate. The line at the top says which place the weather and satellite data stand in for.
+The four options come back best first, with a thumbs-up on the top choice (or choices, when they are a tie) and **no scores**. Each shows its 12-month year bar: each crop has its own colour (soybean green, chickpea amber, sorghum purple, and so on), black is a bare field, and a small legend under the bars names the colours, with kharif and rabi grouped. Two crops grown together share a month, side by side. A dashed badge says the advice is an estimate. The line at the top says which place the weather and satellite data stand in for.
 
 <table>
 <tr>

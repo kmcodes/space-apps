@@ -29,7 +29,7 @@ Farmers in Vidarbha who may not read. Everything important is said aloud. Anythi
 ## Results screens (for non-readers)
 
 - **No scores on screen.** Choices are ordered best first; the top ones get a thumbs-up mark.
-- **The year bar always shows all 12 months**, and the blocks are grouped so the **kharif** and **rabi** seasons are clearly visible (for example a band or divider marking each season). Green month = crop in the ground, with a crop picture. Brown month = empty field.
+- **The year bar always shows all 12 months**, and the blocks are grouped so the **kharif** and **rabi** seasons are clearly visible (for example a band or divider marking each season). Each crop has its own colour (soybean green, chickpea amber, sorghum purple, and so on), shown with a crop picture, and a small legend under the bars names them. Black month = empty field.
 - **One choice per detail screen:** the year bar, then three tappable picture rows that speak when tapped: what is good, what we do not know, what to ask an expert.
 - **Sources and validity flags** (required by the brief) sit behind a small "for experts" link, for a KVK officer or a judge.
 - Crop pictures: real drawings or photos of soybean, chickpea, cotton, pigeon pea and sorghum are still needed. Icons are placeholders.

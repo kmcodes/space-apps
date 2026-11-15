@@ -12,6 +12,7 @@ import { isServed } from "./coverage";
 import { useLang } from "./lang";
 import { FormIcon, MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
+import { cropColor } from "./results-script";
 import { guardUtterance, pickVoice, speechLang } from "./speech";
 import { wakeApi } from "./wake-api";
 
@@ -36,8 +37,9 @@ function recognitionCtor(): RecognitionCtor | null {
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
-// Jan to Dec for a soybean then chickpea field: crop in the ground except the bare Mar to May window.
-const YEAR_PICTURE = [true, true, false, false, false, true, true, true, true, true, true, true];
+// Jan to Dec for a soybean then chickpea field: chickpea standing in Jan and Feb, the bare Mar to May window, soybean
+// from June to October and chickpea again from November. The colours are the crop colours of the results screens.
+const YEAR_PICTURE: (string | null)[] = ["chickpea", "chickpea", null, null, null, "soybean", "soybean", "soybean", "soybean", "soybean", "chickpea", "chickpea"];
 
 
 export default function VoiceCall() {
@@ -390,7 +392,7 @@ export default function VoiceCall() {
           </div>
           <div className="mt-1 grid grid-cols-12 gap-px">
             {YEAR_PICTURE.map((crop, m) => (
-              <span key={m} className={`h-12 ${crop ? "bg-crop" : "bg-soil"}`} />
+              <span key={m} style={{ background: crop ? cropColor(crop) : undefined }} className={`h-12 ${crop ? "" : "bg-soil"}`} />
             ))}
           </div>
           <div className="mt-3 flex items-center justify-center gap-2">

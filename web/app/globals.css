@@ -17,6 +17,21 @@
   --radius-field: 4px;
 }
 
+/* One colour per crop on the year bar, so a rotation reads as "this crop, then that crop". Bare field stays soil-black.
+   `static` keeps them in the build even though they are only used from inline styles (see results-script.ts cropColor).
+   Chosen to differ from each other, from bare soil, and from the red of the risk markers.
+   tests/test_crop_colors.py needs one per crop in data/crops.csv. */
+@theme static {
+  --color-crop-soybean: #3f7d3a; /* the green of --color-crop */
+  --color-crop-chickpea: #d9a400;
+  --color-crop-cotton: #3a9bb5;
+  --color-crop-pigeon_pea: #d9692b;
+  --color-crop-sorghum_kharif: #7b4fa3;
+  --color-crop-sorghum_rabi: #7b4fa3; /* the same crop as kharif sorghum, so the same colour */
+  --color-crop-sunn_hemp: #c2527f;
+  --color-crop-horse_gram: #8a6d3b;
+}
+
 :root {
   color-scheme: light;
 }

@@ -12,6 +12,7 @@ import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
 import { useLang } from "./lang";
 import { speakText, stopSpeech } from "./speech";
 import {
+  monthBackground,
   monthShort,
   resultsText,
   SEASONS,
@@ -22,6 +23,10 @@ import {
   DISTRICT_IDS,
   adviceKind,
   adviceLabel,
+  barLegend,
+  cropColor,
+  cropLabel,
+  cropPicture,
   districtLabel,
   districtName,
   goodLines,
@@ -146,7 +151,11 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
       )}
       <div className={`grid grid-cols-12 ${full ? "mt-1" : ""}`}>
         {bar.map((crops, i) => (
-          <span key={i} className={`${full ? "h-10" : "h-3.5"} ${crops.length ? "bg-crop" : "bg-soil"} ${gap(i)}`} />
+          <span
+            key={i}
+            style={{ background: monthBackground(crops) }}
+            className={`${full ? "h-10" : "h-3.5"} ${crops.length ? "" : "bg-soil"} ${gap(i)}`}
+          />
         ))}
       </div>
       {full && (
@@ -160,6 +169,36 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
       )}
       {full && risk && <RiskRows risk={risk} />}
       <MonthAxis full={full} />
+    </div>
+  );
+}
+
+/** What the colours on the year bars mean: one colour per crop, black for a bare field. Under the bars, never read aloud
+    (the crops are named and pictured in the options themselves). */
+function YearLegend({ strategies }: { strategies: Strategy[] }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
+  const { crops, bare } = barLegend(strategies);
+  const swatch = "inline-block h-4 w-7 shrink-0 rounded-field";
+  return (
+    <div className="mt-3" lang={lang}>
+      <ul className="flex flex-wrap gap-x-4 gap-y-2 text-base font-semibold">
+        {crops.map((c) => (
+          <li key={c} className="flex items-center gap-1.5">
+            <span aria-hidden className={swatch} style={{ background: cropColor(c) }} />
+            <Pictogram id={cropPicture(c)} className="h-5 w-5" />
+            {cropLabel(c, lang)}
+          </li>
+        ))}
+        {bare && (
+          <li className="flex items-center gap-1.5">
+            <span aria-hidden className={`${swatch} bg-soil`} />
+            <Pictogram id="bare" className="h-5 w-5" />
+            {cropLabel("fallow", lang)}
+          </li>
+        )}
+      </ul>
+      <p className="mt-1 text-sm text-soil-soft">{R.barHint}</p>
     </div>
   );
 }
@@ -240,6 +279,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
 
       <div className="mt-5">
         <YearBar s={s} full risk={risk} />
+        <YearLegend strategies={[s]} />
       </div>
 
       <ol className="mt-6 border-t-2 border-soil">
@@ -576,6 +616,7 @@ export default function Results({ answers: given, onRestart }: { answers: Initia
               </li>
             ))}
           </ul>
+          <YearLegend strategies={list.map((c) => c.strategy)} />
           <button
             onClick={() => {
               stopSpeech();

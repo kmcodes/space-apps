@@ -18,7 +18,7 @@ Lead with the year board: one strip per rotation on a shared January to December
 
 ## Signature detail
 
-The 12-month field strip: dark for bare soil, green for a crop in the ground, a blue band for the monsoon. It is the only bold element. Keep everything else quiet.
+The 12-month field strip: black for bare soil, one colour per crop for what is in the ground, a blue band for the monsoon, and a small legend under the strips. It is the only bold element. Keep everything else quiet.
 
 ## Colours
 
@@ -30,7 +30,8 @@ The 12-month field strip: dark for bare soil, green for a crop in the ground, a 
 | `paper` | #ffffff | Form fields |
 | `rule` | #cfd2cc | Light dividers, bar tracks |
 | `monsoon` | #1f5fa8 | Monsoon band (as `monsoon-wash`), buttons, links, focus outline |
-| `crop` | #3f7d3a | Crop-in-the-ground segments only. Not a general accent |
+| `crop` | #3f7d3a | The soybean green; crop-in-the-ground segments only. Not a general accent |
+| `crop-soybean`, `crop-chickpea`, `crop-cotton`, `crop-pigeon_pea`, `crop-sorghum_*`, `crop-sunn_hemp`, `crop-horse_gram` | #3f7d3a, #d9a400, #3a9bb5, #d9692b, #7b4fa3, #c2527f, #8a6d3b | One colour per crop on the year bar and its legend (`@theme static` in `globals.css`) |
 | `almanac` | #b3261e | Risks, errors, "not ranked" |
 | `turmeric` | #f2c230 | Disclaimer banner; `turmeric-wash` behind "what we do not know" |
 
@@ -43,7 +44,7 @@ One family, Anek Devanagari, because it has Latin and Devanagari in one design: 
 - Sentence case everywhere. No all-caps labels.
 - Sources are written as labelled text ("Source: ... Period: ... Scale: ..."), not as dot-separated strings.
 - One corner radius (4 px) on fields, buttons and strips. No shadows.
-- Score bars are `soil`. Green is reserved for crops on the calendar.
+- Score bars are `soil`. The crop colours (`--color-crop-<crop>` in `app/globals.css`) are reserved for crops on the calendar and its legend; each crop keeps one colour on every screen. They differ from bare soil and from the red of the risk markers. Add a colour when you add a crop (`tests/test_crop_colors.py` checks).
 - No motion beyond the loading state. Reduced-motion is respected.
 - Every interactive element shows a visible focus outline.
 - The disclaimer banner is always on screen.

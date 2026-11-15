@@ -58,6 +58,7 @@ const RESULTS_HI = {
   verifiedAdvice: "जाँचा हुआ सुझाव",
   estimateNote: "ये आँकड़ों से लगाए अनुमान हैं, पक्की बात नहीं।",
   noneChecked: "अभी इस तरीके की कोई बात पूरी तरह जाँची हुई नहीं है।",
+  barHint: "हर रंग एक फ़सल है। काला रंग यानी खेत खाली।",
   estimateGood: "आँकड़ों से अच्छा लगता है, पर अभी जाँचा नहीं",
   expert: "विशेषज्ञ से पूछिए",
   vulnerable: "नाज़ुक समय",
@@ -115,6 +116,7 @@ const RESULTS_EN: typeof RESULTS_HI = {
   verifiedAdvice: "Checked advice",
   estimateNote: "These are estimates from the numbers, not certain facts.",
   noneChecked: "Nothing about this option is fully checked yet.",
+  barHint: "Each colour is a crop. Black means the field is empty.",
   estimateGood: "Looks good by the numbers, but not checked yet",
   expert: "Ask an expert",
   vulnerable: "Sensitive times",
@@ -186,6 +188,20 @@ const CROP_PIC: Record<string, PictogramId> = {
 const cropName = (c: string, lang: Lang) => CROP_NAMES[lang][c] ?? c;
 const cropPic = (c: string): PictogramId => CROP_PIC[c] ?? "bare";
 
+// ---- Colours on the year bar: one per crop, black for a bare field ----
+
+/** The crop's colour (a CSS variable in globals.css; tests/test_crop_colors.py checks every crop has one). */
+export const cropColor = (c: string) => `var(--color-crop-${c})`;
+export const cropLabel = (c: string, lang: Lang) => cropName(c, lang);
+export const cropPicture = (c: string): PictogramId => cropPic(c);
+
+/** The background of one month on the bar: nothing (bare), one crop's colour, or two crops side by side (an intercrop). */
+export function monthBackground(crops: string[]): string | undefined {
+  if (crops.length === 0) return undefined;
+  if (crops.length === 1) return cropColor(crops[0]);
+  return `linear-gradient(to right, ${cropColor(crops[0])} 50%, ${cropColor(crops[1])} 50%)`;
+}
+
 /** "सोयाबीन, फिर चना" / "कपास और तुअर साथ-साथ" / "कपास", or in English "Soybean, then chickpea" / "Cotton and Pigeon pea together". */
 export function strategyName(s: Strategy, lang: Lang): string {
   const names = s.crops.map((c) => cropName(c, lang));
@@ -250,6 +266,20 @@ export function yearBar(calendar: CalendarEntry[] = [], mixed = false): string[]
       .sort((a, b) => days[b][m] - days[a][m]);
     return mixed ? here : here.slice(0, 1);
   });
+}
+
+/** The crops that appear on the bars of these options, in order of first appearance, and whether any month is bare:
+    what the legend under the bars has to explain. */
+export function barLegend(strategies: Strategy[]): { crops: string[]; bare: boolean } {
+  const crops: string[] = [];
+  let bare = false;
+  for (const s of strategies) {
+    for (const month of yearBar(s.calendar, s.kind === "mixed")) {
+      if (month.length === 0) bare = true;
+      for (const c of month) if (!crops.includes(c)) crops.push(c);
+    }
+  }
+  return { crops, bare };
 }
 
 export type Run = { start: number; length: number; crops: string[] };

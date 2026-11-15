@@ -1,26 +1,27 @@
-// The Hindi script for the voice call, and the matching of what the farmer says to an answer.
+// The script for the voice call in Hindi and English, and the matching of what the farmer says to an answer.
+import type { L, Lang } from "./lang";
 import type { PictogramId } from "./pictograms";
 
-// All Hindi text here was drafted by Claude and has NOT been reviewed by a native speaker.
-// Marathi will be a second file with the same shape, after a native speaker reviews it.
+// All Hindi text here was drafted by Claude and has NOT been reviewed by a native speaker. The English is a
+// plain one-for-one version of the Hindi. Marathi will be a third language with the same shape, after a native speaker reviews it.
 
 export type Option = {
   value: string; // the value the engine expects (see api/main.py)
-  label: string; // shown and read aloud
+  label: L; // shown and read aloud, in each language
   pics: PictogramId[]; // pictures shown on the tile, left to right (the farmers cannot read)
-  words: string[]; // spoken words that pick this option
+  words: string[]; // spoken words that pick this option (Hindi and English together: farmers mix them)
   weak?: string[]; // only used when no strong word matched (shared words like "soybean")
 };
 
 export type Step = {
   id: "farm" | "location" | "rotation" | "water_source" | "priority1" | "priority2" | "water_level" | "equipment" | "market";
-  question: string;
+  question: L;
   options: (answers: Answers) => Option[];
 };
 
 export type Answers = Partial<Record<Step["id"], string>>;
 
-export const SCRIPT = {
+const SCRIPT_HI = {
   title: "फ़ील्ड शिफ़्ट",
   tagline: "खेत के लिए सुझाव। बस एक बार छुइए और बोलिए।",
   start: "सुझाव के लिए छुइए",
@@ -35,75 +36,98 @@ export const SCRIPT = {
   listening: "आपकी बारी — बोलिए",
   tapOnly: "तस्वीर छुइए",
   mapNote: "लाल निशान आपके फ़ोन की जगह है।",
+  mapLoading: "नक्शा खुल रहा है… रुकिए।",
   noMic: "माइक्रोफ़ोन की इजाज़त नहीं मिली। तस्वीर छुकर जवाब दीजिए।",
 };
 
+const SCRIPT_EN: typeof SCRIPT_HI = {
+  title: "Field Shift",
+  tagline: "Suggestions for your farm. Just tap once and speak.",
+  start: "Tap for suggestions",
+  useForm: "or try the form",
+  end: "End call",
+  again: "New call",
+  back: "Back",
+  greeting: "Hello. I will ask you a few questions about your farm. Answer by speaking, or touch a picture.",
+  notUnderstood: "Sorry, I did not understand. Please say it again, or touch a picture.",
+  closing: "Thank you. I have your answers. Now I will show you the results. The call is finished.",
+  speaking: "Listen…",
+  listening: "Your turn — speak",
+  tapOnly: "Touch a picture",
+  mapNote: "The red mark is your phone's location.",
+  mapLoading: "Opening the map… please wait.",
+  noMic: "Microphone permission was not given. Please answer by touching a picture.",
+};
+
+export const SCRIPTS: Record<Lang, typeof SCRIPT_HI> = { hi: SCRIPT_HI, en: SCRIPT_EN };
+
 // Asked only when the phone gave a location: the map shows a red pin and the farmer confirms it.
+// "words" mix Hindi and English on purpose: a farmer may answer in either, and the browser may write either script.
 const FARM: Option[] = [
-  { value: "yes", label: "हाँ, यही है", pics: ["yes"], words: ["हाँ", "हां", "हा", "जी", "है", "यही", "सही", "yes"] },
-  { value: "no", label: "नहीं", pics: ["no"], words: ["नहीं", "नही", "ना", "गलत", "no"] },
+  { value: "yes", label: { hi: "हाँ, यही है", en: "Yes, this is it" }, pics: ["yes"], words: ["हाँ", "हां", "हा", "जी", "है", "यही", "सही", "yes", "yeah", "correct", "right"] },
+  { value: "no", label: { hi: "नहीं", en: "No" }, pics: ["no"], words: ["नहीं", "नही", "ना", "गलत", "no", "nope", "wrong"] },
 ];
 
 const LOCATIONS: Option[] = [
-  { value: "akola", label: "अकोला", pics: ["pin"], words: ["अकोला", "akola"] },
-  { value: "buldhana", label: "बुलढाणा", pics: ["pin"], words: ["बुलढाणा", "बुलढाना", "बुलडाना", "बुलढ़ाणा", "buldhana", "buldana"] },
-  { value: "washim", label: "वाशिम", pics: ["pin"], words: ["वाशिम", "वाशीम", "washim", "vashim"] },
+  { value: "akola", label: { hi: "अकोला", en: "Akola" }, pics: ["pin"], words: ["अकोला", "akola"] },
+  { value: "buldhana", label: { hi: "बुलढाणा", en: "Buldhana" }, pics: ["pin"], words: ["बुलढाणा", "बुलढाना", "बुलडाना", "बुलढ़ाणा", "buldhana", "buldana", "buldhanaa"] },
+  { value: "washim", label: { hi: "वाशिम", en: "Washim" }, pics: ["pin"], words: ["वाशिम", "वाशीम", "washim", "vashim", "washem"] },
 ];
 
 const ROTATIONS: Option[] = [
-  { value: "soybean_fallow", label: "सोयाबीन, फिर खेत खाली", pics: ["soybean", "then", "bare"], words: ["खाली", "fallow", "empty"], weak: ["सोयाबीन", "soybean"] },
-  { value: "cotton", label: "कपास", pics: ["cotton"], words: ["कपास", "cotton"] },
-  { value: "soybean_chickpea", label: "सोयाबीन, फिर चना", pics: ["soybean", "then", "chickpea"], words: ["चना", "चने", "chana", "chickpea"] },
+  { value: "soybean_fallow", label: { hi: "सोयाबीन, फिर खेत खाली", en: "Soybean, then empty field" }, pics: ["soybean", "then", "bare"], words: ["खाली", "fallow", "empty", "bare", "nothing"], weak: ["सोयाबीन", "soybean", "soyabean", "soya"] },
+  { value: "cotton", label: { hi: "कपास", en: "Cotton" }, pics: ["cotton"], words: ["कपास", "cotton"] },
+  { value: "soybean_chickpea", label: { hi: "सोयाबीन, फिर चना", en: "Soybean, then chickpea" }, pics: ["soybean", "then", "chickpea"], words: ["चना", "चने", "chana", "chickpea", "chick pea", "gram"] },
 ];
 
 const WATER_SOURCES: Option[] = [
-  { value: "rainfed", label: "सिर्फ़ बारिश", pics: ["rain"], words: ["बारिश", "बरसात", "वर्षा", "rain"] },
-  { value: "well", label: "कुआँ या बोरवेल", pics: ["well"], words: ["कुआँ", "कुआं", "बोरवेल", "borewell", "well"] },
-  { value: "canal_tank", label: "नहर या तालाब", pics: ["canal"], words: ["नहर", "तालाब", "canal", "tank"] },
+  { value: "rainfed", label: { hi: "सिर्फ़ बारिश", en: "Rain only" }, pics: ["rain"], words: ["बारिश", "बरसात", "वर्षा", "rain", "rainfed", "monsoon"] },
+  { value: "well", label: { hi: "कुआँ या बोरवेल", en: "Well or borewell" }, pics: ["well"], words: ["कुआँ", "कुआं", "बोरवेल", "borewell", "bore well", "well"] },
+  { value: "canal_tank", label: { hi: "नहर या तालाब", en: "Canal or pond" }, pics: ["canal"], words: ["नहर", "तालाब", "canal", "tank", "pond", "lake"] },
 ];
 
 const PRIORITIES: Option[] = [
-  { value: "water_saving", label: "पानी बचाना", pics: ["water_saving"], words: ["पानी", "water"] },
-  { value: "forage", label: "जानवरों का चारा", pics: ["forage"], words: ["चारा", "जानवर", "fodder", "forage"] },
-  { value: "nitrogen", label: "कम खाद", pics: ["nitrogen"], words: ["खाद", "यूरिया", "नाइट्रोजन", "fertiliser", "fertilizer"] },
-  { value: "erosion", label: "मिट्टी का बहना रोकना", pics: ["erosion"], words: ["कटाव", "बहना", "बह", "बहती", "बहाव", "erosion"] },
-  { value: "organic_matter", label: "मिट्टी की सेहत", pics: ["organic_matter"], words: ["सेहत", "जैविक", "organic"], weak: ["मिट्टी"] },
-  { value: "market_income", label: "अच्छा दाम", pics: ["market_income"], words: ["दाम", "भाव", "कीमत", "आमदनी", "income", "price"] },
+  { value: "water_saving", label: { hi: "पानी बचाना", en: "Save water" }, pics: ["water_saving"], words: ["पानी", "water"] },
+  { value: "forage", label: { hi: "जानवरों का चारा", en: "Fodder for animals" }, pics: ["forage"], words: ["चारा", "जानवर", "fodder", "forage", "animal", "cattle"] },
+  { value: "nitrogen", label: { hi: "कम खाद", en: "Less fertiliser" }, pics: ["nitrogen"], words: ["खाद", "यूरिया", "नाइट्रोजन", "fertiliser", "fertilizer", "urea", "nitrogen"] },
+  { value: "erosion", label: { hi: "मिट्टी का बहना रोकना", en: "Stop soil washing away" }, pics: ["erosion"], words: ["कटाव", "बहना", "बह", "बहती", "बहाव", "erosion", "washing", "washed"] },
+  { value: "organic_matter", label: { hi: "मिट्टी की सेहत", en: "Soil health" }, pics: ["organic_matter"], words: ["सेहत", "जैविक", "organic", "health", "healthy"], weak: ["मिट्टी", "soil"] },
+  { value: "market_income", label: { hi: "अच्छा दाम", en: "Better price" }, pics: ["market_income"], words: ["दाम", "भाव", "कीमत", "आमदनी", "income", "price", "money", "profit"] },
 ];
 
-const NONE: Option = { value: "", label: "कोई नहीं", pics: ["none"], words: ["नहीं", "नही", "कोई नहीं", "none", "no"] };
+const NONE: Option = { value: "", label: { hi: "कोई नहीं", en: "None" }, pics: ["none"], words: ["नहीं", "नही", "कोई नहीं", "none", "no", "nothing", "nobody"] };
 
 const LEVELS: Option[] = [
-  { value: "low", label: "कम", pics: ["level1"], words: ["कम", "low"] },
-  { value: "medium", label: "ठीक-ठाक", pics: ["level2"], words: ["ठीक", "मध्यम", "मीडियम", "medium"] },
-  { value: "high", label: "ज़्यादा", pics: ["level3"], words: ["ज़्यादा", "ज्यादा", "अधिक", "high"] },
+  { value: "low", label: { hi: "कम", en: "Low" }, pics: ["level1"], words: ["कम", "low", "little"] },
+  { value: "medium", label: { hi: "ठीक-ठाक", en: "Medium" }, pics: ["level2"], words: ["ठीक", "मध्यम", "मीडियम", "medium", "moderate", "average"] },
+  { value: "high", label: { hi: "ज़्यादा", en: "High" }, pics: ["level3"], words: ["ज़्यादा", "ज्यादा", "अधिक", "high", "plenty"] },
 ];
 
 const EQUIPMENT: Option[] = [
-  { value: "sprayer", label: "हाँ", pics: ["yes"], words: ["हाँ", "हां", "हा", "जी", "है", "yes"] },
-  { value: "basic", label: "नहीं", pics: ["no"], words: ["नहीं", "नही", "ना", "no"] },
+  { value: "sprayer", label: { hi: "हाँ", en: "Yes" }, pics: ["yes"], words: ["हाँ", "हां", "हा", "जी", "है", "yes", "yeah", "have"] },
+  { value: "basic", label: { hi: "नहीं", en: "No" }, pics: ["no"], words: ["नहीं", "नही", "ना", "no", "nope"] },
 ];
 
 const MARKETS: Option[] = [
-  { value: "mandi", label: "मंडी में", pics: ["mandi"], words: ["मंडी", "mandi"] },
-  { value: "buyer", label: "पास के ख़रीदार को", pics: ["buyer"], words: ["ख़रीदार", "खरीदार", "व्यापारी", "buyer"] },
-  { value: "own_use", label: "अपने इस्तेमाल के लिए", pics: ["own_use"], words: ["अपने", "घर", "खुद", "own"] },
+  { value: "mandi", label: { hi: "मंडी में", en: "At the mandi (market yard)" }, pics: ["mandi"], words: ["मंडी", "mandi", "market"] },
+  { value: "buyer", label: { hi: "पास के ख़रीदार को", en: "To a nearby buyer" }, pics: ["buyer"], words: ["ख़रीदार", "खरीदार", "व्यापारी", "buyer", "trader", "merchant"] },
+  { value: "own_use", label: { hi: "अपने इस्तेमाल के लिए", en: "For my own use" }, pics: ["own_use"], words: ["अपने", "घर", "खुद", "own", "myself", "home", "self"] },
 ];
 
 export const STEPS: Step[] = [
-  { id: "farm", question: "क्या लाल निशान की जगह आपका खेत है?", options: () => FARM },
-  { id: "location", question: "आपका खेत किस ज़िले में है?", options: () => LOCATIONS },
-  { id: "rotation", question: "अभी आप खेत में क्या बोते हैं?", options: () => ROTATIONS },
-  { id: "water_source", question: "आपके खेत में पानी कहाँ से आता है?", options: () => WATER_SOURCES },
-  { id: "priority1", question: "आपके लिए सबसे ज़रूरी क्या है?", options: () => PRIORITIES },
+  { id: "farm", question: { hi: "क्या लाल निशान की जगह आपका खेत है?", en: "Is the red mark the place of your farm?" }, options: () => FARM },
+  { id: "location", question: { hi: "आपका खेत किस ज़िले में है?", en: "Which district is your farm in?" }, options: () => LOCATIONS },
+  { id: "rotation", question: { hi: "अभी आप खेत में क्या बोते हैं?", en: "What do you grow in the field now?" }, options: () => ROTATIONS },
+  { id: "water_source", question: { hi: "आपके खेत में पानी कहाँ से आता है?", en: "Where does the water for your field come from?" }, options: () => WATER_SOURCES },
+  { id: "priority1", question: { hi: "आपके लिए सबसे ज़रूरी क्या है?", en: "What matters most to you?" }, options: () => PRIORITIES },
   {
     id: "priority2",
-    question: "कोई दूसरी ज़रूरी बात? नहीं हो तो नहीं बोलिए।",
+    question: { hi: "कोई दूसरी ज़रूरी बात? नहीं हो तो नहीं बोलिए।", en: "Anything else that matters? If not, say no." },
     options: (a) => [...PRIORITIES.filter((p) => p.value !== a.priority1), NONE],
   },
-  { id: "water_level", question: "खेत के लिए पानी कितना मिल सकता है?", options: () => LEVELS },
-  { id: "equipment", question: "क्या आपके पास स्प्रेयर या बुवाई की मशीन है?", options: () => EQUIPMENT },
-  { id: "market", question: "आप अपनी फ़सल कहाँ बेचते हैं?", options: () => MARKETS },
+  { id: "water_level", question: { hi: "खेत के लिए पानी कितना मिल सकता है?", en: "How much water can you get for the field?" }, options: () => LEVELS },
+  { id: "equipment", question: { hi: "क्या आपके पास स्प्रेयर या बुवाई की मशीन है?", en: "Do you have a sprayer or a sowing machine?" }, options: () => EQUIPMENT },
+  { id: "market", question: { hi: "आप अपनी फ़सल कहाँ बेचते हैं?", en: "Where do you sell your crop?" }, options: () => MARKETS },
 ];
 
 const ORDINALS: string[][] = [

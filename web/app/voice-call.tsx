@@ -6,10 +6,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
-import { SCRIPT, STEPS, matchOption, type Answers, type Option } from "./call-script";
+import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
+import { useLang } from "./lang";
 import { MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
-import { guardUtterance, pickHindiVoice } from "./speech";
+import { guardUtterance, pickVoice, speechLang } from "./speech";
 import { wakeApi } from "./wake-api";
 
 type Phase = "home" | "call" | "results" | "form";
@@ -52,9 +53,15 @@ export default function VoiceCall() {
   const [notice, setNotice] = useState("");
   // Found out after load (browser only), so the first render matches the server.
   const [canListen, setCanListen] = useState(true);
-  const [hindiVoice, setHindiVoice] = useState<boolean | null>(null);
+  const [voices, setVoices] = useState<{ hi: boolean; en: boolean } | null>(null); // does the device have a voice for each language?
   const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null); // the phone's location, if it gave one
   const [final, setFinal] = useState<Initial | null>(null); // the answers handed to the results page
+  // The farm question needs the map. Until the greeting is done and the map has loaded, no question or buttons are shown.
+  const [intro, setIntro] = useState(true);
+  const [mapReady, setMapReady] = useState(false);
+  const mapReadyRef = useRef(false);
+  const mapTimer = useRef<number | undefined>(undefined);
+  const mapWaiting = useRef(false); // the call is at the farm question and waiting for the map
 
   const run = useRef(0); // bumped to cancel any speech or listening still in flight
   const idxRef = useRef(0);
@@ -63,6 +70,9 @@ export default function VoiceCall() {
   const silences = useRef(0);
   const coordsRef = useRef<{ lat: number; lon: number } | null>(null);
   const geo = useRef<"pending" | "ok" | "none">("none");
+  const { lang } = useLang();
+  const langRef = useRef(lang); // read by speech and listening callbacks, which outlive a render
+  const S = SCRIPTS[lang]; // the script for rendering; callbacks use SCRIPTS[langRef.current]
 
   useEffect(() => {
     wakeApi(); // the API host may be asleep; start waking it now
@@ -70,12 +80,12 @@ export default function VoiceCall() {
     setCanListen(recognitionCtor() !== null);
     const synth = window.speechSynthesis;
     if (!synth) {
-      setHindiVoice(false);
+      setVoices({ hi: false, en: false });
       return;
     }
     const check = () => {
-      const voices = synth.getVoices();
-      if (voices.length) setHindiVoice(voices.some((v) => v.lang.toLowerCase().startsWith("hi")));
+      const all = synth.getVoices();
+      if (all.length) setVoices({ hi: all.some((v) => v.lang.toLowerCase().startsWith("hi")), en: all.some((v) => v.lang.toLowerCase().startsWith("en")) });
     };
     check();
     synth.addEventListener("voiceschanged", check);
@@ -88,6 +98,22 @@ export default function VoiceCall() {
       synth.cancel();
     };
   }, []);
+
+  // Keep the speech callbacks' language current. If the language is switched during a call, say the question again
+  // in the new language (or, before any answer, restart the call so the greeting is in it too).
+  const langSeen = useRef(false);
+  useEffect(() => {
+    langRef.current = lang;
+    if (!langSeen.current) {
+      langSeen.current = true;
+      return;
+    }
+    if (phase !== "call") return;
+    stopAudio();
+    if (Object.keys(answersRef.current).length === 0) start();
+    else ask(idxRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lang]);
 
   function stopAudio() {
     run.current++;
@@ -105,8 +131,8 @@ export default function VoiceCall() {
     }
     synth.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "hi-IN";
-    const voice = pickHindiVoice(synth);
+    u.lang = speechLang(langRef.current);
+    const voice = pickVoice(synth, langRef.current);
     if (voice) u.voice = voice;
     guardUtterance(u, text, () => {
       if (token === run.current) then?.();
@@ -122,7 +148,7 @@ export default function VoiceCall() {
       return;
     }
     const rec = new Ctor();
-    rec.lang = "hi-IN";
+    rec.lang = speechLang(langRef.current);
     rec.continuous = false;
     rec.interimResults = false;
     let heard = false;
@@ -139,14 +165,14 @@ export default function VoiceCall() {
       else {
         silences.current = 0;
         setStatus("speaking");
-        speak(SCRIPT.notUnderstood, listen);
+        speak(SCRIPTS[langRef.current].notUnderstood, listen);
       }
     };
     rec.onerror = (e) => {
       if (token !== run.current) return;
       if (e.error === "not-allowed" || e.error === "service-not-allowed") {
         blocked = true;
-        setNotice(SCRIPT.noMic);
+        setNotice("noMic");
         setStatus("tap");
       }
     };
@@ -174,8 +200,24 @@ export default function VoiceCall() {
     setReading(-1);
     pickedRef.current = null;
     setPicked(null);
+    setIntro(false);
     const step = STEPS[i];
-    const labels = step.options(answersRef.current).map((o) => o.label);
+    if (step.id === "farm" && coordsRef.current && !mapReadyRef.current) {
+      // Show the map's frame with a placeholder and say nothing yet. If the map does not load in time, fall back to
+      // the district question, the same as when the phone gives no location.
+      const waitToken = run.current;
+      mapWaiting.current = true;
+      window.clearTimeout(mapTimer.current);
+      mapTimer.current = window.setTimeout(() => {
+        if (waitToken !== run.current || mapReadyRef.current) return;
+        mapWaiting.current = false;
+        coordsRef.current = null;
+        setCoords(null);
+        ask(1);
+      }, MAP_WAIT_MS);
+      return;
+    }
+    const labels = step.options(answersRef.current).map((o) => o.label[langRef.current]);
     const token = run.current;
     // Read-along: the farmer hears each option while its picture lights up, so picture and word get linked.
     const readFrom = (n: number) => {
@@ -188,9 +230,10 @@ export default function VoiceCall() {
       setReading(n);
       speak(labels[n], () => readFrom(n + 1));
     };
-    speak(step.question, () => readFrom(0));
+    speak(step.question[langRef.current], () => readFrom(0));
   }
 
+  const MAP_WAIT_MS = 8000; // how long to wait for the map before asking the district instead
   const PICK_HOLD_MS = 700; // long enough to see which tile was taken, short enough not to feel slow
 
   function choose(option: Option) {
@@ -217,7 +260,20 @@ export default function VoiceCall() {
       const { farm, ...rest } = next;
       setFinal(farm === "yes" && coordsRef.current ? { ...rest, location: undefined, ...coordsRef.current } : rest);
       setStatus("speaking");
-      speak(SCRIPT.closing, () => setPhase("results"));
+      speak(SCRIPTS[langRef.current].closing, () => setPhase("results"));
+    }
+  }
+
+  // The map frame finished loading. If the call is already waiting at the farm question, ask it now;
+  // if the greeting is still being spoken, begin() will ask it when the greeting ends.
+  function onMapLoad() {
+    if (mapReadyRef.current) return;
+    mapReadyRef.current = true;
+    setMapReady(true);
+    window.clearTimeout(mapTimer.current);
+    if (mapWaiting.current) {
+      mapWaiting.current = false;
+      ask(0);
     }
   }
 
@@ -243,6 +299,11 @@ export default function VoiceCall() {
     idxRef.current = 0;
     setStatus("speaking");
     setFinal(null);
+    setIntro(true);
+    window.clearTimeout(mapTimer.current);
+    mapWaiting.current = false;
+    mapReadyRef.current = false;
+    setMapReady(false);
     coordsRef.current = null;
     setCoords(null);
     geo.current = "none";
@@ -262,7 +323,7 @@ export default function VoiceCall() {
         { timeout: 12000, maximumAge: 60000 },
       );
     }
-    speak(SCRIPT.greeting, () => begin());
+    speak(SCRIPTS[langRef.current].greeting, () => begin());
   }
 
   function end() {
@@ -282,8 +343,8 @@ export default function VoiceCall() {
     return (
       <>
         <div className="mx-auto w-full max-w-xl px-4 pt-3">
-          <button onClick={() => leave("home")} className="rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold" lang="hi">
-            {SCRIPT.back}
+          <button onClick={() => leave("home")} className="rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold" lang={lang}>
+            {S.back}
           </button>
         </div>
         <FieldShift />
@@ -294,11 +355,11 @@ export default function VoiceCall() {
   if (phase === "home") {
     return (
       <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-8">
-        <h1 className="narrow text-5xl font-extrabold leading-none" lang="hi">
-          {SCRIPT.title}
+        <h1 className="narrow text-5xl font-extrabold leading-none" lang={lang}>
+          {S.title}
         </h1>
-        <p className="mt-3 text-xl text-soil-soft" lang="hi">
-          {SCRIPT.tagline}
+        <p className="mt-3 text-xl text-soil-soft" lang={lang}>
+          {S.tagline}
         </p>
         {/* The year strip is this app's signature: green = crop in the ground, dark = bare field, blue band = monsoon.
             Here it is only a picture of what the app is about, so it has no text. */}
@@ -322,8 +383,8 @@ export default function VoiceCall() {
 
         <button onClick={start} className="mt-8 flex w-full items-center gap-4 rounded-field bg-monsoon px-5 py-6 text-left text-white">
           <MicIcon className="h-16 w-16 shrink-0" />
-          <span className="narrow flex-1 text-3xl font-extrabold leading-tight" lang="hi">
-            {SCRIPT.start}
+          <span className="narrow flex-1 text-3xl font-extrabold leading-tight" lang={lang}>
+            {S.start}
           </span>
           {/* Static sound bars: this button talks. */}
           <span aria-hidden className="flex h-12 shrink-0 items-center gap-1">
@@ -332,12 +393,12 @@ export default function VoiceCall() {
             ))}
           </span>
         </button>
-        <button onClick={() => leave("form")} className="mt-6 self-start text-base font-semibold text-monsoon underline" lang="hi">
-          {SCRIPT.useForm}
+        <button onClick={() => leave("form")} className="mt-6 self-start text-base font-semibold text-monsoon underline" lang={lang}>
+          {S.useForm}
         </button>
-        {hindiVoice === false && (
+        {voices && !voices[lang] && (
           <p className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm">
-            This device has no Hindi voice, so the questions will be shown but not spoken.
+            This device has no {lang === "hi" ? "Hindi" : "English"} voice, so the questions will be shown but not spoken.
           </p>
         )}
         {!canListen && (
@@ -352,8 +413,10 @@ export default function VoiceCall() {
 
   const step = STEPS[idx];
   const options = step.options(answers);
-  const statusText = status === "speaking" ? SCRIPT.speaking : status === "listening" ? SCRIPT.listening : SCRIPT.tapOnly;
-  const canTapToSpeak = status === "tap" && canListen && !notice;
+  const waitingMap = step.id === "farm" && !!coords && !mapReady; // the map is on its way: show its frame, not the question
+  const hideQuestion = intro || waitingMap;
+  const statusText = status === "speaking" ? S.speaking : status === "listening" ? S.listening : S.tapOnly;
+  const canTapToSpeak = status === "tap" && canListen && !notice && !hideQuestion;
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
@@ -364,15 +427,16 @@ export default function VoiceCall() {
             <span key={st.id} className={`h-2 flex-1 ${i < idx ? "bg-soil" : i === idx ? "bg-monsoon" : "bg-rule"}`} />
           ))}
         </div>
-        <button onClick={end} className="flex items-center gap-2 rounded-field bg-almanac px-3 py-2 text-base font-bold text-white" lang="hi">
+        <button onClick={end} className="flex items-center gap-2 rounded-field bg-almanac px-3 py-2 text-base font-bold text-white" lang={lang}>
           <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" className="h-4 w-4">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
-          {SCRIPT.end}
+          {S.end}
         </button>
       </div>
 
       {/* The mic or speaker shows whose turn it is. When the app is waiting for a tap, this is the "speak again" button. */}
+      {!waitingMap && (
       <button
         onClick={canTapToSpeak ? listen : undefined}
         disabled={!canTapToSpeak}
@@ -387,43 +451,61 @@ export default function VoiceCall() {
         >
           {status === "speaking" ? <SpeakerIcon className="h-8 w-8" /> : <MicIcon className="h-8 w-8" />}
         </span>
-        <span className="narrow text-xl font-bold text-soil-soft" lang="hi">
+        <span className="narrow text-xl font-bold text-soil-soft" lang={lang}>
           {statusText}
         </span>
       </button>
+      )}
 
-      <h2 className="narrow mt-4 text-3xl font-extrabold leading-tight" lang="hi">
-        {step.question}
-      </h2>
+      {!hideQuestion && (
+        <h2 className="narrow mt-4 text-3xl font-extrabold leading-tight" lang={lang}>
+          {step.question[lang]}
+        </h2>
+      )}
 
       {notice && (
-        <p className="mt-3 border-l-4 border-almanac p-3 text-sm font-semibold text-almanac" lang="hi">
-          {notice}
+        <p className="mt-3 border-l-4 border-almanac p-3 text-sm font-semibold text-almanac" lang={lang}>
+          {notice === "noMic" ? S.noMic : notice}
         </p>
       )}
 
       {step.id === "farm" && coords && (
         <>
-          {/* Google's keyless embed, satellite view. The browser sends these coordinates to Google when it loads. */}
-          <iframe
-            title="map"
-            className="mt-4 h-64 w-full rounded-field border-2 border-soil"
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            sandbox="allow-scripts allow-same-origin"
-            src={`https://www.google.com/maps?q=${coords.lat},${coords.lon}&z=16&t=k&output=embed`}
-          />
-          <p className="mt-1 text-sm text-soil-soft" lang="hi">
-            {SCRIPT.mapNote}
-          </p>
+          {/* Google's keyless embed, satellite view. The browser sends these coordinates to Google when it loads.
+              The frame keeps its space from the start; a placeholder fills it until the map has loaded. */}
+          <div className="relative mt-4 h-64 w-full overflow-hidden rounded-field border-2 border-soil bg-paper">
+            {!mapReady && (
+              <div role="status" className="absolute inset-0 flex animate-pulse flex-col items-center justify-center gap-2 bg-rule/40">
+                <Pictogram id="pin" className="h-14 w-14" />
+                <span className="narrow text-lg font-bold text-soil-soft" lang={lang}>
+                  {S.mapLoading}
+                </span>
+              </div>
+            )}
+            <iframe
+              title="map"
+              className={`absolute inset-0 h-full w-full ${mapReady ? "" : "opacity-0"}`}
+              referrerPolicy="no-referrer"
+              sandbox="allow-scripts allow-same-origin"
+              onLoad={onMapLoad}
+              src={`https://www.google.com/maps?q=${coords.lat},${coords.lon}&z=16&t=k&output=embed`}
+            />
+          </div>
+          {mapReady && (
+            <p className="mt-1 text-sm text-soil-soft" lang={lang}>
+              {S.mapNote}
+            </p>
+          )}
         </>
       )}
 
-      <ul className="mt-5 grid grid-cols-2 gap-3">
+      {!intro && (
+      <ul className={`mt-5 grid grid-cols-2 gap-3 ${waitingMap ? "opacity-40" : ""}`}>
         {options.map((o, i) => (
           <li key={o.value || "none"} className="last:odd:col-span-2">
             <button
               onClick={() => choose(o)}
+              disabled={waitingMap}
               aria-pressed={picked === o.value}
               className={`relative flex h-full min-h-44 w-full flex-col items-center justify-center gap-3 rounded-field text-center ${
                 picked === o.value
@@ -447,13 +529,14 @@ export default function VoiceCall() {
                   <Pictogram key={k} id={id} className={id === "then" ? "h-5 w-5" : o.pics.length > 1 ? "h-12 w-12" : "h-20 w-20"} />
                 ))}
               </span>
-              <span className="narrow text-lg font-bold leading-tight" lang="hi">
-                {o.label}
+              <span className="narrow text-lg font-bold leading-tight" lang={lang}>
+                {o.label[lang]}
               </span>
             </button>
           </li>
         ))}
       </ul>
+      )}
       <Disclaimer />
     </main>
   );

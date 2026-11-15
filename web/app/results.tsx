@@ -5,13 +5,14 @@
 // - for one choice: the 12-month year bar (kharif and rabi grouped), then three picture rows that speak when tapped;
 // - sources and validity flags sit behind a small "for experts" link.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { DISCLAIMER, type Initial } from "./field-shift";
 import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
-import { speakHindi, stopSpeech } from "./speech";
+import { useLang } from "./lang";
+import { speakText, stopSpeech } from "./speech";
 import {
-  MONTH_HI_SHORT,
-  RESULTS,
+  monthShort,
+  resultsText,
   SEASONS,
   choices,
   expertLines,
@@ -91,15 +92,17 @@ const SEASON_TEXT: Record<string, string> = { kharif: "text-monsoon", rabi: "tex
 const seasonOf = (i: number) => SEASONS.find((se) => i >= se.from && i < se.from + se.length)!.key;
 
 function MonthAxis({ full }: { full?: boolean }) {
+  const { lang } = useLang();
+  const months = monthShort(lang);
   return (
     <div className="mt-1">
       <div className="grid grid-cols-12 border-t-2 border-soil">
-        {MONTH_HI_SHORT.map((m, i) => (
+        {months.map((m, i) => (
           <span key={m} className={`border-l border-soil ${SEASON_START.has(i) ? "h-2 border-l-[3px]" : "h-1"}`} />
         ))}
       </div>
-      <div className="grid grid-cols-12" lang="hi">
-        {MONTH_HI_SHORT.map((m, i) => (
+      <div className="grid grid-cols-12" lang={lang}>
+        {months.map((m, i) => (
           <span
             key={m}
             className={`narrow min-w-0 text-center font-semibold leading-tight ${full ? "text-xs" : "text-[0.65rem]"} ${SEASON_TEXT[seasonOf(i)]}`}
@@ -113,6 +116,8 @@ function MonthAxis({ full }: { full?: boolean }) {
 }
 
 function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: SeasonRisk }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
   const bar = yearBar(s.calendar, s.kind === "mixed");
   const gap = (i: number) => (i === 4 || i === 9 ? "border-r-[6px] border-limewash" : "");
   return (
@@ -128,8 +133,8 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
               }`}
             >
               {se.key !== "summer" && <Pictogram id={se.key === "kharif" ? "rain" : "sun"} className="h-8 w-8" />}
-              <span className="narrow text-sm font-bold" lang="hi">
-                {RESULTS[se.key]}
+              <span className="narrow text-sm font-bold" lang={lang}>
+                {R[se.key]}
               </span>
             </div>
           ))}
@@ -157,13 +162,15 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
 
 /** Says how far to trust the advice: an estimate from the numbers, or checked. Shown on the list and on every choice. */
 function AdviceBadge({ label, note }: { label: string; note?: boolean }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
   return (
-    <p className="mt-2 flex items-center gap-2 text-lg font-bold text-soil" lang="hi">
+    <p className="mt-2 flex items-center gap-2 text-lg font-bold text-soil" lang={lang}>
       <span className="flex items-center gap-1.5 rounded-field border-2 border-dashed border-soil px-2.5 py-1">
         <Pictogram id="unknown" className="h-5 w-5" />
         {label}
       </span>
-      {note && label === RESULTS.estimate && <span className="text-base font-semibold text-soil-soft">{RESULTS.estimateNote}</span>}
+      {note && label === R.estimate && <span className="text-base font-semibold text-soil-soft">{R.estimateNote}</span>}
     </p>
   );
 }
@@ -173,19 +180,21 @@ function Disclaimer() {
 }
 
 function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () => void }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
   const s = c.strategy;
   const [open, setOpen] = useState<Row | null>(null);
   const [speaking, setSpeaking] = useState<Row | null>(null);
-  const name = strategyName(s);
+  const name = strategyName(s, lang);
   const rows: { key: Row; label: string; icon: PictogramId; lines: string[] }[] = [
-    { key: "good", label: RESULTS.good, icon: "yes", lines: goodLines(s) }, // a tick = checked; the thumbs-up is kept for "best choice"
-    { key: "unknown", label: RESULTS.unknown, icon: "unknown", lines: unknownLines(s) },
-    ...(risk ? [{ key: "vulnerable" as const, label: RESULTS.vulnerable, icon: "warning" as const, lines: vulnerableLines(s, risk) }] : []),
-    { key: "expert", label: RESULTS.expert, icon: "expert", lines: expertLines(s) },
+    { key: "good", label: R.good, icon: "yes", lines: goodLines(s, lang) }, // a tick = checked; the thumbs-up is kept for "best choice"
+    { key: "unknown", label: R.unknown, icon: "unknown", lines: unknownLines(s, lang) },
+    ...(risk ? [{ key: "vulnerable" as const, label: R.vulnerable, icon: "warning" as const, lines: vulnerableLines(s, risk, lang) }] : []),
+    { key: "expert", label: R.expert, icon: "expert", lines: expertLines(s, lang) },
   ];
 
   useEffect(() => {
-    speakHindi(`${name}। यह ${adviceLabel([adviceKind(s)])} है। छुकर सुनिए: ${rows.map((r) => r.label).join(", ")}।`);
+    speakText(R.detailIntro(name, adviceLabel([adviceKind(s)], lang), rows.map((r) => r.label).join(", ")), lang);
     return stopSpeech;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
@@ -193,7 +202,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
   function tap(r: (typeof rows)[number]) {
     setOpen(r.key);
     setSpeaking(r.key);
-    speakHindi(`${r.label}। ${r.lines.join(" ")}`, () => setSpeaking(null));
+    speakText(R.rowSpeech(r.label, r.lines), lang, () => setSpeaking(null));
   }
 
   return (
@@ -204,27 +213,27 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
           onBack();
         }}
         className="flex items-center gap-1 self-start rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
-        lang="hi"
+        lang={lang}
       >
         <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
           <path d="M15 5l-7 7 7 7" />
         </svg>
-        {RESULTS.back}
+        {R.back}
       </button>
 
       <div className="mt-5 flex items-center gap-3">
         {c.top && <Pictogram id="thumbs_up" className="h-14 w-14 shrink-0" />}
         <div>
           <Pics pics={strategyPics(s)} className="h-12 w-12" />
-          <h2 className="narrow mt-1 text-3xl font-extrabold leading-tight" lang="hi">
+          <h2 className="narrow mt-1 text-3xl font-extrabold leading-tight" lang={lang}>
             {name}
           </h2>
           {c.current && (
-            <p className="text-base font-semibold text-soil-soft" lang="hi">
-              {RESULTS.current}
+            <p className="text-base font-semibold text-soil-soft" lang={lang}>
+              {R.current}
             </p>
           )}
-          <AdviceBadge label={adviceLabel([adviceKind(s)])} />
+          <AdviceBadge label={adviceLabel([adviceKind(s)], lang)} />
         </div>
       </div>
 
@@ -239,13 +248,13 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
               <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-field border-2 border-soil bg-paper p-1.5">
                 <Pictogram id={r.icon} />
               </span>
-              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang="hi">
+              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang={lang}>
                 {r.label}
               </span>
               <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === r.key ? "text-monsoon" : "text-soil-soft"}`} />
             </button>
             {open === r.key && (
-              <ul className="space-y-1.5 pb-4 pl-5 pr-2 text-lg" lang="hi">
+              <ul className="space-y-1.5 pb-4 pl-5 pr-2 text-lg" lang={lang}>
                 {r.lines.map((l, i) => (
                   <li key={i} className="border-l-4 border-rule pl-3">
                     {l}
@@ -258,8 +267,8 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
       </ol>
 
       <details className="mt-5">
-        <summary className="cursor-pointer text-sm font-semibold text-monsoon underline underline-offset-2" lang="hi">
-          {RESULTS.forExperts}
+        <summary className="cursor-pointer text-sm font-semibold text-monsoon underline underline-offset-2" lang={lang}>
+          {R.forExperts}
         </summary>
         <ul className="mt-2 space-y-2.5 text-sm">
           {s.evidence.map((e, i) => (
@@ -278,14 +287,16 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
 }
 
 function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
   const [open, setOpen] = useState<string | null>(null);
   const [speaking, setSpeaking] = useState<string | null>(null);
-  const items = explainers(risk);
+  const items = explainers(risk, lang);
 
   useEffect(() => {
-    speakHindi(`${RESULTS.learnTitle} किसी तस्वीर को छुकर सुनिए।`);
+    speakText(R.learnIntro(R.learnTitle), lang);
     return stopSpeech;
-  }, []);
+  }, [R, lang]);
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
@@ -295,15 +306,15 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
           onBack();
         }}
         className="flex items-center gap-1 self-start rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
-        lang="hi"
+        lang={lang}
       >
         <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
           <path d="M15 5l-7 7 7 7" />
         </svg>
-        {RESULTS.back}
+        {R.back}
       </button>
-      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang="hi">
-        {RESULTS.learnTitle}
+      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang={lang}>
+        {R.learnTitle}
       </h1>
       <ol className="mt-5 border-t-2 border-soil">
         {items.map((e) => (
@@ -312,7 +323,7 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
               onClick={() => {
                 setOpen(e.key);
                 setSpeaking(e.key);
-                speakHindi(`${e.title}। ${e.text}`, () => setSpeaking(null));
+                speakText(R.rowSpeech(e.title, [e.text]), lang, () => setSpeaking(null));
               }}
               className="flex min-h-24 w-full items-center gap-4 py-3 text-left"
             >
@@ -321,13 +332,13 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
                   <Pictogram key={i} id={id} className={id === "plus" ? "h-4 w-4" : e.pics.length > 1 ? "h-8 w-8" : "h-full w-full"} />
                 ))}
               </span>
-              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang="hi">
+              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang={lang}>
                 {e.title}
               </span>
               <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === e.key ? "text-monsoon" : "text-soil-soft"}`} />
             </button>
             {open === e.key && (
-              <p className="border-l-4 border-rule pb-4 pl-3 pr-2 text-lg" lang="hi">
+              <p className="border-l-4 border-rule pb-4 pl-3 pr-2 text-lg" lang={lang}>
                 {e.text}
               </p>
             )}
@@ -340,6 +351,8 @@ function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
 }
 
 export default function Results({ answers, onRestart }: { answers: Initial; onRestart: () => void }) {
+  const { lang } = useLang();
+  const R = resultsText(lang);
   const [result, setResult] = useState<Result | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
@@ -347,6 +360,11 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
   const [learn, setLearn] = useState(false);
 
   const [waking, setWaking] = useState(false);
+  // The speech inside the fetch effect must use the language at the moment it speaks, without refetching when it changes.
+  const langRef = useRef(lang);
+  useEffect(() => {
+    langRef.current = lang;
+  }, [lang]);
 
   useEffect(() => {
     let alive = true;
@@ -367,7 +385,7 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
         if (i > 0) {
           if (i === 1 && alive) {
             setWaking(true);
-            speakHindi(RESULTS.waking);
+            speakText(resultsText(langRef.current).waking, langRef.current);
           }
           await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[i]));
         }
@@ -388,7 +406,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
           if (!alive) return;
           setWaking(false);
           setResult(data);
-          speakHindi(data.served ? summarySpeech(choices(data), nearestPhrase(data)) : RESULTS.outOfArea);
+          const l = langRef.current;
+          speakText(data.served ? summarySpeech(choices(data), nearestPhrase(data, l), l) : resultsText(l).outOfArea, l);
           return;
         } catch {
           if (!alive) return;
@@ -423,44 +442,47 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
             onRestart();
           }}
           className="rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
-          lang="hi"
+          lang={lang}
         >
-          {RESULTS.again}
+          {R.again}
         </button>
         {result?.served && (
           <button
-            onClick={() => speakHindi(summarySpeech(list, result ? nearestPhrase(result) : null))}
+            onClick={() => speakText(summarySpeech(list, result ? nearestPhrase(result, lang) : null, lang), lang)}
             className="flex items-center gap-2 rounded-field border-2 border-monsoon px-3 py-1.5 text-base font-bold text-monsoon"
-            lang="hi"
+            lang={lang}
           >
             <SpeakerIcon className="h-5 w-5" />
-            {RESULTS.replay}
+            {R.replay}
           </button>
         )}
       </div>
 
-      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang="hi">
-        {RESULTS.title}
+      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang={lang}>
+        {R.title}
       </h1>
 
-      {result?.served && nearestPhrase(result) && (
-        <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-soil-soft" lang="hi">
+      {result?.served && nearestPhrase(result, lang) && (
+        <p className="mt-1 flex items-center gap-2 text-lg font-semibold text-soil-soft" lang={lang}>
           <Pictogram id="pin" className="h-6 w-6" />
-          {RESULTS.where}: {nearestPhrase(result)}
+          {R.where}: {nearestPhrase(result, lang)}
         </p>
       )}
 
-      {result?.served && <AdviceBadge label={adviceLabel(list.filter((c) => !c.strategy.incomplete).map((c) => adviceKind(c.strategy)))} note />}
+      {result?.served && <AdviceBadge label={adviceLabel(
+            list.filter((c) => !c.strategy.incomplete).map((c) => adviceKind(c.strategy)),
+            lang,
+          )} note />}
 
       {!result && !failed && (
-        <p className="mt-6 text-xl font-semibold text-soil-soft" lang="hi" role="status">
-          {waking ? RESULTS.waking : RESULTS.loading}
+        <p className="mt-6 text-xl font-semibold text-soil-soft" lang={lang} role="status">
+          {waking ? R.waking : R.loading}
         </p>
       )}
       {failed && (
         <div className="mt-6 border-l-4 border-almanac p-3" role="alert">
-          <p className="text-lg font-semibold text-almanac" lang="hi">
-            {RESULTS.error}
+          <p className="text-lg font-semibold text-almanac" lang={lang}>
+            {R.error}
           </p>
           <button
             onClick={() => {
@@ -468,16 +490,16 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
               setAttempt((n) => n + 1);
             }}
             className="mt-3 rounded-field border-2 border-almanac px-3 py-1.5 text-base font-bold text-almanac"
-            lang="hi"
+            lang={lang}
           >
-            {RESULTS.retry}
+            {R.retry}
           </button>
         </div>
       )}
       {result && !result.served && (
         <div className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3">
-          <p className="text-lg font-semibold" lang="hi">
-            {RESULTS.outOfArea}
+          <p className="text-lg font-semibold" lang={lang}>
+            {R.outOfArea}
           </p>
           <p className="mt-2 text-sm text-soil-soft">{result.reason}</p>
         </div>
@@ -485,8 +507,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
 
       {list.length > 0 && (
         <>
-          <p className="mt-2 text-lg text-soil-soft" lang="hi">
-            {RESULTS.tapHint}
+          <p className="mt-2 text-lg text-soil-soft" lang={lang}>
+            {R.tapHint}
           </p>
           <ul className="mt-4 space-y-3">
             {list.map((c) => (
@@ -504,12 +526,12 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
                   </span>
                   <span className="min-w-0 flex-1">
                     <Pics pics={strategyPics(c.strategy)} className="h-10 w-10" />
-                    <span className="narrow mt-1 block text-xl font-bold leading-tight" lang="hi">
-                      {strategyName(c.strategy)}
+                    <span className="narrow mt-1 block text-xl font-bold leading-tight" lang={lang}>
+                      {strategyName(c.strategy, lang)}
                     </span>
                     {(c.current || c.strategy.incomplete) && (
-                      <span className="block text-sm font-semibold text-soil-soft" lang="hi">
-                        {c.strategy.incomplete ? RESULTS.notRanked : RESULTS.current}
+                      <span className="block text-sm font-semibold text-soil-soft" lang={lang}>
+                        {c.strategy.incomplete ? R.notRanked : R.current}
                       </span>
                     )}
                     <span className="mt-2 block">
@@ -530,8 +552,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
             <span className="flex h-14 w-14 shrink-0 items-center justify-center">
               <Pictogram id="unknown" />
             </span>
-            <span className="narrow flex-1 text-2xl font-bold" lang="hi">
-              {RESULTS.learn}
+            <span className="narrow flex-1 text-2xl font-bold" lang={lang}>
+              {R.learn}
             </span>
           </button>
         </>

@@ -1,8 +1,10 @@
 // What the results page says and shows, built only from the engine's structured output.
 // Nothing here invents a number or a claim: every sentence is a template tied to an engine field
 // (component status, calendar, risk text), and no scores are spoken or shown (docs/VOICE_APP_PLAN.md).
-// All Hindi text was drafted by Claude and has NOT been reviewed by a native speaker.
+// All Hindi text was drafted by Claude and has NOT been reviewed by a native speaker. The English is a plain
+// one-for-one version of the Hindi. Where the engine already writes an English sentence (the risk lines), English shows it as is.
 
+import type { Lang } from "./lang";
 import type { PictogramId } from "./pictograms";
 
 export type Component = { score: number | null; status: string; validity: string; weight: number };
@@ -32,7 +34,7 @@ export type Result = {
   season_risk?: SeasonRisk; // calendar order, index 0 = January
 };
 
-export const RESULTS = {
+const RESULTS_HI = {
   loading: "रुकिए, तरीके देखे जा रहे हैं…",
   waking: "इंजन जाग रहा है, इसमें एक मिनट लग सकता है। थोड़ा रुकिए…",
   error: "इंजन से जवाब नहीं मिला। फिर से कोशिश कीजिए।",
@@ -64,17 +66,106 @@ export const RESULTS = {
   summer: "गर्मी",
   disclaimer: "यह औज़ार किसानों और स्थानीय कृषि विशेषज्ञों की समझ का सहारा है, उसकी जगह नहीं।",
   suggestion: "यह सुझाव है, आदेश नहीं। कृषि विज्ञान केंद्र या कृषि अधिकारी से पूछिए।",
+  // Spoken sentences and sentence pieces
+  detailIntro: (name: string, kind: string, labels: string) => `${name}। यह ${kind} है। छुकर सुनिए: ${labels}।`,
+  learnIntro: (title: string) => `${title} किसी तस्वीर को छुकर सुनिए।`,
+  rowSpeech: (label: string, lines: string[]) => `${label}। ${lines.join(" ")}`,
+  incompleteLine: "इस तरीके को पूरा आँका नहीं जा सका, क्योंकि कुछ जानकारी नहीं मिली।",
+  checkedButWeak: (name: string) => `${name}: जाँचा हुआ है, पर इसमें कमी है`,
+  notCheckedList: (names: string) => `इनके आँकड़े हमने अभी जाँचे नहीं हैं: ${names}।`,
+  areaScale: "मौसम का डेटा पूरे इलाके का है, आपके अपने खेत का नहीं।",
+  nearPhrase: (district: string) => `${district} के पास`,
+  mixedName: (names: string[]) => `${names.join(" और ")} साथ-साथ`,
+  thenName: (names: string[]) => names.join(", फिर "),
+  sayWhere: (where: string) => `आपकी जगह ${where} है।`,
+  sayCount: (n: number) => `आपके खेत के लिए ${n} तरीके देखे।`,
+  sayKind: (kind: string) => `यह ${kind} है।`,
+  sayBest: (name: string) => `सबसे अच्छा लगा: ${name}।`,
+  sayTied: (names: string[]) => `ये लगभग बराबर अच्छे लगे: ${names.join(" और ")}।`,
+  sayNoBest: "इस बार कोई साफ़ सबसे अच्छा तरीका नहीं मिला।",
+  sayMore: "किसी तरीके को छुकर और जानिए। शब्द समझने के लिए समझिए छुइए।",
+  sprayerRisk: "इस फ़सल में आम तौर पर स्प्रेयर चाहिए, और आपके पास नहीं है।",
 };
 
-const CROP_HI: Record<string, string> = {
-  soybean: "सोयाबीन",
-  chickpea: "चना",
-  cotton: "कपास",
-  pigeon_pea: "तुअर",
-  sorghum_rabi: "ज्वार",
-  sunn_hemp: "सनई",
-  horse_gram: "कुलथी",
-  fallow: "खाली खेत",
+const lowerAfterFirst = (name: string, i: number) => (i === 0 ? name : name.charAt(0).toLowerCase() + name.slice(1));
+
+const RESULTS_EN: typeof RESULTS_HI = {
+  loading: "Please wait, looking at the options…",
+  waking: "The engine is waking up. This can take a minute. Please wait…",
+  error: "No answer from the engine. Please try again.",
+  retry: "Try again",
+  title: "Options for your farm",
+  where: "Your location",
+  outOfArea: "We do not have information for this place yet. For now we work only for Akola, Buldhana and Washim. Choose a district in a new call.",
+  replay: "Listen again",
+  again: "New call",
+  back: "Back",
+  current: "What you do now",
+  notRanked: "Information incomplete",
+  tapHint: "Touch an option",
+  forExperts: "For experts: sources and checks",
+  good: "Checked advice",
+  unknown: "Estimated advice",
+  estimate: "Estimated advice",
+  verifiedAdvice: "Checked advice",
+  estimateNote: "These are estimates from the numbers, not certain facts.",
+  noneChecked: "Nothing about this option is fully checked yet.",
+  estimateGood: "Looks good by the numbers, but not checked yet",
+  expert: "Ask an expert",
+  vulnerable: "Sensitive times",
+  learn: "Explained",
+  learnTitle: "What do these mean?",
+  kharif: "Kharif",
+  rabi: "Rabi",
+  summer: "Summer",
+  disclaimer: "This tool is a support for the understanding of farmers and local agricultural experts. It does not replace it.",
+  suggestion: "This is a suggestion, not an order. Ask the Krishi Vigyan Kendra or an agriculture officer.",
+  detailIntro: (name, kind, labels) => `${name}. This is ${kind.toLowerCase()}. Touch to listen: ${labels}.`,
+  learnIntro: (title) => `${title} Touch a picture to listen.`,
+  rowSpeech: (label, lines) => `${label}. ${lines.join(" ")}`,
+  incompleteLine: "This option could not be fully assessed, because some information was missing.",
+  checkedButWeak: (name) => `${name}: checked, but this is weak`,
+  notCheckedList: (names) => `We have not checked the figures for these yet: ${names}.`,
+  areaScale: "The weather data is for the whole area, not for your own field.",
+  nearPhrase: (district) => `near ${district}`,
+  // Only the first crop starts with a capital: "Soybean, then sorghum (jowar)".
+  mixedName: (names) => `${names.map(lowerAfterFirst).join(" and ")} together`,
+  thenName: (names) => names.map(lowerAfterFirst).join(", then "),
+  sayWhere: (where) => `Your location is ${where}.`,
+  sayCount: (n) => `I looked at ${n} options for your farm.`,
+  sayKind: (kind) => `This is ${kind.toLowerCase()}.`,
+  sayBest: (name) => `Looks best: ${name}.`,
+  sayTied: (names) => `These look about equally good: ${names.join(" and ")}.`,
+  sayNoBest: "This time there is no clear best option.",
+  sayMore: "Touch an option to learn more. To understand the words, touch Explained.",
+  sprayerRisk: "This crop usually needs a sprayer, and you do not have one.",
+};
+
+/** The text of the results screens in this language. */
+export const resultsText = (lang: Lang) => (lang === "en" ? RESULTS_EN : RESULTS_HI);
+export type ResultsText = ReturnType<typeof resultsText>;
+
+const CROP_NAMES: Record<Lang, Record<string, string>> = {
+  hi: {
+    soybean: "सोयाबीन",
+    chickpea: "चना",
+    cotton: "कपास",
+    pigeon_pea: "तुअर",
+    sorghum_rabi: "ज्वार",
+    sunn_hemp: "सनई",
+    horse_gram: "कुलथी",
+    fallow: "खाली खेत",
+  },
+  en: {
+    soybean: "Soybean",
+    chickpea: "Chickpea",
+    cotton: "Cotton",
+    pigeon_pea: "Pigeon pea (tur)",
+    sorghum_rabi: "Sorghum (jowar)",
+    sunn_hemp: "Sunn hemp",
+    horse_gram: "Horse gram",
+    fallow: "Empty field",
+  },
 };
 
 const CROP_PIC: Record<string, PictogramId> = {
@@ -86,14 +177,14 @@ const CROP_PIC: Record<string, PictogramId> = {
   fallow: "bare",
 };
 
-const cropName = (c: string) => CROP_HI[c] ?? c;
+const cropName = (c: string, lang: Lang) => CROP_NAMES[lang][c] ?? c;
 const cropPic = (c: string): PictogramId => CROP_PIC[c] ?? "bare";
 
-/** "सोयाबीन, फिर चना" / "कपास और तुअर साथ-साथ" / "कपास". */
-export function strategyName(s: Strategy): string {
-  const names = s.crops.map(cropName);
-  if (s.kind === "mixed") return `${names.join(" और ")} साथ-साथ`;
-  return names.join(", फिर ");
+/** "सोयाबीन, फिर चना" / "कपास और तुअर साथ-साथ" / "कपास", or in English "Soybean, then chickpea" / "Cotton and Pigeon pea together". */
+export function strategyName(s: Strategy, lang: Lang): string {
+  const names = s.crops.map((c) => cropName(c, lang));
+  const t = resultsText(lang);
+  return s.kind === "mixed" ? t.mixedName(names) : t.thenName(names);
 }
 
 /** Pictures for one strategy: crops in order, with an arrow between a sequence or a plus between a mixed crop. */
@@ -168,27 +259,47 @@ export function runs(bar: string[][]): Run[] {
   return out;
 }
 
-// ---- The three picture rows on a detail screen ----
+// ---- The picture rows on a detail screen ----
 
-const GOOD_HI: Record<string, string> = {
-  water_fit: "बारिश फ़सल के पानी की ज़रूरत से अच्छा मेल खाती है",
-  timing_fit: "बुवाई और कटाई का समय ठीक बैठता है",
-  bare_days: "खेत ज़्यादा दिन फ़सल से ढका रहता है",
-  nitrogen: "मिट्टी में नाइट्रोजन बढ़ती है, खाद कम लगती है",
-  forage: "जानवरों के लिए चारा मिलता है",
-  market: "बाज़ार भाव का संकेत अच्छा है",
+const GOOD: Record<Lang, Record<string, string>> = {
+  hi: {
+    water_fit: "बारिश फ़सल के पानी की ज़रूरत से अच्छा मेल खाती है",
+    timing_fit: "बुवाई और कटाई का समय ठीक बैठता है",
+    bare_days: "खेत ज़्यादा दिन फ़सल से ढका रहता है",
+    nitrogen: "मिट्टी में नाइट्रोजन बढ़ती है, खाद कम लगती है",
+    forage: "जानवरों के लिए चारा मिलता है",
+    market: "बाज़ार भाव का संकेत अच्छा है",
+  },
+  en: {
+    water_fit: "Rain matches the crop's water need well",
+    timing_fit: "Sowing and harvest timing fits",
+    bare_days: "The field stays covered with a crop for more days",
+    nitrogen: "Nitrogen in the soil increases, so less fertiliser is needed",
+    forage: "Gives fodder for animals",
+    market: "The market price signal is good",
+  },
 };
 
-const UNSURE_HI: Record<string, string> = {
-  water_fit: "पानी का मेल",
-  timing_fit: "बुवाई-कटाई का समय",
-  bare_days: "खेत कितने दिन ढका रहेगा",
-  nitrogen: "नाइट्रोजन का फ़ायदा",
-  forage: "चारे की मात्रा",
-  market: "बाज़ार भाव",
+const UNSURE: Record<Lang, Record<string, string>> = {
+  hi: {
+    water_fit: "पानी का मेल",
+    timing_fit: "बुवाई-कटाई का समय",
+    bare_days: "खेत कितने दिन ढका रहेगा",
+    nitrogen: "नाइट्रोजन का फ़ायदा",
+    forage: "चारे की मात्रा",
+    market: "बाज़ार भाव",
+  },
+  en: {
+    water_fit: "water match",
+    timing_fit: "sowing and harvest timing",
+    bare_days: "how many days the field stays covered",
+    nitrogen: "nitrogen benefit",
+    forage: "amount of fodder",
+    market: "market price",
+  },
 };
 
-export const AREA_SCALE_HI = "मौसम का डेटा पूरे इलाके का है, आपके अपने खेत का नहीं।";
+export const areaScale = (lang: Lang) => resultsText(lang).areaScale;
 
 /** "Verified" only when every part of the score is complete and its inputs are checked (validity "valid").
     Any missing, degraded or unverified input makes it an estimate. Today the crop sheet is mostly unverified, so it is an estimate. */
@@ -198,40 +309,43 @@ export function adviceKind(s: Strategy): "estimate" | "verified" {
   return allChecked && !s.incomplete ? "verified" : "estimate";
 }
 
-export function adviceLabel(kinds: Array<"estimate" | "verified">): string {
-  return kinds.length > 0 && kinds.every((k) => k === "verified") ? RESULTS.verifiedAdvice : RESULTS.estimate;
+export function adviceLabel(kinds: Array<"estimate" | "verified">, lang: Lang): string {
+  const t = resultsText(lang);
+  return kinds.length > 0 && kinds.every((k) => k === "verified") ? t.verifiedAdvice : t.estimate;
 }
 
 const isGood = (c: Component) => c.status === "ok" && (c.score ?? 0) >= 70; // the engine's own "strong" line
 const isChecked = (c: Component) => c.status === "ok" && c.validity === "valid";
 
-/** Row "जाँचा हुआ सुझाव": only parts whose inputs are checked (validity "valid"). A high score on an unchecked
-    input is not a confirmed fact, so it goes in the estimate row instead. Today the crop sheet is mostly
+/** Row "checked advice" (जाँचा हुआ सुझाव): only parts whose inputs are checked (validity "valid"). A high score on an
+    unchecked input is not a confirmed fact, so it goes in the estimate row instead. Today the crop sheet is mostly
     unverified, so this row usually says that nothing is fully checked yet. */
-export function goodLines(s: Strategy): string[] {
+export function goodLines(s: Strategy, lang: Lang): string[] {
+  const t = resultsText(lang);
   const lines = Object.entries(s.components)
     .filter(([, c]) => isChecked(c))
-    .map(([k, c]) => (isGood(c) ? GOOD_HI[k] : UNSURE_HI[k] ? `${UNSURE_HI[k]}: जाँचा हुआ है, पर इसमें कमी है` : ""))
+    .map(([k, c]) => (isGood(c) ? GOOD[lang][k] : UNSURE[lang][k] ? t.checkedButWeak(UNSURE[lang][k]) : ""))
     .filter(Boolean);
-  return lines.length ? lines : [RESULTS.noneChecked];
+  return lines.length ? lines : [t.noneChecked];
 }
 
-/** Row "अनुमानित सुझाव": what looks good by the numbers but is not checked, the parts not checked or missing,
-    and the area-scale weather. */
-export function unknownLines(s: Strategy): string[] {
+/** Row "estimated advice" (अनुमानित सुझाव): what looks good by the numbers but is not checked, the parts not checked
+    or missing, and the area-scale weather. */
+export function unknownLines(s: Strategy, lang: Lang): string[] {
+  const t = resultsText(lang);
   const entries = Object.entries(s.components).filter(([, c]) => !isChecked(c));
-  const estGood = entries.filter(([, c]) => isGood(c)).map(([k]) => GOOD_HI[k]).filter(Boolean);
-  const unsure = entries.filter(([, c]) => !isGood(c)).map(([k]) => UNSURE_HI[k]).filter(Boolean);
+  const estGood = entries.filter(([, c]) => isGood(c)).map(([k]) => GOOD[lang][k]).filter(Boolean);
+  const unsure = entries.filter(([, c]) => !isGood(c)).map(([k]) => UNSURE[lang][k]).filter(Boolean);
   const lines: string[] = [];
-  if (s.incomplete) lines.push("इस तरीके को पूरा आँका नहीं जा सका, क्योंकि कुछ जानकारी नहीं मिली।");
-  estGood.forEach((l, i) => lines.push(i === 0 ? `${RESULTS.estimateGood}: ${l}` : l));
-  if (unsure.length) lines.push(`इनके आँकड़े हमने अभी जाँचे नहीं हैं: ${unsure.join(", ")}।`);
-  lines.push(AREA_SCALE_HI);
+  if (s.incomplete) lines.push(t.incompleteLine);
+  estGood.forEach((l, i) => lines.push(i === 0 ? `${t.estimateGood}: ${l}` : l));
+  if (unsure.length) lines.push(t.notCheckedList(unsure.join(", ")));
+  lines.push(t.areaScale);
   return lines;
 }
 
 // The engine's risk sentences (engine/card.py), matched exactly, mapped to Hindi. Anything unmatched is skipped,
-// and the general "ask an expert" line below always covers it.
+// and the general "ask an expert" line below always covers it. In English the engine's own sentence is shown as it is.
 const RISK_HI: [string, string][] = [
   ["In some years the monsoon starts after this crop's sowing window closes.", "कुछ सालों में मानसून इस फ़सल की बुवाई का समय निकलने के बाद आता है।"],
   ["The crop cycle can run into the pre-monsoon heat (after mid-March).", "फ़सल मार्च के बीच के बाद की गर्मी तक पहुँच सकती है।"],
@@ -239,58 +353,77 @@ const RISK_HI: [string, string][] = [
   ["In late years the first crop can finish after the next crop's sowing window closes.", "देर वाले सालों में अगली फ़सल की बुवाई का समय निकल सकता है।"],
 ];
 
-export function expertLines(s: Strategy): string[] {
-  const lines = [RESULTS.suggestion];
+export function expertLines(s: Strategy, lang: Lang): string[] {
+  const t = resultsText(lang);
+  const lines = [t.suggestion];
   for (const risk of s.card.risks_for_local_review) {
-    if (risk.includes("usually needs a sprayer")) lines.push("इस फ़सल में आम तौर पर स्प्रेयर चाहिए, और आपके पास नहीं है।");
+    if (lang === "en") {
+      lines.push(risk);
+      continue;
+    }
+    if (risk.includes("usually needs a sprayer")) lines.push(t.sprayerRisk);
     const hit = RISK_HI.find(([en]) => en === risk);
     if (hit) lines.push(hit[1]);
   }
   return lines;
 }
 
-const DISTRICT_HI: Record<string, string> = { akola: "अकोला", buldhana: "बुलढाणा", washim: "वाशिम" };
+const DISTRICTS: Record<Lang, Record<string, string>> = {
+  hi: { akola: "अकोला", buldhana: "बुलढाणा", washim: "वाशिम" },
+  en: { akola: "Akola", buldhana: "Buldhana", washim: "Washim" },
+};
 
-/** "वाशिम के पास": the district whose weather and satellite data stand in for the farm. */
-export function nearestPhrase(result: Result): string | null {
+/** "वाशिम के पास" / "near Washim": the district whose weather and satellite data stand in for the farm. */
+export function nearestPhrase(result: Result, lang: Lang): string | null {
   const d = result.location?.nearest;
-  return d ? `${DISTRICT_HI[d] ?? d} के पास` : null;
+  return d ? resultsText(lang).nearPhrase(DISTRICTS[lang][d] ?? d) : null;
 }
 
 /** Spoken when the results arrive: where, how many ways, which is best, the main caution. */
-export function summarySpeech(list: Choice[], where?: string | null): string {
+export function summarySpeech(list: Choice[], where: string | null | undefined, lang: Lang): string {
+  const t = resultsText(lang);
   const ranked = list.filter((c) => !c.strategy.incomplete);
-  const top = ranked.filter((c) => c.top).map((c) => strategyName(c.strategy));
-  const kind = adviceLabel(ranked.map((c) => adviceKind(c.strategy)));
-  const parts = [...(where ? [`आपकी जगह ${where} है।`] : []), `आपके खेत के लिए ${list.length} तरीके देखे।`, `यह ${kind} है। ${kind === RESULTS.estimate ? RESULTS.estimateNote : ""}`.trim()];
-  if (top.length === 1) parts.push(`सबसे अच्छा लगा: ${top[0]}।`);
-  else if (top.length > 1) parts.push(`ये लगभग बराबर अच्छे लगे: ${top.join(" और ")}।`);
-  else parts.push("इस बार कोई साफ़ सबसे अच्छा तरीका नहीं मिला।");
-  parts.push(RESULTS.suggestion, RESULTS.disclaimer, "किसी तरीके को छुकर और जानिए। शब्द समझने के लिए समझिए छुइए।");
+  const top = ranked.filter((c) => c.top).map((c) => strategyName(c.strategy, lang));
+  const kind = adviceLabel(ranked.map((c) => adviceKind(c.strategy)), lang);
+  const parts = [...(where ? [t.sayWhere(where)] : []), t.sayCount(list.length), `${t.sayKind(kind)} ${kind === t.estimate ? t.estimateNote : ""}`.trim()];
+  if (top.length === 1) parts.push(t.sayBest(top[0]));
+  else if (top.length > 1) parts.push(t.sayTied(top));
+  else parts.push(t.sayNoBest);
+  parts.push(t.suggestion, t.disclaimer, t.sayMore);
   return parts.join(" ");
 }
 
 // ---- Vulnerable seasons: heat, dry spells inside the monsoon, and frost (engine: season_risk) ----
 
-const MONTH_HI = ["जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर", "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई"];
+const MONTHS: Record<Lang, string[]> = {
+  hi: ["जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर", "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई"],
+  en: ["June", "July", "August", "September", "October", "November", "December", "January", "February", "March", "April", "May"],
+};
 
 /** Short month names for the timeline under every year bar (June first). Machine-drafted, needs a native speaker's check. */
-export const MONTH_HI_SHORT = ["जून", "जुला", "अग", "सित", "अक्टू", "नव", "दिस", "जन", "फ़र", "मार्च", "अप्रै", "मई"];
+const MONTHS_SHORT: Record<Lang, string[]> = {
+  hi: ["जून", "जुला", "अग", "सित", "अक्टू", "नव", "दिस", "जन", "फ़र", "मार्च", "अप्रै", "मई"],
+  en: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"],
+};
+export const monthShort = (lang: Lang) => MONTHS_SHORT[lang];
 
 /** Re-order a January-first list to June-first, the order of the year bar. */
 export const fromJune = <T,>(calendar: T[]): T[] => YEAR_ORDER.map((m) => calendar[m]);
 
-/** Months (June-first positions) as Hindi text: "अप्रैल से मई और जून". */
-export function monthRanges(positions: number[]): string {
+/** Months (June-first positions) as text: "अप्रैल से मई और जून" / "April to May and June". */
+export function monthRanges(positions: number[], lang: Lang): string {
+  const names = MONTHS[lang];
+  const to = lang === "en" ? "to" : "से";
+  const and = lang === "en" ? " and " : " और ";
   const parts: string[] = [];
   let i = 0;
   while (i < positions.length) {
     let j = i;
     while (j + 1 < positions.length && positions[j + 1] === positions[j] + 1) j++;
-    parts.push(j > i ? `${MONTH_HI[positions[i]]} से ${MONTH_HI[positions[j]]}` : MONTH_HI[positions[i]]);
+    parts.push(j > i ? `${names[positions[i]]} ${to} ${names[positions[j]]}` : names[positions[i]]);
     i = j + 1;
   }
-  return parts.join(" और ");
+  return parts.join(and);
 }
 
 export type RiskRun = { start: number; length: number; level: number };
@@ -307,8 +440,41 @@ export function riskRuns(levels: number[]): RiskRun[] {
   return out;
 }
 
+const VULNERABLE: Record<
+  Lang,
+  {
+    hotIn: (months: string) => string;
+    hotOut: (months: string) => string;
+    hotDisagree: string;
+    dryIn: (months: string) => string;
+    dryOut: (months: string) => string;
+    frostNone: string;
+    frostSome: string;
+  }
+> = {
+  hi: {
+    hotIn: (m) => `${m} में महीने के कई दिन 38 डिग्री से ज़्यादा गर्मी पड़ती है, और तब फ़सल खेत में रहती है।`,
+    hotOut: (m) => `गर्मी वाले महीनों (${m}) में इस तरीके की फ़सल खेत में नहीं रहती।`,
+    hotDisagree: "कुछ महीनों की गर्मी के बारे में NASA और ERA5 के आँकड़े एकमत नहीं हैं, इसलिए वहाँ अंदाज़ा पक्का नहीं है।",
+    dryIn: (m) => `${m} में बारिश के बीच दस दिन या उससे ज़्यादा लंबा सूखा अंतराल कई सालों में आता है, और तब फ़सल खेत में होती है।`,
+    dryOut: (m) => `बारिश के बीच सूखे अंतराल वाले महीनों (${m}) में इस तरीके की फ़सल खेत में नहीं है।`,
+    frostNone: "पाला: 1981 से 2025 के आँकड़ों में पाले की रात नहीं मिली।",
+    frostSome: "पाला: आँकड़ों में पाले की कुछ रातें मिलीं। अपने इलाके के विशेषज्ञ से पूछिए।",
+  },
+  en: {
+    hotIn: (m) => `In ${m}, many days of the month are hotter than 38 degrees, and the crop is in the field then.`,
+    hotOut: (m) => `The crop of this option is not in the field in the hot months (${m}).`,
+    hotDisagree: "For some months, the NASA and ERA5 data do not agree about the heat, so the estimate there is less certain.",
+    dryIn: (m) => `In ${m}, in many years there is a dry gap of ten days or more between rains, and the crop is in the field then.`,
+    dryOut: (m) => `The crop of this option is not in the field in the months with dry gaps between rains (${m}).`,
+    frostNone: "Frost: no frost night was found in the 1981 to 2025 data.",
+    frostSome: "Frost: some frost nights were found in the data. Ask an expert in your area.",
+  },
+};
+
 /** When this strategy's crop is in the ground during a hot or dry-spell month, plus the frost finding. */
-export function vulnerableLines(s: Strategy, risk: SeasonRisk): string[] {
+export function vulnerableLines(s: Strategy, risk: SeasonRisk, lang: Lang): string[] {
+  const v = VULNERABLE[lang];
   const inGround = yearBar(s.calendar, s.kind === "mixed").map((c) => c.length > 0);
   const heat = fromJune(risk.heat_level);
   const dry = fromJune(risk.dry_spell_level);
@@ -318,80 +484,90 @@ export function vulnerableLines(s: Strategy, risk: SeasonRisk): string[] {
   const hot = pick(heat);
   const hotIn = hot.filter((i) => inGround[i]);
   if (hot.length) {
-    lines.push(
-      hotIn.length
-        ? `${monthRanges(hotIn)} में महीने के कई दिन 38 डिग्री से ज़्यादा गर्मी पड़ती है, और तब फ़सल खेत में रहती है।`
-        : `गर्मी वाले महीनों (${monthRanges(hot)}) में इस तरीके की फ़सल खेत में नहीं रहती।`,
-    );
-    if (hotIn.some((i) => heat[i] === 1)) lines.push("कुछ महीनों की गर्मी के बारे में NASA और ERA5 के आँकड़े एकमत नहीं हैं, इसलिए वहाँ अंदाज़ा पक्का नहीं है।");
+    lines.push(hotIn.length ? v.hotIn(monthRanges(hotIn, lang)) : v.hotOut(monthRanges(hot, lang)));
+    if (hotIn.some((i) => heat[i] === 1)) lines.push(v.hotDisagree);
   }
 
   const dryMonths = pick(dry);
   const dryIn = dryMonths.filter((i) => inGround[i]);
   if (dryMonths.length) {
-    lines.push(
-      dryIn.length
-        ? `${monthRanges(dryIn)} में बारिश के बीच दस दिन या उससे ज़्यादा लंबा सूखा अंतराल कई सालों में आता है, और तब फ़सल खेत में होती है।`
-        : `बारिश के बीच सूखे अंतराल वाले महीनों (${monthRanges(dryMonths)}) में इस तरीके की फ़सल खेत में नहीं है।`,
-    );
+    lines.push(dryIn.length ? v.dryIn(monthRanges(dryIn, lang)) : v.dryOut(monthRanges(dryMonths, lang)));
   }
 
-  lines.push(
-    risk.frost_days_per_year.power === 0 && risk.frost_days_per_year.era5 === 0
-      ? "पाला: 1981 से 2025 के आँकड़ों में पाले की रात नहीं मिली।"
-      : "पाला: आँकड़ों में पाले की कुछ रातें मिलीं। अपने इलाके के विशेषज्ञ से पूछिए।",
-  );
-  lines.push(AREA_SCALE_HI);
+  lines.push(risk.frost_days_per_year.power === 0 && risk.frost_days_per_year.era5 === 0 ? v.frostNone : v.frostSome);
+  lines.push(resultsText(lang).areaScale);
   return lines;
 }
 
-// ---- "समझिए": plain explanations of the terms the brief asks for, plus satellite versus ground ----
+// ---- "समझिए" / "Explained": plain explanations of the terms the brief asks for, plus satellite versus ground ----
 
 export type Explainer = { key: string; title: string; pics: PictogramId[]; text: string };
 
-export function explainers(risk?: SeasonRisk): Explainer[] {
-  const frostFound = risk && (risk.frost_days_per_year.power > 0 || risk.frost_days_per_year.era5 > 0);
-  const frostData = !risk
-    ? ""
-    : frostFound
-      ? " 1981 से 2025 के आँकड़ों में कुछ पाले की रातें मिलीं।"
-      : " 1981 से 2025 के आँकड़ों में इन तीनों जगहों पर पाले की रात नहीं मिली।";
-  return [
-    {
-      key: "et",
+const EXPLAINERS: Record<Lang, Record<"et" | "soil_moisture" | "ndvi" | "balance" | "satellite", { title: string; text: string }> & { frostTitle: string; frost: (data: string) => string; frostFound: string; frostNone: string }> = {
+  hi: {
+    et: {
       title: "वाष्पोत्सर्जन",
-      pics: ["et"],
       text: "पौधे की पत्तियों और मिट्टी से पानी भाप बनकर उड़ता है, इसे वाष्पोत्सर्जन कहते हैं। गर्मी, धूप और हवा में यह बढ़ता है। फ़सल को कितना पानी चाहिए, यह इसी से तय होता है। इसलिए गर्मी में फ़सल ज़्यादा प्यासी होती है।",
     },
-    {
-      key: "soil_moisture",
+    soil_moisture: {
       title: "मिट्टी की नमी का फ़र्क",
-      pics: ["soil_moisture"],
       text: "सामान्य साल के मुकाबले मिट्टी में नमी कितनी कम या ज़्यादा है, इसे मिट्टी की नमी का फ़र्क कहते हैं। नमी सामान्य से कम हो तो यह सूखे का संकेत है। हम NASA के आँकड़ों से जड़ों के पास की नमी देखते हैं।",
     },
-    {
-      key: "ndvi",
+    ndvi: {
       title: "हरापन (NDVI)",
-      pics: ["ndvi"],
       text: "उपग्रह से खेत की हरियाली मापी जाती है, इसे NDVI कहते हैं। हरापन ज़्यादा हो तो खेत में फ़सल है, कम हो तो खेत खाली या सूखा है। हम इससे देखते हैं कि साल में खेत कब खाली रहता है।",
     },
-    {
-      key: "frost",
-      title: "पाला",
-      pics: ["snow"],
-      text: `बहुत ठंडी रात में पौधों पर बर्फ़ जम जाना पाला है। इससे फ़सल जल सकती है।${frostData} यह इलाके का आँकड़ा है, आपके खेत का नहीं।`,
-    },
-    {
-      key: "balance",
+    balance: {
       title: "पानी का हिसाब",
-      pics: ["balance"],
       text: "बारिश से जितना पानी मिला और फ़सल ने जितना इस्तेमाल किया, इन दोनों का मिलान पानी का हिसाब है। बारिश फ़सल की ज़रूरत से कम हो तो कमी रहती है, और तब सिंचाई या नमी बचाने की ज़रूरत पड़ती है।",
     },
-    {
-      key: "satellite",
+    satellite: {
       title: "उपग्रह और ज़मीन",
-      pics: ["satellite", "plus", "farmer"],
       text: "उपग्रह ऊपर से बड़े इलाके की तस्वीर देता है, पर आपका अपना खेत अलग से नहीं देखता। हमारा मौसम का आँकड़ा लगभग पचास किलोमीटर के इलाके का है, और हरापन ढाई सौ मीटर के टुकड़े का। आपका खेत असल में कैसा है, यह आप और आपके कृषि अधिकारी जानते हैं। इसलिए दोनों को साथ मिलाकर देखिए।",
     },
+    frostTitle: "पाला",
+    frost: (data) => `बहुत ठंडी रात में पौधों पर बर्फ़ जम जाना पाला है। इससे फ़सल जल सकती है।${data} यह इलाके का आँकड़ा है, आपके खेत का नहीं।`,
+    frostFound: " 1981 से 2025 के आँकड़ों में कुछ पाले की रातें मिलीं।",
+    frostNone: " 1981 से 2025 के आँकड़ों में इन तीनों जगहों पर पाले की रात नहीं मिली।",
+  },
+  en: {
+    et: {
+      title: "Evapotranspiration",
+      text: "Water evaporates from the leaves of plants and from the soil. This loss is called evapotranspiration. It rises with heat, sunshine and wind. It decides how much water a crop needs. That is why a crop is thirstier in hot weather.",
+    },
+    soil_moisture: {
+      title: "Soil moisture anomaly",
+      text: "How much more or less moisture the soil has than in a normal year is called the soil moisture anomaly. Moisture below normal is a sign of drought. We use NASA data to look at the moisture near the roots.",
+    },
+    ndvi: {
+      title: "Greenness (NDVI)",
+      text: "A satellite measures how green a field is. This is called NDVI. High greenness means there is a crop in the field. Low greenness means the field is empty or dry. We use it to see when the field is empty during the year.",
+    },
+    balance: {
+      title: "Water balance",
+      text: "Matching the water that the rain gave against the water that the crop used is the water balance. When the rain is less than the crop needs, there is a shortage, and then irrigation or saving moisture is needed.",
+    },
+    satellite: {
+      title: "Satellite and ground",
+      text: "A satellite gives a picture of a large area from above, but it does not see your own field separately. Our weather figure is for an area of about fifty kilometres, and the greenness is for a patch of two hundred and fifty metres. How your field really is, you and your agriculture officer know. So look at both together.",
+    },
+    frostTitle: "Frost",
+    frost: (data) => `On a very cold night, ice can form on plants. This is frost. It can burn a crop.${data} This is a figure for the area, not for your field.`,
+    frostFound: " Some frost nights were found in the 1981 to 2025 data.",
+    frostNone: " No frost night was found at these three places in the 1981 to 2025 data.",
+  },
+};
+
+export function explainers(risk: SeasonRisk | undefined, lang: Lang): Explainer[] {
+  const e = EXPLAINERS[lang];
+  const frostFound = risk && (risk.frost_days_per_year.power > 0 || risk.frost_days_per_year.era5 > 0);
+  const frostData = !risk ? "" : frostFound ? e.frostFound : e.frostNone;
+  return [
+    { key: "et", title: e.et.title, pics: ["et"], text: e.et.text },
+    { key: "soil_moisture", title: e.soil_moisture.title, pics: ["soil_moisture"], text: e.soil_moisture.text },
+    { key: "ndvi", title: e.ndvi.title, pics: ["ndvi"], text: e.ndvi.text },
+    { key: "frost", title: e.frostTitle, pics: ["snow"], text: e.frost(frostData) },
+    { key: "balance", title: e.balance.title, pics: ["balance"], text: e.balance.text },
+    { key: "satellite", title: e.satellite.title, pics: ["satellite", "plus", "farmer"], text: e.satellite.text },
   ];
 }

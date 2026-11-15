@@ -8,7 +8,7 @@ Farmers in Vidarbha who may not read. Everything important is said aloud. Anythi
 
 ## How the app works
 
-1. **One tap starts a conversation.** The farmer taps the microphone once and says something like "सलाह चाहिए".
+1. **One tap starts a conversation.** The farmer taps the microphone once and says something like "सुझाव चाहिए".
 2. **Then it behaves like a phone call, not a walkie-talkie.** The microphone stays open. The app detects when the farmer stops speaking, replies by voice, and listens again. No button press per answer. The farmer can interrupt while the app is speaking.
 3. **The app asks for what the engine needs**, one question at a time, by voice. Picture choices appear under each question as a tap fallback.
 4. **Location** comes from phone GPS with a map pin to confirm (see `docs/ENGINE_DESIGN.md` section 2b).

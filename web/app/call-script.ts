@@ -22,8 +22,8 @@ export type Answers = Partial<Record<Step["id"], string>>;
 
 export const SCRIPT = {
   title: "फ़ील्ड शिफ़्ट",
-  tagline: "खेत के लिए सलाह। बस एक बार छुइए और बोलिए।",
-  start: "सलाह के लिए छुइए",
+  tagline: "खेत के लिए सुझाव। बस एक बार छुइए और बोलिए।",
+  start: "सुझाव के लिए छुइए",
   useForm: "या फ़ॉर्म भरकर देखें",
   end: "बातचीत ख़त्म",
   again: "नई बातचीत",

@@ -351,6 +351,17 @@ export function MicIcon({ className }: { className?: string }) {
   );
 }
 
+/** A form: a sheet with lines and a pencil, for the "fill the form" button. */
+export function FormIcon({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21H12" />
+      <path d="M8.5 8h6M8.5 12h4M8.5 16h2" />
+      <path d="M19.5 11.5l-6 6L13 20l2.5-.5 6-6a1.4 1.4 0 0 0-2-2z" />
+    </svg>
+  );
+}
+
 export function SpeakerIcon({ className }: { className?: string }) {
   return (
     <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className={className}>

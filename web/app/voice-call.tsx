@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
 import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { useLang } from "./lang";
-import { MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
+import { FormIcon, MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
 import { guardUtterance, pickVoice, speechLang } from "./speech";
 import { wakeApi } from "./wake-api";
@@ -381,20 +381,31 @@ export default function VoiceCall() {
           </div>
         </div>
 
-        <button onClick={start} className="mt-8 flex w-full items-center gap-4 rounded-field bg-monsoon px-5 py-6 text-left text-white">
-          <MicIcon className="h-16 w-16 shrink-0" />
-          <span className="narrow flex-1 text-3xl font-extrabold leading-tight" lang={lang}>
+        {/* Two buttons of one type (same shape, size, text and icon), each label on one line.
+            Speaking is the main action, so it is filled; the form is the same button outlined. */}
+        <button
+          onClick={start}
+          className="mt-8 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-monsoon px-4 py-3.5 text-left text-white"
+        >
+          <MicIcon className="h-8 w-8 shrink-0" />
+          <span className="narrow min-w-0 flex-1 truncate text-2xl font-extrabold leading-tight" lang={lang}>
             {S.start}
           </span>
           {/* Static sound bars: this button talks. */}
-          <span aria-hidden className="flex h-12 shrink-0 items-center gap-1">
-            {[16, 32, 48, 28, 18].map((h, i) => (
+          <span aria-hidden className="flex h-8 shrink-0 items-center gap-1">
+            {[10, 20, 28, 16, 10].map((h, i) => (
               <span key={i} className="w-1 rounded-full bg-white/80" style={{ height: h }} />
             ))}
           </span>
         </button>
-        <button onClick={() => leave("form")} className="mt-6 self-start text-base font-semibold text-monsoon underline" lang={lang}>
-          {S.useForm}
+        <button
+          onClick={() => leave("form")}
+          className="mt-3 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-paper px-4 py-3.5 text-left text-monsoon"
+        >
+          <FormIcon className="h-8 w-8 shrink-0" />
+          <span className="narrow min-w-0 flex-1 truncate text-2xl font-extrabold leading-tight" lang={lang}>
+            {S.useForm}
+          </span>
         </button>
         {voices && !voices[lang] && (
           <p className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm">

@@ -145,3 +145,7 @@ In `web/app/voice-call.tsx` (Kartik's file, changed by Amrita for his review): w
 ## Results retry the engine automatically (Amrita, 15 Nov 2026, evening)
 
 Amrita saw "इंजन से जवाब नहीं मिला" once on the live app; 144 replayed requests to the live API all succeeded, so the likely cause is the free Render host waking from sleep. `web/app/results.tsx` (Kartik's file, changed by Amrita for his review) now tries up to 4 times (`RETRY_DELAYS_MS`: immediately, then after 3, 8 and 15 s), each try allowed up to 45 s (`ATTEMPT_TIMEOUT_MS`). From the second try it shows and speaks `RESULTS.waking` ("the engine is waking up, this can take a minute"). Network errors, time-outs and 5xx answers are retried; a 4xx is not. The error and the manual retry button appear only after all tries fail. Tested locally: with the API stopped the waking message showed; after starting it the results appeared on their own 13 s later.
+
+## Start screen buttons (Amrita, 15 Nov 2026, evening)
+
+In `web/app/voice-call.tsx` and `web/app/call-script.ts` (Kartik's files, changed by Amrita for his review): the two start buttons are now one button type (same shape, size, text and icon), each label on one line. Speaking stays filled blue; the form is the same button outlined, with a new `FormIcon` in `web/app/pictograms.tsx`. Labels: "Tap to speak" / "बोलने के लिए छुइए" and "Tap to fill the form" / "फ़ॉर्म भरने के लिए छुइए". Checked to fit on one line at 320, 375 and 390 px in both languages. The Hindi wording is machine-drafted.

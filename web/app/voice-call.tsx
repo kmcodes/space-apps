@@ -6,7 +6,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import AnswerForm, { type Initial } from "./answer-form";
-import Disclaimer from "./disclaimer";
+import Disclaimer, { MicOffIcon, SpeakerOffIcon } from "./disclaimer";
 import { SCRIPTS, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { isServed } from "./coverage";
 import { useLang } from "./lang";
@@ -385,7 +385,7 @@ export default function VoiceCall() {
         <p className="mt-2 text-center text-2xl font-semibold leading-snug text-forest" lang={lang}>
           {S.taglineLead}
         </p>
-        <p className="mx-auto mt-1 whitespace-pre-line text-center text-xl leading-snug text-forest-soft" lang={lang}>
+        <p className="mx-auto mt-1 text-balance text-center text-xl leading-snug text-forest-soft" lang={lang}>
           {S.taglineRest}
         </p>
 
@@ -415,17 +415,13 @@ export default function VoiceCall() {
             {S.useForm}
           </span>
         </button>
-        {voices && !voices[lang] && (
-          <p className="mt-6 border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm">
-            This device has no {lang === "hi" ? "Hindi" : "English"} voice, so the questions will be shown but not spoken.
-          </p>
-        )}
-        {!canListen && (
-          <p className="mt-3 border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm">
-            This browser cannot listen to speech. You can still answer by tapping the pictures. Chrome or Edge on Android work best.
-          </p>
-        )}
-        <Disclaimer />
+        {/* Missing voice or listening: one-line strips just above the bottom bar, in the chosen language. */}
+        <Disclaimer
+          notes={[
+            ...(voices && !voices[lang] ? [{ icon: <SpeakerOffIcon />, text: S.noVoice }] : []),
+            ...(!canListen ? [{ icon: <MicOffIcon />, text: S.noListen }] : []),
+          ]}
+        />
       </main>
     );
   }

@@ -25,7 +25,7 @@ const SCRIPT_HI = {
   title: "फ़ील्ड शिफ़्ट",
   greeting_title: "नमस्ते",
   taglineLead: "आपके लिए खेती के सुझाव",
-  taglineRest: "नीचे दिए गए बटनों में से\nअपनी पसंद चुनिए।", // two lines on screen
+  taglineRest: "नीचे दिए गए बटनों में से अपनी पसंद चुनिए।", // one line where it fits, wraps on narrow phones
   start: "बोलने के लिए दबाइए",
   useForm: "फ़ॉर्म भरने के लिए दबाइए",
   end: "बातचीत ख़त्म",
@@ -40,6 +40,8 @@ const SCRIPT_HI = {
   mapNote: "लाल निशान आपके फ़ोन की जगह है।",
   mapLoading: "नक्शा खुल रहा है… रुकिए।",
   noMic: "माइक्रोफ़ोन की इजाज़त नहीं मिली। तस्वीर छुकर जवाब दीजिए।",
+  noVoice: "इस फ़ोन पर हिंदी आवाज़ नहीं है", // one-line strip above the disclaimer
+  noListen: "यह ब्राउज़र आवाज़ नहीं सुन सकता",
   outside: "आपकी जगह अभी हमारे इलाके के बाहर है। उदाहरण देखने के लिए ज़िला चुनिए।",
   formTitle: "अपने खेत के बारे में बताइए",
   formSubmit: "तरीके देखिए",
@@ -49,7 +51,7 @@ const SCRIPT_EN: typeof SCRIPT_HI = {
   title: "Field Shift",
   greeting_title: "Namaste",
   taglineLead: "Farm suggestions for you",
-  taglineRest: "Pick your choice\nfrom the buttons below.", // two lines on screen
+  taglineRest: "Pick your choice from the buttons below.", // one line where it fits, wraps on narrow phones
   start: "Tap to speak",
   useForm: "Tap to fill the form",
   end: "End call",
@@ -64,6 +66,8 @@ const SCRIPT_EN: typeof SCRIPT_HI = {
   mapNote: "The red mark is your phone's location.",
   mapLoading: "Opening the map… please wait.",
   noMic: "Microphone permission was not given. Please answer by touching a picture.",
+  noVoice: "No English voice on this phone",
+  noListen: "This browser can't hear your voice",
   outside: "Your location is outside our area for now. Choose a district to see an example.",
   formTitle: "Tell us about your farm",
   formSubmit: "Show the options",

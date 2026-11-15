@@ -23,7 +23,7 @@ Farmers in Vidarbha who may not read. Everything important is said aloud. Anythi
 | Water source | Rain / well / canal, with pictures |
 | Priority (one, optional second) | Spoken; picture choices |
 | Water availability | Low / medium / high |
-| Equipment | **Yes or no:** "क्या आपके पास स्प्रेयर या बुवाई की मशीन है?" (not "औज़ार साधारण", which was unclear) |
+| Equipment | **Yes or no:** "क्या आपके पास स्प्रेयर या बुवाई का कृषि यंत्र है?" (not "औज़ार साधारण", which was unclear) |
 | Where they sell | Mandi / nearby buyer / own use |
 
 ## Results screens (for non-readers)

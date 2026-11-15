@@ -66,7 +66,7 @@ const RESULTS_HI = {
   kharif: "खरीफ",
   rabi: "रबी",
   summer: "गर्मी",
-  disclaimer: "यह औज़ार किसानों और स्थानीय कृषि विशेषज्ञों की समझ का सहारा है, उसकी जगह नहीं।",
+  disclaimer: "यह परामर्श उपकरण किसानों और स्थानीय कृषि विशेषज्ञों की समझ का सहारा है, उसकी जगह नहीं।",
   suggestion: "यह सुझाव है, आदेश नहीं। कृषि विज्ञान केंद्र या कृषि अधिकारी से पूछिए।",
   // Spoken sentences and sentence pieces
   detailIntro: (name: string, kind: string, labels: string) => `${name}। यह ${kind} है। छुकर सुनिए: ${labels}।`,

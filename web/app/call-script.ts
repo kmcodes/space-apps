@@ -101,7 +101,13 @@ const PRIORITIES: Option[] = [
   { value: "market_income", label: { hi: "अच्छा दाम", en: "Better price" }, pics: ["market_income"], words: ["दाम", "भाव", "कीमत", "आमदनी", "income", "price", "money", "profit"] },
 ];
 
-const NONE: Option = { value: "", label: { hi: "कोई नहीं", en: "None" }, pics: ["none"], words: ["नहीं", "नही", "कोई नहीं", "none", "no", "nothing", "nobody"] };
+const NONE: Option = {
+  value: "",
+  label: { hi: "और कुछ नहीं चाहिए", en: "None" },
+  pics: ["none"],
+  // "और कुछ नहीं चाहिए" is the label; people will also say just "नहीं" or "कुछ नहीं"
+  words: ["और कुछ नहीं", "कुछ नहीं", "कुछ नही", "नहीं चाहिए", "नहीं", "नही", "कोई नहीं", "बस", "none", "no", "nothing", "nobody"],
+};
 
 const LEVELS: Option[] = [
   { value: "low", label: { hi: "कम", en: "Low" }, pics: ["level1"], words: ["कम", "low", "little"] },
@@ -128,11 +134,11 @@ export const STEPS: Step[] = [
   { id: "priority1", question: { hi: "आपके लिए सबसे ज़रूरी क्या है?", en: "What matters most to you?" }, options: () => PRIORITIES },
   {
     id: "priority2",
-    question: { hi: "कोई दूसरी ज़रूरी बात? नहीं हो तो नहीं बोलिए।", en: "Anything else that matters? If not, say no." },
+    question: { hi: "कोई दूसरी ज़रूरी बात? नहीं हो तो बोलिए, और कुछ नहीं चाहिए।", en: "Anything else that matters? If not, say no." },
     options: (a) => [...PRIORITIES.filter((p) => p.value !== a.priority1), NONE],
   },
   { id: "water_level", question: { hi: "खेत के लिए पानी कितना मिल सकता है?", en: "How much water can you get for the field?" }, options: () => LEVELS },
-  { id: "equipment", question: { hi: "क्या आपके पास स्प्रेयर या बुवाई की मशीन है?", en: "Do you have a sprayer or a sowing machine?" }, options: () => EQUIPMENT },
+  { id: "equipment", question: { hi: "क्या आपके पास स्प्रेयर या बुवाई का कृषि यंत्र है?", en: "Do you have a sprayer or a sowing machine?" }, options: () => EQUIPMENT },
   { id: "market", question: { hi: "आप अपनी फ़सल कहाँ बेचते हैं?", en: "Where do you sell your crop?" }, options: () => MARKETS },
 ];
 

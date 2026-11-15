@@ -6,7 +6,7 @@
 import { useLang, type L } from "./lang";
 
 export const DISCLAIMER: L = {
-  hi: "यह औज़ार किसानों और स्थानीय कृषि विशेषज्ञों की समझ का सहारा है, उसकी जगह नहीं।",
+  hi: "यह परामर्श उपकरण किसानों और स्थानीय कृषि विशेषज्ञों की समझ का सहारा है, उसकी जगह नहीं।",
   en: "This tool supports, and does not replace, the judgement of farmers and local agricultural experts.",
 };
 

@@ -54,51 +54,42 @@ const COMPONENT_LABELS: Record<string, string> = {
   market: "Price signal",
 };
 const CROP_LABELS: Record<string, string> = {
-  soybean: "soybean",
-  cotton: "cotton",
-  chickpea: "chickpea",
-  pigeon_pea: "pigeon pea",
-  sorghum_rabi: "winter sorghum",
-  sorghum_kharif: "sorghum",
-  sunn_hemp: "sunn hemp",
-  horse_gram: "horse gram",
-  fallow: "empty field",
+  soybean: "Soybean",
+  cotton: "Cotton",
+  chickpea: "Chickpea",
+  pigeon_pea: "Pigeon pea",
+  sorghum_rabi: "Winter sorghum",
+  sorghum_kharif: "Sorghum",
+  sunn_hemp: "Sunn hemp",
+  horse_gram: "Horse gram",
+  fallow: "Empty field",
 };
 const CONFIDENCE_TEXT: Record<string, string> = {
-  green: "Well supported",
-  yellow: "Partly supported",
-  grey: "Mostly unverified inputs",
+  green: "Inputs well supported",
+  yellow: "Inputs partly supported",
+  grey: "Inputs mostly unverified",
 };
-const CONFIDENCE_STYLE: Record<string, string> = {
-  green: "bg-emerald-100 text-emerald-900",
-  yellow: "bg-amber-100 text-amber-900",
-  grey: "bg-stone-200 text-stone-700",
+const VALIDITY_TEXT: Record<string, string> = {
+  valid: "Checked source",
+  degraded: "Coarse data",
+  unverified: "Unverified input",
 };
-const VALIDITY_STYLE: Record<string, string> = {
-  valid: "bg-emerald-100 text-emerald-900",
-  degraded: "bg-amber-100 text-amber-900",
-  unverified: "bg-stone-200 text-stone-700",
-};
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTH_STARTS = [1, 32, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335]; // day of year, non-leap
+const YEAR = 365;
 
 type Component = { score: number | null; status: string; validity: string; weight: number };
-type Evidence = {
-  claim: string;
-  dataset?: string;
-  period?: string;
-  resolution?: string;
-  validity: string;
-  gap?: string;
-  topic?: string;
-};
+type Evidence = { claim: string; dataset?: string; period?: string; resolution?: string; validity: string };
+type CalendarEntry = { crop: string; sow_doy: number; harvest_doy: number };
 type Strategy = {
   id: string;
   name: string;
   crops: string[];
   note: string;
   duplicate_of: string | null;
+  calendar?: CalendarEntry[];
   total_score: number;
   score_band: [number, number];
-  rank_stability: number;
   confidence_label: string;
   components: Record<string, Component>;
   evidence: Evidence[];
@@ -106,7 +97,6 @@ type Strategy = {
   incomplete: boolean;
   card: {
     why_suggested: string;
-    evidence: string[];
     benefits: string[];
     gaps: string[];
     risks_for_local_review: string[];
@@ -116,26 +106,123 @@ type Strategy = {
 type Result = {
   served: boolean;
   reason?: string;
-  location: { nearest: string | null; distance_km: number };
   ranking: string[];
   tied_with_top: string[];
   weights_used: Record<string, number>;
   strategies: Strategy[];
   site_evidence: Evidence[];
+  monsoon?: { onset_doy: number; withdrawal_doy: number };
 };
 
-function Select(props: {
-  label: string;
-  value: string;
-  options: string[][];
-  onChange: (v: string) => void;
-  allowEmpty?: string;
-}) {
+function dateOf(doy: number) {
+  const d = ((Math.round(doy) - 1) % YEAR) + 1;
+  let m = 11;
+  while (MONTH_STARTS[m] > d) m--;
+  return `${d - MONTH_STARTS[m] + 1} ${MONTHS[m]}`;
+}
+
+// A crop that runs past 31 December is drawn as two pieces.
+function pieces(entry: CalendarEntry) {
+  const start = entry.sow_doy;
+  const end = entry.harvest_doy;
+  return end <= YEAR ? [[start, end]] : [[start, YEAR], [1, end - YEAR]];
+}
+
+function coveredDays(calendar: CalendarEntry[]) {
+  const days = new Set<number>();
+  for (const c of calendar) for (let d = c.sow_doy; d < c.harvest_doy; d++) days.add(d % YEAR);
+  return days.size;
+}
+
+function overlaps(calendar: CalendarEntry[]) {
+  return calendar.some((a, i) => calendar.some((b, j) => i < j && a.sow_doy < b.harvest_doy && b.sow_doy < a.harvest_doy));
+}
+
+const pct = (days: number) => `${(100 * days) / YEAR}%`;
+
+/* The year board: one strip per rotation on a shared January to December axis.
+   Dark = bare soil, green = a crop in the ground, blue band = the monsoon. */
+function YearBoard({ strategies, monsoon }: { strategies: Strategy[]; monsoon?: Result["monsoon"] }) {
   return (
-    <label className="block text-sm font-medium text-stone-800">
+    <section aria-labelledby="year-heading" className="border-t-2 border-soil pt-3">
+      <h2 id="year-heading" className="narrow text-xl font-bold">
+        The field through the year
+      </h2>
+      <p className="mt-1 text-sm text-soil-soft">
+        Green is a crop in the ground. Dark is bare soil.
+        {monsoon && ` The blue band is the usual monsoon, about ${dateOf(monsoon.onset_doy)} to ${dateOf(monsoon.withdrawal_doy)}.`}
+      </p>
+
+      <div className="relative mt-3">
+        {monsoon && (
+          <div
+            aria-hidden
+            className="absolute inset-y-0 bg-monsoon-wash"
+            style={{ left: pct(monsoon.onset_doy - 1), width: pct(monsoon.withdrawal_doy - monsoon.onset_doy) }}
+          />
+        )}
+        <div aria-hidden className="relative grid grid-cols-12 text-center text-[0.7rem] font-medium text-soil-soft">
+          {MONTHS.map((m) => (
+            <span key={m} className="border-l border-rule first:border-l-0">
+              {m[0]}
+            </span>
+          ))}
+        </div>
+
+        <ol className="relative mt-1 space-y-3 pb-1">
+          {strategies.map((s) => {
+            const calendar = s.calendar ?? [];
+            const lanes = overlaps(calendar);
+            const bare = YEAR - coveredDays(calendar);
+            return (
+              <li key={s.id}>
+                <div className="flex items-baseline justify-between gap-2 text-sm">
+                  <span className="font-semibold">{s.name}</span>
+                  <span className="narrow shrink-0 font-semibold tabular-nums">{bare} days bare</span>
+                </div>
+                <div
+                  role="img"
+                  aria-label={`${s.name}: ${calendar.map((c) => `${CROP_LABELS[c.crop] ?? c.crop} from ${dateOf(c.sow_doy)} to ${dateOf(c.harvest_doy)}`).join("; ")}. ${bare} days with bare soil.`}
+                  className="relative mt-1 h-7 overflow-hidden rounded-field bg-soil"
+                >
+                  {calendar.map((c, lane) =>
+                    pieces(c).map(([start, end], i) => (
+                      <div
+                        key={`${c.crop}-${i}`}
+                        className="absolute border-x border-limewash bg-crop"
+                        style={{
+                          left: pct(start - 1),
+                          width: pct(end - start),
+                          top: lanes ? `${(100 * lane) / calendar.length}%` : 0,
+                          height: lanes ? `${100 / calendar.length}%` : "100%",
+                        }}
+                      />
+                    )),
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-soil-soft">
+                  {calendar.length
+                    ? calendar.map((c) => `${CROP_LABELS[c.crop] ?? c.crop} ${dateOf(c.sow_doy)} to ${dateOf(c.harvest_doy)}`).join(", ")
+                    : "No crop dates available"}
+                </p>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+      <p className="mt-2 text-xs text-soil-soft">
+        Dates are for a typical year from area weather and published crop durations, not for one field.
+      </p>
+    </section>
+  );
+}
+
+function Field(props: { label: string; value: string; options: string[][]; onChange: (v: string) => void; allowEmpty?: string }) {
+  return (
+    <label className="block text-sm font-semibold">
       {props.label}
       <select
-        className="mt-1 block w-full rounded-lg border border-stone-300 bg-white px-3 py-2.5 text-base text-stone-900"
+        className="mt-1 block w-full rounded-field border border-soil-soft bg-paper px-3 py-2.5 text-base font-normal text-soil"
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
       >
@@ -150,32 +237,41 @@ function Select(props: {
   );
 }
 
-function ValidityTag({ validity }: { validity: string }) {
+function Bars({ rows, unit }: { rows: [string, number | null][]; unit: string }) {
   return (
-    <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${VALIDITY_STYLE[validity] ?? VALIDITY_STYLE.unverified}`}>
-      {validity}
-    </span>
+    <dl className="mt-2 space-y-1.5">
+      {rows.map(([key, value]) => (
+        <div key={key} className="grid grid-cols-[10.5rem_1fr_3.25rem] items-center gap-2 text-sm">
+          <dt>{COMPONENT_LABELS[key] ?? key}</dt>
+          <dd className="h-1.5 bg-rule">{value !== null && <div className="h-full bg-soil" style={{ width: `${value}%` }} />}</dd>
+          <dd className="narrow text-right font-semibold tabular-nums">{value === null ? "no data" : `${value.toFixed(0)}${unit}`}</dd>
+        </div>
+      ))}
+    </dl>
   );
 }
 
 function EvidenceLine({ e }: { e: Evidence }) {
+  const source = [e.dataset && `Source: ${e.dataset}`, e.period && e.period !== "n/a" && `Period: ${e.period}`, e.resolution && `Scale: ${e.resolution}`]
+    .filter(Boolean)
+    .join(". ");
   return (
-    <li className="border-l-2 border-stone-300 pl-3">
-      <p className="text-sm text-stone-900">{e.claim}</p>
-      <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-stone-600">
-        <ValidityTag validity={e.validity} />
-        {[e.dataset, e.period, e.resolution].filter(Boolean).join(" · ")}
+    <li>
+      <p className="text-sm">{e.claim}</p>
+      <p className="mt-0.5 text-xs text-soil-soft">
+        <span className="mr-1.5 border border-soil-soft px-1 font-semibold text-soil">{VALIDITY_TEXT[e.validity] ?? e.validity}</span>
+        {source}
       </p>
     </li>
   );
 }
 
-function List({ title, items }: { title: string; items: string[] }) {
+function Notes({ title, items, tone }: { title: string; items: string[]; tone: "unknown" | "risk" }) {
   if (!items.length) return null;
   return (
-    <div>
-      <h4 className="text-sm font-semibold text-stone-900">{title}</h4>
-      <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-stone-800">
+    <div className={tone === "unknown" ? "border-l-4 border-turmeric bg-turmeric-wash p-3" : "border-l-4 border-almanac p-3"}>
+      <h4 className="text-sm font-bold">{title}</h4>
+      <ul className="mt-1 list-disc space-y-1 pl-5 text-sm">
         {items.map((item, i) => (
           <li key={i}>{item}</li>
         ))}
@@ -184,81 +280,63 @@ function List({ title, items }: { title: string; items: string[] }) {
   );
 }
 
-function StrategyCard({ s, rank, tied }: { s: Strategy; rank: number | null; tied: boolean }) {
-  const crops = s.crops.map((c) => CROP_LABELS[c] ?? c).join(s.id === "S2" ? " with " : ", then ");
+function StrategySection({ s, standing }: { s: Strategy; standing: string }) {
   const variants = Object.entries(s.variants);
   return (
-    <article className="rounded-xl border border-stone-300 bg-white p-4 shadow-sm">
+    <article className="border-t-2 border-soil pt-3">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">
-            {s.incomplete ? "Not ranked: too little data" : tied ? "Joint top" : rank ? `Rank ${rank}` : ""}
-            {s.id === "S0" ? " · what you do now" : ""}
-          </p>
-          <h3 className="mt-0.5 text-lg font-semibold text-stone-900">{s.name}</h3>
-          <p className="text-sm text-stone-600">{crops}</p>
-        </div>
-        <div className="shrink-0 text-right">
-          <p className="text-2xl font-bold tabular-nums text-stone-900">{s.total_score.toFixed(0)}</p>
-          <p className="text-xs text-stone-600">
-            {s.score_band[0].toFixed(0)} to {s.score_band[1].toFixed(0)} across years
+          <h3 className="narrow text-xl font-bold leading-tight">{s.name}</h3>
+          <p className={`mt-0.5 text-sm font-semibold ${s.incomplete ? "text-almanac" : "text-soil-soft"}`}>
+            {standing}
+            {s.id === "S0" && " (what you do now)"}
           </p>
         </div>
+        <p className="shrink-0 text-right">
+          <span className="narrow block text-4xl font-extrabold leading-none tabular-nums">{s.total_score.toFixed(0)}</span>
+          <span className="text-xs text-soil-soft">
+            out of 100, {s.score_band[0].toFixed(0)} to {s.score_band[1].toFixed(0)} across years
+          </span>
+        </p>
       </div>
 
-      <p className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-        <span className={`rounded px-2 py-0.5 font-medium ${CONFIDENCE_STYLE[s.confidence_label]}`}>
-          {CONFIDENCE_TEXT[s.confidence_label] ?? s.confidence_label}
-        </span>
-        <span className="text-stone-600">Scored on {(s.data_coverage * 100).toFixed(0)}% of the data that matters to you</span>
+      <p className="mt-2 text-sm">{s.card.why_suggested}</p>
+      {s.duplicate_of && <p className="mt-1 text-sm">This is the same rotation as your current one.</p>}
+      {s.note && <p className="mt-1 text-sm text-soil-soft">{s.note}</p>}
+      <p className="mt-1 text-sm text-soil-soft">
+        {CONFIDENCE_TEXT[s.confidence_label] ?? s.confidence_label}. Scored on {(s.data_coverage * 100).toFixed(0)}% of the data that
+        matters to you.
       </p>
-      {s.duplicate_of && (
-        <p className="mt-2 text-sm text-stone-700">This is the same rotation as your current one.</p>
-      )}
-      {s.note && <p className="mt-2 text-sm text-stone-700">{s.note}</p>}
-      <p className="mt-2 text-sm text-stone-800">{s.card.why_suggested}</p>
 
-      <dl className="mt-3 space-y-1.5">
-        {Object.entries(s.components).map(([key, c]) => (
-          <div key={key} className="grid grid-cols-[9.5rem_1fr_2.5rem] items-center gap-2 text-xs">
-            <dt className="text-stone-700">{COMPONENT_LABELS[key] ?? key}</dt>
-            <dd className="h-2 overflow-hidden rounded bg-stone-200">
-              {c.score !== null && <div className="h-full bg-emerald-700" style={{ width: `${c.score}%` }} />}
-            </dd>
-            <dd className="text-right tabular-nums text-stone-800">{c.score === null ? "no data" : c.score.toFixed(0)}</dd>
-          </div>
-        ))}
-      </dl>
+      <Bars rows={Object.entries(s.components).map(([k, c]) => [k, c.score])} unit="" />
 
-      <div className="mt-3 space-y-3">
-        <List title="What we do not know" items={s.card.gaps} />
-        <List title="Check with a local expert" items={s.card.risks_for_local_review} />
+      <div className="mt-3 space-y-2">
+        <Notes title="What we do not know" items={s.card.gaps} tone="unknown" />
+        <Notes title="Check with a local expert" items={s.card.risks_for_local_review} tone="risk" />
       </div>
-
-      <details className="mt-3">
-        <summary className="cursor-pointer text-sm font-medium text-emerald-900">Evidence and benefits</summary>
-        <div className="mt-2 space-y-3">
-          <List title="Benefits" items={s.card.benefits} />
-          <ul className="space-y-2">
-            {s.evidence.map((e, i) => (
-              <EvidenceLine key={i} e={e} />
-            ))}
-          </ul>
-        </div>
-      </details>
 
       {variants.length > 0 && (
-        <div className="mt-3 rounded-lg bg-stone-100 p-3 text-sm text-stone-800">
-          <p className="font-medium">Other second crops (scored on less data)</p>
-          <ul className="mt-1 space-y-0.5">
-            {variants.map(([crop, v]) => (
-              <li key={crop}>
-                {CROP_LABELS[crop] ?? crop}: {v.total_score === null ? "no score" : v.total_score.toFixed(0)}
-              </li>
+        <p className="mt-3 text-sm">
+          <span className="font-semibold">Other second crops, scored on less data: </span>
+          {variants.map(([crop, v]) => `${CROP_LABELS[crop] ?? crop} ${v.total_score === null ? "no score" : v.total_score.toFixed(0)}`).join(", ")}
+        </p>
+      )}
+
+      <details className="mt-3">
+        <summary className="cursor-pointer text-sm font-semibold text-monsoon underline underline-offset-2">Evidence and benefits</summary>
+        {s.card.benefits.length > 0 && (
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+            {s.card.benefits.map((b, i) => (
+              <li key={i}>{b}</li>
             ))}
           </ul>
-        </div>
-      )}
+        )}
+        <ul className="mt-2 space-y-2.5">
+          {s.evidence.map((e, i) => (
+            <EvidenceLine key={i} e={e} />
+          ))}
+        </ul>
+      </details>
     </article>
   );
 }
@@ -302,110 +380,95 @@ export default function FieldShift() {
     }
   }
 
-  const ranked = result?.served
-    ? [...result.strategies].sort((a, b) => {
-        const ra = result.ranking.indexOf(a.id);
-        const rb = result.ranking.indexOf(b.id);
+  const served = result?.served ? result : null;
+  const ranked = served
+    ? [...served.strategies].sort((a, b) => {
+        const ra = served.ranking.indexOf(a.id);
+        const rb = served.ranking.indexOf(b.id);
         return (ra < 0 ? 99 : ra) - (rb < 0 ? 99 : rb);
       })
     : [];
-  const tie = result?.served && result.tied_with_top.length > 1;
+  const tie = served ? served.tied_with_top.length > 1 : false;
+
+  function standing(s: Strategy) {
+    if (!served) return "";
+    if (s.incomplete) return "Not ranked: too little data";
+    if (tie && served.tied_with_top.includes(s.id)) return "Joint top";
+    return `Rank ${served.ranking.indexOf(s.id) + 1} of ${served.ranking.length}`;
+  }
 
   return (
-    <div className="mx-auto w-full max-w-xl flex-1 px-4 pb-28 pt-6">
+    <div className="mx-auto w-full max-w-xl flex-1 px-4 pb-24 pt-5">
       <header>
-        <h1 className="text-2xl font-bold text-stone-900">Field Shift</h1>
-        <p className="mt-1 text-sm text-stone-700">
-          Compare four ways to use your field through the year, with the evidence and the unknowns for each.
+        <h1 className="narrow text-4xl font-extrabold leading-none">Field Shift</h1>
+        <p className="mt-2 text-base text-soil-soft">
+          Four ways to use your field through the year, with the evidence and the unknowns for each.
         </p>
       </header>
 
-      <form onSubmit={compare} className="mt-5 space-y-4 rounded-xl border border-stone-300 bg-white p-4 shadow-sm">
-        <Select label="Where is your farm?" value={location} options={LOCATIONS} onChange={setLocation} />
-        <Select label="What do you grow now?" value={rotation} options={ROTATIONS} onChange={setRotation} />
-        <Select label="Where does your water come from?" value={waterSource} options={WATER_SOURCES} onChange={setWaterSource} />
-        <Select label="What matters most to you?" value={priority1} options={PRIORITIES} onChange={setPriority1} />
-        <Select
+      <form onSubmit={compare} className="mt-5 space-y-3.5 border-t-2 border-soil pt-4">
+        <Field label="Where is your farm?" value={location} options={LOCATIONS} onChange={setLocation} />
+        <Field label="What do you grow now?" value={rotation} options={ROTATIONS} onChange={setRotation} />
+        <Field label="Where does your water come from?" value={waterSource} options={WATER_SOURCES} onChange={setWaterSource} />
+        <Field label="What matters most to you?" value={priority1} options={PRIORITIES} onChange={setPriority1} />
+        <Field
           label="Second priority (optional)"
           value={priority2}
           options={PRIORITIES.filter(([v]) => v !== priority1)}
           onChange={setPriority2}
           allowEmpty="None"
         />
-        <Select label="How much water is available?" value={waterLevel} options={WATER_LEVELS} onChange={setWaterLevel} />
-        <Select label="Equipment" value={equipment} options={EQUIPMENT} onChange={setEquipment} />
-        <Select label="Where do you sell?" value={market} options={MARKETS} onChange={setMarket} />
+        <Field label="How much water is available?" value={waterLevel} options={WATER_LEVELS} onChange={setWaterLevel} />
+        <Field label="Equipment" value={equipment} options={EQUIPMENT} onChange={setEquipment} />
+        <Field label="Where do you sell?" value={market} options={MARKETS} onChange={setMarket} />
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-emerald-800 px-4 py-3 text-base font-semibold text-white disabled:opacity-60"
+          className="w-full rounded-field bg-monsoon px-4 py-3 text-lg font-bold text-white disabled:opacity-60"
         >
           {loading ? "Comparing…" : "Compare rotations"}
         </button>
       </form>
 
       {error && (
-        <p role="alert" className="mt-4 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900">
+        <p role="alert" className="mt-4 border-l-4 border-almanac p-3 text-sm font-semibold text-almanac">
           {error}
         </p>
       )}
+      {result && !result.served && <p className="mt-4 border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm">{result.reason}</p>}
 
-      {result && !result.served && (
-        <p className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">{result.reason}</p>
-      )}
+      {served && (
+        <div className="mt-7 space-y-7" aria-live="polite">
+          <YearBoard strategies={ranked} monsoon={served.monsoon} />
 
-      {result?.served && (
-        <section className="mt-6 space-y-4" aria-live="polite">
           {tie && (
-            <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-              No clear winner: {result.tied_with_top.length} rotations score within a few points of each other.
+            <p className="border-l-4 border-turmeric bg-turmeric-wash p-3 text-sm font-semibold">
+              No clear winner: {served.tied_with_top.length} rotations score within a few points of each other.
             </p>
           )}
 
-          <div className="rounded-xl border border-stone-300 bg-white p-4 shadow-sm">
-            <h2 className="text-base font-semibold text-stone-900">How your answers set the weights</h2>
-            <dl className="mt-2 space-y-1.5">
-              {Object.entries(result.weights_used).map(([key, w]) => (
-                <div key={key} className="grid grid-cols-[9.5rem_1fr_2.5rem] items-center gap-2 text-xs">
-                  <dt className="text-stone-700">{COMPONENT_LABELS[key] ?? key}</dt>
-                  <dd className="h-2 overflow-hidden rounded bg-stone-200">
-                    <div className="h-full bg-stone-600" style={{ width: `${w}%` }} />
-                  </dd>
-                  <dd className="text-right tabular-nums text-stone-800">{w.toFixed(0)}%</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
+          {ranked.map((s) => (
+            <StrategySection key={s.id} s={s} standing={standing(s)} />
+          ))}
 
-          {ranked.map((s) => {
-            const rank = result.ranking.indexOf(s.id);
-            return (
-              <StrategyCard
-                key={s.id}
-                s={s}
-                rank={rank < 0 ? null : rank + 1}
-                tied={Boolean(tie) && result.tied_with_top.includes(s.id)}
-              />
-            );
-          })}
+          <section className="border-t-2 border-soil pt-3">
+            <h2 className="narrow text-xl font-bold">How your answers set the weights</h2>
+            <Bars rows={Object.entries(served.weights_used)} unit="%" />
+          </section>
 
-          <div className="rounded-xl border border-stone-300 bg-white p-4 shadow-sm">
-            <h2 className="text-base font-semibold text-stone-900">About your area</h2>
-            <p className="mt-1 text-xs text-stone-600">
-              Satellite and weather data cover a wide area, not one field. Each line shows its source.
-            </p>
-            <ul className="mt-3 space-y-3">
-              {result.site_evidence.map((e, i) => (
+          <section className="border-t-2 border-soil pt-3">
+            <h2 className="narrow text-xl font-bold">About your area</h2>
+            <p className="mt-1 text-sm text-soil-soft">Satellite and weather data cover a wide area, not one field.</p>
+            <ul className="mt-2 space-y-2.5">
+              {served.site_evidence.map((e, i) => (
                 <EvidenceLine key={i} e={e} />
               ))}
             </ul>
-          </div>
-        </section>
+          </section>
+        </div>
       )}
 
-      <p className="fixed inset-x-0 bottom-0 border-t border-amber-300 bg-amber-100 px-4 py-2.5 text-center text-xs font-medium text-amber-950">
-        {DISCLAIMER}
-      </p>
+      <p className="fixed inset-x-0 bottom-0 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>
     </div>
   );
 }

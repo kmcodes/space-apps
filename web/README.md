@@ -25,7 +25,8 @@ Open http://localhost:3000.
 
 ## Files
 
-- `app/field-shift.tsx`: the form and the result cards (client component).
+- `app/field-shift.tsx`: the form, the year board and the rotation sections (client component).
+- `DESIGN.md`: colours, type and layout rules. Read before changing any styling.
 - `app/manifest.ts`, `public/icon.svg`: make the site installable to a phone's home screen.
 - `app/layout.tsx`, `app/globals.css`: page shell and base styles.
 
@@ -34,6 +35,7 @@ Open http://localhost:3000.
 - GPS and the map pin. Location is a choice of the three presets.
 - Voice (Sarvam) and Hindi text. All text is English and lives in `app/field-shift.tsx`.
 - Offline cache (service worker).
+- A way to see the year board for one of the "other second crops".
 - PNG icons. The manifest has an SVG icon only; some phones want 192 and 512 px PNGs to offer install.
 
 ## Deploying (not done yet)

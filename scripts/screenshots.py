@@ -43,12 +43,14 @@ def main():
             viewport={"width": 390, "height": 844}, device_scale_factor=2, is_mobile=True, has_touch=True,
             locale="hi-IN", geolocation=AKOLA, permissions=["geolocation", "microphone"],
         )
+        # hide the Next.js development badge when run against a local dev server
+        ctx.add_init_script("document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = 'nextjs-portal { display: none !important }'; document.head.appendChild(s); });")
         page = ctx.new_page()
         page.goto(URL, wait_until="networkidle")
         page.wait_for_timeout(1500)
         shot(page, "01-start", full=False)
 
-        page.locator("button").first.click()  # one tap starts the call
+        page.get_by_role("button", name="बोलने के लिए छुइए").click()  # one tap starts the call
         for i, label in enumerate(ANSWERS):
             t = tile(page, label)
             t.wait_for(timeout=TILE_WAIT_MS)
@@ -76,6 +78,14 @@ def main():
         page.get_by_text("समझिए", exact=False).first.click()
         page.wait_for_timeout(1500)
         shot(page, "13-explainers")
+
+        # "Tap to fill the form": a fresh page, the form, then the same results it opens
+        page = ctx.new_page()
+        page.goto(URL, wait_until="networkidle")
+        page.wait_for_timeout(1000)
+        page.get_by_role("button", name="फ़ॉर्म भरने के लिए छुइए").click()
+        page.wait_for_timeout(1000)
+        shot(page, "14-form")
         browser.close()
 
 

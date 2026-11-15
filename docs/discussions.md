@@ -131,3 +131,9 @@ Things to settle with the API host:
 - The usage log and `/admin/stats` need their token set on the host.
 
 Also from the web build: `water_source` is collected on the form and sent, but the engine ignores it (engine review, problem 3).
+
+## Month timeline under every year bar (Amrita, 15 Nov 2026, evening)
+
+Amrita asked for an x-axis timeline on the results. Added in `web/app/results.tsx` (`MonthAxis`, Kartik's file, changed by Amrita for his review) and `MONTH_HI_SHORT` in `web/app/results-script.ts`: a tick per month (thicker at the start of kharif, rabi and summer) and all twelve short Hindi month names, June first, coloured by season. The same timeline sits under the full bar on the one-choice screen and under each small bar in the choices list. The short month names are machine-drafted and need a native speaker's check.
+
+Also noticed: `npm run lint` fails on `web/app/speech.ts` line 18 (`startTimer` should be `const`). Not changed.

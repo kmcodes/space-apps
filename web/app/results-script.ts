@@ -267,6 +267,9 @@ export function summarySpeech(list: Choice[], where?: string | null): string {
 
 const MONTH_HI = ["जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर", "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई"];
 
+/** Short month names for the timeline under every year bar (June first). Machine-drafted, needs a native speaker's check. */
+export const MONTH_HI_SHORT = ["जून", "जुला", "अग", "सित", "अक्टू", "नव", "दिस", "जन", "फ़र", "मार्च", "अप्रै", "मई"];
+
 /** Re-order a January-first list to June-first, the order of the year bar. */
 export const fromJune = <T,>(calendar: T[]): T[] => YEAR_ORDER.map((m) => calendar[m]);
 

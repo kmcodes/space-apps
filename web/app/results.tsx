@@ -10,6 +10,7 @@ import { DISCLAIMER, type Initial } from "./field-shift";
 import { Pictogram, SpeakerIcon, type PictogramId } from "./pictograms";
 import { speakHindi, stopSpeech } from "./speech";
 import {
+  MONTH_HI_SHORT,
   RESULTS,
   SEASONS,
   choices,
@@ -79,6 +80,34 @@ function RiskRows({ risk }: { risk: SeasonRisk }) {
   );
 }
 
+/* The x axis: a tick per month (thicker where kharif, rabi and summer start) and every month's name, June first.
+   Names take their season's colour so they tie to the season blocks above. Same timeline under every bar. */
+const SEASON_START = new Set<number>(SEASONS.map((se) => se.from));
+const SEASON_TEXT: Record<string, string> = { kharif: "text-monsoon", rabi: "text-[#7a5a00]", summer: "text-soil-soft" };
+const seasonOf = (i: number) => SEASONS.find((se) => i >= se.from && i < se.from + se.length)!.key;
+
+function MonthAxis({ full }: { full?: boolean }) {
+  return (
+    <div className="mt-1">
+      <div className="grid grid-cols-12 border-t-2 border-soil">
+        {MONTH_HI_SHORT.map((m, i) => (
+          <span key={m} className={`border-l border-soil ${SEASON_START.has(i) ? "h-2 border-l-[3px]" : "h-1"}`} />
+        ))}
+      </div>
+      <div className="grid grid-cols-12" lang="hi">
+        {MONTH_HI_SHORT.map((m, i) => (
+          <span
+            key={m}
+            className={`narrow min-w-0 text-center font-semibold leading-tight ${full ? "text-xs" : "text-[0.65rem]"} ${SEASON_TEXT[seasonOf(i)]}`}
+          >
+            {m}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: SeasonRisk }) {
   const bar = yearBar(s.calendar, s.kind === "mixed");
   const gap = (i: number) => (i === 4 || i === 9 ? "border-r-[6px] border-limewash" : "");
@@ -117,6 +146,7 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
         </div>
       )}
       {full && risk && <RiskRows risk={risk} />}
+      <MonthAxis full={full} />
     </div>
   );
 }

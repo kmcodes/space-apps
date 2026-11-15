@@ -52,6 +52,8 @@ Neither is connected to GitHub, because the repo belongs to Kartik's account. Re
 
 For automatic deploys on every push, Kartik connects Render and Vercel to `kmcodes/space-apps` from his GitHub account.
 
+**Watcher (stand-in for automatic deploys):** `scripts/deploy_watch.py` checks GitHub every 2 minutes and redeploys what changed (web/ to Vercel, api/ engine/ data/ requirements.txt to Render). It runs on Amrita's PC, only while that PC is on and the script is running: `.venv\Scripts\python scripts\deploy_watch.py`. It needs `RENDER_DEPLOY_HOOK` in the repo-root `.env` and a Vercel login on that PC, and deploys from its own clean clone in `.deploy/`.
+
 General settings, for any host:
 
 Web app on Vercel:

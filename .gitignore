@@ -11,3 +11,4 @@ node_modules/
 process_log.md
 secrets.md
 data/usage.jsonl
+.deploy/

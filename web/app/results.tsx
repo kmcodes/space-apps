@@ -16,6 +16,8 @@ import {
   expertLines,
   explainers,
   fromJune,
+  adviceKind,
+  adviceLabel,
   goodLines,
   picsFor,
   riskRuns,
@@ -119,6 +121,19 @@ function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: Season
   );
 }
 
+/** Says how far to trust the advice: an estimate from the numbers, or checked. Shown on the list and on every choice. */
+function AdviceBadge({ label, note }: { label: string; note?: boolean }) {
+  return (
+    <p className="mt-2 flex items-center gap-2 text-lg font-bold text-soil" lang="hi">
+      <span className="flex items-center gap-1.5 rounded-field border-2 border-dashed border-soil px-2.5 py-1">
+        <Pictogram id="unknown" className="h-5 w-5" />
+        {label}
+      </span>
+      {note && label === RESULTS.estimate && <span className="text-base font-semibold text-soil-soft">{RESULTS.estimateNote}</span>}
+    </p>
+  );
+}
+
 function Disclaimer() {
   return <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>;
 }
@@ -136,7 +151,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
   ];
 
   useEffect(() => {
-    speakHindi(`${name}। छुकर सुनिए: ${rows.map((r) => r.label).join(", ")}।`);
+    speakHindi(`${name}। यह ${adviceLabel([adviceKind(s)])} है। छुकर सुनिए: ${rows.map((r) => r.label).join(", ")}।`);
     return stopSpeech;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
@@ -175,6 +190,7 @@ function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () 
               {RESULTS.current}
             </p>
           )}
+          <AdviceBadge label={adviceLabel([adviceKind(s)])} />
         </div>
       </div>
 
@@ -369,6 +385,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
           {RESULTS.where}: {nearestPhrase(result)}
         </p>
       )}
+
+      {result?.served && <AdviceBadge label={adviceLabel(list.filter((c) => !c.strategy.incomplete).map((c) => adviceKind(c.strategy)))} note />}
 
       {!result && !failed && (
         <p className="mt-6 text-xl font-semibold text-soil-soft" lang="hi" role="status">

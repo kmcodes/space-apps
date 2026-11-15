@@ -46,8 +46,12 @@ export const RESULTS = {
   notRanked: "पूरी जानकारी नहीं",
   tapHint: "किसी तरीके को छुइए",
   forExperts: "विशेषज्ञों के लिए: स्रोत और जाँच",
-  good: "अच्छी बातें",
-  unknown: "जो हमें पता नहीं",
+  good: "अच्छे संकेत",
+  unknown: "जो अभी पक्का नहीं",
+  estimate: "अनुमानित सुझाव",
+  verifiedAdvice: "सत्यापित सुझाव",
+  estimateNote: "ये आँकड़ों से लगाए अनुमान हैं, पक्की बात नहीं।",
+  checkPending: "पर इसकी जाँच बाकी है",
   expert: "विशेषज्ञ से पूछिए",
   vulnerable: "नाज़ुक समय",
   learn: "समझिए",
@@ -184,11 +188,24 @@ const UNSURE_HI: Record<string, string> = {
 
 export const AREA_SCALE_HI = "मौसम का डेटा पूरे इलाके का है, आपके अपने खेत का नहीं।";
 
-/** Components the engine scored well (score 70 or more, as in the engine's own card). */
+/** "Verified" only when every part of the score is complete and its inputs are checked (validity "valid").
+    Any missing, degraded or unverified input makes it an estimate. Today the crop sheet is mostly unverified, so it is an estimate. */
+export function adviceKind(s: Strategy): "estimate" | "verified" {
+  const parts = Object.values(s.components);
+  const allChecked = parts.length > 0 && parts.every((c) => c.status === "ok" && c.validity === "valid");
+  return allChecked && !s.incomplete ? "verified" : "estimate";
+}
+
+export function adviceLabel(kinds: Array<"estimate" | "verified">): string {
+  return kinds.length > 0 && kinds.every((k) => k === "verified") ? RESULTS.verifiedAdvice : RESULTS.estimate;
+}
+
+/** Components the engine scored well (score 70 or more, as in the engine's own card). A good sign whose input is
+    not checked says so: a high score is not a confirmed fact. */
 export function goodLines(s: Strategy): string[] {
   const lines = Object.entries(s.components)
     .filter(([, c]) => c.status === "ok" && (c.score ?? 0) >= 70)
-    .map(([k]) => GOOD_HI[k])
+    .map(([k, c]) => (GOOD_HI[k] ? (c.validity === "valid" ? GOOD_HI[k] : `${GOOD_HI[k]}, ${RESULTS.checkPending}`) : ""))
     .filter(Boolean);
   return lines.length ? lines : [RESULTS.noneGood];
 }
@@ -201,7 +218,7 @@ export function unknownLines(s: Strategy): string[] {
     .filter(Boolean);
   const lines: string[] = [];
   if (s.incomplete) lines.push("इस तरीके को पूरा आँका नहीं जा सका, क्योंकि कुछ जानकारी नहीं मिली।");
-  if (unsure.length) lines.push(`इनकी जानकारी पक्की नहीं है: ${unsure.join(", ")}।`);
+  if (unsure.length) lines.push(`इनके आँकड़े हमने अभी जाँचे नहीं हैं: ${unsure.join(", ")}।`);
   lines.push(AREA_SCALE_HI);
   return lines;
 }
@@ -237,7 +254,8 @@ export function nearestPhrase(result: Result): string | null {
 export function summarySpeech(list: Choice[], where?: string | null): string {
   const ranked = list.filter((c) => !c.strategy.incomplete);
   const top = ranked.filter((c) => c.top).map((c) => strategyName(c.strategy));
-  const parts = [...(where ? [`आपकी जगह ${where} है।`] : []), `आपके खेत के लिए ${list.length} तरीके देखे।`];
+  const kind = adviceLabel(ranked.map((c) => adviceKind(c.strategy)));
+  const parts = [...(where ? [`आपकी जगह ${where} है।`] : []), `आपके खेत के लिए ${list.length} तरीके देखे।`, `यह ${kind} है। ${kind === RESULTS.estimate ? RESULTS.estimateNote : ""}`.trim()];
   if (top.length === 1) parts.push(`सबसे अच्छा लगा: ${top[0]}।`);
   else if (top.length > 1) parts.push(`ये लगभग बराबर अच्छे लगे: ${top.join(" और ")}।`);
   else parts.push("इस बार कोई साफ़ सबसे अच्छा तरीका नहीं मिला।");

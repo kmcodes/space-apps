@@ -388,7 +388,7 @@ export default function VoiceCall() {
           className="mt-8 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-monsoon px-4 py-3.5 text-left text-white"
         >
           <MicIcon className="h-8 w-8 shrink-0" />
-          <span className="narrow min-w-0 flex-1 truncate text-2xl font-extrabold leading-tight" lang={lang}>
+          <span className="narrow min-w-0 flex-1 whitespace-nowrap py-1 text-2xl font-extrabold leading-normal" lang={lang}>
             {S.start}
           </span>
           {/* Static sound bars: this button talks. */}
@@ -403,7 +403,7 @@ export default function VoiceCall() {
           className="mt-3 flex w-full items-center gap-3 rounded-field border-[3px] border-monsoon bg-paper px-4 py-3.5 text-left text-monsoon"
         >
           <FormIcon className="h-8 w-8 shrink-0" />
-          <span className="narrow min-w-0 flex-1 truncate text-2xl font-extrabold leading-tight" lang={lang}>
+          <span className="narrow min-w-0 flex-1 whitespace-nowrap py-1 text-2xl font-extrabold leading-normal" lang={lang}>
             {S.useForm}
           </span>
         </button>

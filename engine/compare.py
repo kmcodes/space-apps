@@ -13,6 +13,7 @@ import pandas as pd
 
 from . import config
 from .card import build_card
+from .components import timing_fit
 from .coverage import locate, presets
 from .crops import load_crops
 from .evidence import describe
@@ -151,9 +152,17 @@ class Engine:
             incomplete = cov < config.MIN_COVERAGE
             evidence = [e for e in (describe(k, r, ctx) for k, r in comps.items()) if e]
             variants = score_variants(s, self.crops, yf_med, self.market, point, priorities, constraints)
+            # When each crop is in the ground in the median year, for the year calendar in the app.
+            # Same timing_fit the scores use, so it matches bare_days. harvest_doy may pass 365 (next year).
+            calendar = []
+            for name in s.crops:
+                t = timing_fit(self.crops[name], yf_med)
+                if t.status == "ok":
+                    calendar.append({"crop": name, "sow_doy": round(t.detail["sow_doy"]),
+                                     "harvest_doy": round(t.detail["harvest_doy"])})
             out.append({
                 "id": s.id, "name": s.name, "kind": s.kind, "crops": list(s.crops), "note": s.note,
-                "duplicate_of": s.duplicate_of,
+                "duplicate_of": s.duplicate_of, "calendar": calendar,
                 "total_score": round(float(np.nanmedian(tp)), 1),
                 "score_band": [round(float(np.nanpercentile(tp, 20)), 1), round(float(np.nanpercentile(tp, 80)), 1)],
                 "rank_stability": round(stability[s.id], 3),
@@ -180,5 +189,7 @@ class Engine:
             "tied_with_top": [i for i, t in totals.items() if top - t <= config.TIE_POINTS],
             "weights_used": compute_weights(priorities, constraints, tuple(BASE_WEIGHTS)),
             "strategies": out, "site_evidence": self._site_evidence(point, period),
+            "monsoon": {"onset_doy": round(yf_med["onset_doy"]), "withdrawal_doy": round(yf_med["withdrawal_doy"]),
+                        "note": "median year, NASA POWER; ERA5 differs by a week or more"},
             "disclaimer": DISCLAIMER, "language": "en",
         }

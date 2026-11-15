@@ -144,3 +144,28 @@ def test_a_missing_price_does_not_win_a_market_priority():
     s2 = {s["id"]: s for s in out["strategies"]}["S2"]
     assert s2["incomplete"] is True
     assert out["ranking"][0] != "S2"
+
+
+def test_each_strategy_has_a_calendar_of_its_crops_in_the_ground():
+    out = run()
+    by_id = {s["id"]: s for s in out["strategies"]}
+    assert [c["crop"] for c in by_id["S0"]["calendar"]] == ["soybean"]  # fallow has no days in the ground
+    assert [c["crop"] for c in by_id["S1"]["calendar"]] == ["soybean", "chickpea"]
+    for s in out["strategies"]:
+        for c in s["calendar"]:
+            assert set(c) == {"crop", "sow_doy", "harvest_doy"}
+            assert 1 <= c["sow_doy"] <= 365 and c["harvest_doy"] > c["sow_doy"]  # harvest may pass 365 (next year)
+
+
+def test_calendar_matches_the_bare_days_evidence():
+    s1 = next(s for s in run()["strategies"] if s["id"] == "S1")
+    covered = set()
+    for c in s1["calendar"]:
+        covered.update(d % 365 for d in range(c["sow_doy"], c["harvest_doy"]))
+    line = next(e for e in s1["evidence"] if e["used_in"] == ["bare_days"])
+    assert abs(len(covered) - int(line["claim"].split("(")[1].split()[0])) <= 2  # rounding of half days
+
+
+def test_top_level_has_the_median_monsoon_days_for_the_calendar():
+    m = run()["monsoon"]
+    assert 150 <= m["onset_doy"] <= 200 and 260 <= m["withdrawal_doy"] <= 300

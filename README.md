@@ -23,7 +23,7 @@ You need Python 3.11 or newer (we use 3.14) and Node.js 20 or newer.
 ```bash
 # engine API (from the repo root)
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest                                   # 0 tests
+.venv/bin/python -m pytest                                   # 146 tests
 .venv/bin/uvicorn api.main:app --port 8000                   # docs at http://127.0.0.1:8000/docs
 
 # web app (second terminal)
@@ -76,7 +76,7 @@ Every number in the crop sheet is marked **valid** (the source was opened and th
 
 ### How the vulnerable months are decided
 
- reads the daily POWER and ERA5 files and writes , which the engine returns with . The thresholds are our own and are shown to users:
+`pipeline/season_risk.py` reads the daily POWER and ERA5 files and writes `data/processed/season_risk.json`, which the engine returns with `/compare`. The thresholds are our own and are shown to users:
 
 - **Hot month:** on average at least 10 days a month above 38 °C (1981–2025).
 - **Dry-spell month:** in at least 4 years in 10, a dry run of 10 or more days (under 2.5 mm of rain a day) inside that year's monsoon, from onset to withdrawal, overlaps the month.
@@ -100,7 +100,7 @@ api/         POST /compare, GET /health, GET /admin/stats
 web/         Next.js PWA: voice call, picture questions, results
 voice/       reserved for the Sarvam speech integration (empty for now)
 docs/        design, crop sheet, data quality, plans
-tests/       0 tests, written first
+tests/       146 tests, written first
 ```
 
 - Engine design and the rules behind every score: [docs/ENGINE_DESIGN.md](docs/ENGINE_DESIGN.md).

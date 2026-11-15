@@ -9,7 +9,7 @@ import FieldShift, { DISCLAIMER, type Initial } from "./field-shift";
 import { SCRIPT, STEPS, matchOption, type Answers, type Option } from "./call-script";
 import { MicIcon, Pictogram, SpeakerIcon } from "./pictograms";
 import Results from "./results";
-import { pickHindiVoice } from "./speech";
+import { guardUtterance, pickHindiVoice } from "./speech";
 
 type Phase = "home" | "call" | "results" | "form";
 type Status = "speaking" | "listening" | "tap";
@@ -103,9 +103,9 @@ export default function VoiceCall() {
     u.lang = "hi-IN";
     const voice = pickHindiVoice(synth);
     if (voice) u.voice = voice;
-    u.onend = u.onerror = () => {
+    guardUtterance(u, text, () => {
       if (token === run.current) then?.();
-    };
+    });
     synth.speak(u);
   }
 

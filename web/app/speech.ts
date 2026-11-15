@@ -10,6 +10,28 @@ export function pickHindiVoice(synth: SpeechSynthesis): SpeechSynthesisVoice | u
   return hindi.find((v) => FEMALE_VOICE.test(v.name)) ?? hindi.find((v) => !MALE_VOICE.test(v.name)) ?? hindi[0];
 }
 
+// Some browsers never report that speech ended: no Hindi voice on the device, a stalled engine, a background tab.
+// Anything waiting on "ended" would hang for ever (the call never reached the results). So `done` also fires
+// if speech has not started within 2.5 s, or has run far longer than the text needs. It fires only once.
+export function guardUtterance(u: SpeechSynthesisUtterance, text: string, done: () => void) {
+  let finished = false;
+  let startTimer: ReturnType<typeof setTimeout> | undefined;
+  let endTimer: ReturnType<typeof setTimeout> | undefined;
+  const finish = () => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(startTimer);
+    clearTimeout(endTimer);
+    done();
+  };
+  u.onstart = () => {
+    clearTimeout(startTimer);
+    endTimer = setTimeout(finish, 4000 + text.length * 200);
+  };
+  u.onend = u.onerror = finish;
+  startTimer = setTimeout(finish, 2500);
+}
+
 let current = 0; // bumped on every speak or stop, so a cancelled utterance never fires its callback
 
 export function stopSpeech() {
@@ -29,8 +51,8 @@ export function speakHindi(text: string, onEnd?: () => void) {
   u.lang = "hi-IN";
   const voice = pickHindiVoice(synth);
   if (voice) u.voice = voice;
-  u.onend = u.onerror = () => {
+  guardUtterance(u, text, () => {
     if (mine === current) onEnd?.();
-  };
+  });
   synth.speak(u);
 }

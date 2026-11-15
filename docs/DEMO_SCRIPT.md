@@ -14,20 +14,21 @@ Length: about 230 spoken words at a calm pace, plus the Hindi the app speaks its
 - **Answers to use** (all can be tapped): farm = yes; rotation = soybean then empty field; water = rain only; priority = saving water, second = animal fodder; water available = low; equipment = no; sell = mandi. This gives a clear "soybean then sorghum" top choice and shows the hot-month and dry-spell markers.
 - If the microphone works on the take, answer one question by voice ("वाशिम" style short word) so the viewer sees it listens. Otherwise tap, and do not claim live voice recognition in the narration.
 - Keep the browser zoom at 100% and hide bookmarks and extensions.
+- **Record in Hindi** (the default). The language switch at the top is saved in the browser, so check it says हिन्दी before you start. Restart the API first so it serves the current crop data.
 
 ## Script
 
 | Time | On screen | Narration (English) |
 |---|---|---|
-| 0:00–0:12 | Home screen: the year strip and the big mic button. Slow push in on the strip. | "In Vidarbha, rainfed farmers often leave a field bare for months after soybean. Many of them cannot read. So Field Shift talks." |
+| 0:00–0:12 | Home screen: the year strip and the two start buttons ("बोलने के लिए छुइए" / Tap to speak, and Tap to fill the form). Slow push in on the strip. | "In Vidarbha, rainfed farmers often leave a field bare for months after soybean. Many of them cannot read. So Field Shift talks." |
 | 0:12–0:24 | Cut to a plain map of Vidarbha, or stay on the home screen with a caption: "Akola · Buldhana · Washim · 1981–2025". | "It compares four ways of using one field through the year, using forty-five years of NASA POWER weather and MODIS satellite greenness." |
-| 0:24–0:36 | Tap the mic. The call starts; the map with the red pin and the tick and cross tiles appear. Tap the tick. | "One tap starts a call, in Hindi. The phone shows where the farm is. The farmer confirms the pin." |
+| 0:24–0:36 | Tap the speak button. The call starts; the map with the red pin and the tick and cross tiles appear. Tap the tick. | "One tap starts a call, in Hindi. The phone shows where the farm is. The farmer confirms the pin." |
 | 0:36–0:50 | The question screen: tiles light up one by one as the app reads them. Tap a few answers quickly (cut between them). | "Each question is read aloud while its picture lights up, so a picture and its word are linked. The farmer answers by voice, or by touching." |
 | 0:50–1:08 | Results list: thumbs-up on the top choice, no numbers. Tap the top choice: the year bar with kharif and rabi grouped, green and dark months. | "The result is spoken and shown, with no scores. The best choices get a thumbs-up. Each one has a twelve-month bar: green when a crop is in the ground, dark when the field is bare, with kharif and rabi grouped." |
 | 1:08–1:22 | Zoom on the thermometer and crossed-out drop markers under the bar, then tap the "नाज़ुक समय" row; its text opens. | "Under it, the hot months and the long dry-spell months from the climate record. A solid mark means both datasets agree." |
 | 1:22–1:36 | Tap "अनुमानित सुझाव" and "विशेषज्ञ से पूछिए"; show the text opening and the speaker icon turning blue. Briefly show the "for experts" link. | "Tap a row and it speaks: what is checked, what is only an estimate, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link." |
 | 1:36–1:50 | The "समझिए" screen, then a quick cut to the README's cross-check lines (or a caption: "POWER vs ERA5: rain agrees, heat days do not → we show a range"). | "We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag." |
-| 1:50–2:00 | Back to the home screen, then the disclaimer banner large on screen; end card with team and repo link. | "Field Shift supports local expertise; it does not replace it. Hindi today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices." |
+| 1:50–2:00 | Back to the home screen; tap the English switch at the top once to show the whole app change language; then the disclaimer banner large on screen; end card with team and repo link. | "Field Shift supports local expertise; it does not replace it. Hindi and English today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices." |
 
 ## Full narration, to read in one go
 
@@ -43,7 +44,7 @@ Tap a row and it speaks: what is checked, what is only an estimate, and what to 
 
 We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag.
 
-Field Shift supports local expertise; it does not replace it. Hindi today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices.
+Field Shift supports local expertise; it does not replace it. Hindi and English today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices.
 
 ## Credits on the end card
 
@@ -54,7 +55,8 @@ NASA POWER and MODIS MOD13Q1 (via AppEEARS) · ISRIC SoilGrids · ERA5, Copernic
 - That it uses Sarvam. It uses the browser's built-in Hindi speech today.
 - That a language model writes any text. Every sentence is a template filled from engine fields.
 - That it is live or deployed. Nothing is hosted yet.
-- That Marathi works, or that the Hindi has been reviewed by a native speaker. It has not.
+- That Marathi works, or that the Hindi or English text has been reviewed by a native speaker. Neither has.
+- That any advice is verified. Every choice is labelled "अनुमानित सुझाव" (estimated advice) because the crop inputs are not yet checked in the field. Say "estimate", never "verified" or "validated".
 - Anything field-level. The weather is area-scale (about 50 km) and the satellite pixel is 250 m.
 - That the crop pictures are final. They are drawn placeholders.
 - A score or a percentage for any choice. The app deliberately shows none.

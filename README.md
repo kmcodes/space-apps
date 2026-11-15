@@ -398,7 +398,7 @@ tests/       156 tests, written first
 - Voice app plan and who it is for: [docs/VOICE_APP_PLAN.md](docs/VOICE_APP_PLAN.md)
 - Colours, type and layout: [web/DESIGN.md](web/DESIGN.md)
 - Open decisions and engine review: [docs/discussions.md](docs/discussions.md)
-- Project page text and the 2-minute demo script: [docs/SUBMISSION.md](docs/SUBMISSION.md), [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
+- Project page text and the 30-second demo script: [docs/SUBMISSION.md](docs/SUBMISSION.md), [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
 
 ---
 

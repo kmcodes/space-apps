@@ -1,69 +1,69 @@
-# Demo video script (2 minutes)
+# Demo video: 30 seconds, screen recording with captions
 
-The video replaces the slide deck. It is also the offline fallback for the demo (`START.md`: "Demo must work offline from recorded fallback"). Every claim below is true of what is built today. Anything we cannot claim is listed at the end.
+**The rule (official 2026 Project Submission Guide and the submission form):** the demo is a video of **30 seconds or less**, or a deck of **7 slides or fewer**. Over the limit means the project is **not eligible for Global Judging**. The link must be public, need no login, and be a full URL (`https://...`).
 
-Length: about 230 spoken words at a calm pace, plus the Hindi the app speaks itself.
+Other rules from the guide that apply to the video:
+
+- **English.** If anyone speaks another language, the video MUST have English subtitles. Our captions below are written to be those subtitles.
+- **No NASA branding.** Do not use the NASA logo, flag or mission marks. Naming the NASA data in text is fine.
+- **No person under 18** in any picture, voice or sound.
+- **AI disclosure.** The app's voice is machine-generated (the browser's text-to-speech). Say so in the video description (text below).
+- The guide suggests this order: who you are, the challenge, the project name, how it works and how NASA data makes it possible, then the future. The captions below follow it.
+
+## What the video is
+
+A screen recording of the app being used, from the first tap to the results page, explained by short **on-screen captions** (no voice-over). The only sound is the app's own voice. The first four captions explain how to use it; the last one looks ahead.
+
+## Shot list (30 seconds)
+
+| Time | On screen | Caption (large, English) | Sound |
+|---|---|---|---|
+| 0:00–0:03 | Home screen in English | **Field Shift: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
+| 0:03–0:07 | Tap **Tap to speak**. The call starts. | **1. One tap starts a call. The app asks the questions aloud.** | the app's greeting |
+| 0:07–0:15 | Tap **Akola**. Then three quick cuts: what is grown now, where the water comes from, what matters most. Tap a picture each time. | **2. Answer by voice or by touching a picture. Eight short questions.** | the app's voice, cut off by each tap |
+| 0:15–0:20 | The results list appears: four options with coloured year bars and the legend | **3. Four ways to use the field through the year, from 45 years of NASA POWER weather and MODIS satellite data.** | the start of the spoken summary |
+| 0:20–0:25 | Tap the top option: the year bar with hot and dry months. Tap the **Estimated advice** row. | **4. Each colour is a crop, black is an empty field. Every suggestion says what is not checked.** | the row read aloud |
+| 0:25–0:28 | Tap **हिन्दी**: the same screen in Hindi | **Hindi and English.** | none |
+| 0:28–0:30 | Home screen, or a plain end card | **Supports, does not replace, local experts. Next: all of India, more crops, orchards.** and the repo address in text | none |
+
+The captions are also in [`docs/demo_captions.srt`](demo_captions.srt) with these timings, so an editor can import them as subtitles instead of typing them.
 
 ## Before recording
 
-- **Record online.** The map is Google's embed and needs internet.
-- **Use Chrome, at phone width** (DevTools, device toolbar, a phone preset). Record the screen with the app audio on.
-- **Set the location to Akola:** DevTools, three-dot menu, More tools, Sensors, Location, custom 20.700 N, 77.008 E. Put a small caption on screen, "demo location: Akola", so nobody thinks it is a real phone fix. A judge's own phone would be outside the region: the app then says so, skips the map and asks for a district, and the results are labelled as an example, not their farm.
-- **Check the machine has a Hindi voice.** In Chrome the "Google हिन्दी" voice is usual on Android and Windows; many Linux machines have none. Test one question before recording. If there is no Hindi voice, record on an Android phone instead.
-- **Run both servers fresh** and do one full run first, so the engine's cache is warm and results appear in a second or two.
-- **Answers to use** (all can be tapped): farm = yes; rotation = soybean then empty field; water = rain only; priority = saving water, second = animal fodder; water available = low; equipment = no; sell = mandi. This gives a clear "soybean then sorghum" top choice and shows the hot-month and dry-spell markers.
-- If the microphone works on the take, answer one question by voice ("वाशिम" style short word) so the viewer sees it listens. Otherwise tap, and do not claim live voice recognition in the narration.
-- Keep the browser zoom at 100% and hide bookmarks and extensions.
-- **Record in Hindi** (the default). The language switch at the top is saved in the browser, so check it says हिन्दी before you start. Restart the API first so it serves the current crop data.
+- **Record the flow in English.** The app then speaks English, so the sound needs no subtitles. The Hindi appears only at the end, as screen text.
+- **Record on a phone or a clean window.** Use an Android phone in Chrome, or a Chrome window with a fresh profile and one tab. A normal desktop window shows your other tabs, bookmarks and extensions; the video would show them too.
+- **Capture the device's sound.** Use the phone's screen recorder with "media sound" on, or on a computer a recorder that captures system audio (OBS: desktop audio). Do not use a microphone in a room, which adds echo and noise.
+- **Warm up the engine.** Open the API's `/health` a minute before, then do one throwaway run so the first answer is fast.
+- **Say no to the location prompt**, so the call goes straight to the three district tiles. This also keeps the satellite map (Google's imagery) out of the video.
+- **Use these answers:** Akola; soybean then empty field; rain only; save water; fodder as the second goal; low water; no equipment; mandi. The top choice is then soybean then sorghum, with every option ranked.
+- **Check the voice.** Run one question first and confirm you hear an English voice.
+- Keep the browser at 100% zoom, hide bookmarks, and close notifications.
 
-## Script
+## Editing down to 30 seconds
 
-| Time | On screen | Narration (English) |
-|---|---|---|
-| 0:00–0:12 | Home screen: the year strip and the two start buttons ("बोलने के लिए छुइए" / Tap to speak, and Tap to fill the form). Slow push in on the strip. | "In Vidarbha, rainfed farmers often leave a field bare for months after soybean. Many of them cannot read. So Field Shift talks." |
-| 0:12–0:24 | Cut to a plain map of Vidarbha, or stay on the home screen with a caption: "Akola · Buldhana · Washim · 1981–2025". | "It compares four ways of using one field through the year, using forty-five years of NASA POWER weather and MODIS satellite greenness." |
-| 0:24–0:36 | Tap the speak button. The call starts; the map with the red pin and the tick and cross tiles appear. Tap the tick. | "One tap starts a call, in Hindi. The phone shows where the farm is. The farmer confirms the pin." |
-| 0:36–0:50 | The question screen: tiles light up one by one as the app reads them. Tap a few answers quickly (cut between them). | "Each question is read aloud while its picture lights up, so a picture and its word are linked. The farmer answers by voice, or by touching." |
-| 0:50–1:08 | Results list: thumbs-up on the top choice, no numbers. Tap the top choice: the year bar with kharif and rabi grouped, one colour per crop and black for the bare months, and the legend under it. | "The result is spoken and shown, with no scores. The best choices get a thumbs-up. Each one has a twelve-month bar: a colour for each crop, black when the field is bare, with kharif and rabi grouped and a small legend under it." |
-| 1:08–1:22 | Zoom on the thermometer and crossed-out drop markers under the bar, then tap the "नाज़ुक समय" row; its text opens. | "Under it, the hot months and the long dry-spell months from the climate record. A solid mark means both datasets agree." |
-| 1:22–1:36 | Tap "अनुमानित सुझाव" and "विशेषज्ञ से पूछिए"; show the text opening and the speaker icon turning blue. Briefly show the "for experts" link. | "Tap a row and it speaks: what is checked, what is only an estimate, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link." |
-| 1:36–1:50 | The "समझिए" screen, then a quick cut to the README's cross-check lines (or a caption: "POWER vs ERA5: rain agrees, heat days do not → we show a range"). | "We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag." |
-| 1:50–2:00 | Back to the home screen; tap the English switch at the top once to show the whole app change language; then the disclaimer banner large on screen; end card with team and repo link. | "Field Shift supports local expertise; it does not replace it. Hindi and English today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices." |
+1. Record one continuous take, about a minute.
+2. Cut the waiting. Speed up any loading to 2x or cut it.
+3. Cut between taps, so each question shows for about two seconds.
+4. Add the captions (or import `demo_captions.srt`) in large, high-contrast text.
+5. Export as MP4. **Check that the length is 30.0 seconds or less**, with no black frames added at the end.
 
-## Full narration, to read in one go
+## Hosting
 
-In Vidarbha, rainfed farmers often leave a field bare for months after soybean. Many of them cannot read. So Field Shift talks.
+Upload to YouTube as **Unlisted** (a link with no login works) or to Google Drive with "Anyone with the link". Open the link in a private window to check it plays without signing in. Paste the **full** URL, starting with `https://`.
 
-It compares four ways of using one field through the year, using forty-five years of NASA POWER weather and MODIS satellite greenness.
+## Video description (paste under the video)
 
-One tap starts a call, in Hindi. The phone shows where the farm is. The farmer confirms the pin. Each question is read aloud while its picture lights up, so a picture and its word are linked. The farmer answers by voice, or by touching.
+> Field Shift, a project for the NASA Space Apps Challenge 2026 ("Adapting Farms with NASA Data"). A voice and picture assistant for rainfed farmers in Vidarbha, built on NASA POWER weather and MODIS satellite data. Audio: the spoken voice is the browser's built-in machine-generated text-to-speech. Code, text and data scripts were written with AI assistance (Claude Code, Anthropic); no AI model runs inside the product. Code: https://github.com/kmcodes/space-apps
 
-The result is spoken and shown, with no scores. The best choices get a thumbs-up. Each one has a twelve-month bar: a colour for each crop, black when the field is bare, with kharif and rabi grouped and a small legend under it. Under it, the hot months and the long dry-spell months from the climate record. A solid mark means both datasets agree.
+## Do not show or say
 
-Tap a row and it speaks: what is checked, what is only an estimate, and what to ask a local expert. Every choice is labelled an estimate until its inputs are checked. Sources and validity flags sit behind an expert link.
+- A score or percentage for any option. The app shows none.
+- The words "verified" or "validated". Every suggestion is labelled an estimate.
+- The satellite map screen (Google's imagery), or a mention that the Hindi has been checked by a native speaker (it has not).
+- Anything that claims a result for one field. The data is area-scale.
+- Marathi, Sarvam or a language model inside the product. None exists.
+- Other tabs, names, emails or notifications on screen.
 
-We say what we do not know. We checked NASA POWER against a second dataset, ERA5. They agree that rain is rising, but not on heat days, so we show a range, never one number. Every piece of evidence carries a validity flag.
+## If the video is too hard in the time left
 
-Field Shift supports local expertise; it does not replace it. Hindi and English today, Marathi after a native speaker reviews it. Built with NASA POWER and MODIS, plus SoilGrids, ERA5 and mandi prices.
-
-## Credits on the end card
-
-NASA POWER and MODIS MOD13Q1 (via AppEEARS) · ISRIC SoilGrids · ERA5, Copernicus/ECMWF, through Open-Meteo (CC BY 4.0) · Agmarknet via data.gov.in · FAO, ICAR-CRIDA and ICRISAT for crop values · Team: Kartik and Amrita · Repo: the GitHub link
-
-## Do not say
-
-- That it uses Sarvam. It uses the browser's built-in Hindi speech today.
-- That a language model writes any text. Every sentence is a template filled from engine fields.
-- That it is live or deployed. Nothing is hosted yet.
-- That Marathi works, or that the Hindi or English text has been reviewed by a native speaker. Neither has.
-- That any advice is verified. Every choice is labelled "अनुमानित सुझाव" (estimated advice) because the crop inputs are not yet checked in the field. Say "estimate", never "verified" or "validated".
-- Anything field-level. The weather is area-scale (about 50 km) and the satellite pixel is 250 m.
-- That the crop pictures are final. They are drawn placeholders.
-- A score or a percentage for any choice. The app deliberately shows none.
-
-## If something goes wrong on the day
-
-- No Hindi voice or no mic: record on an Android phone in Chrome, or record the screen and add a Hindi voice-over for the app lines.
-- The map does not load: tap "no" and show the district tiles instead; say nothing about maps in that take.
-- A slow first result: do one throwaway run before recording so the cache is warm.
-- Over two minutes: cut the "समझिए" shot first, then the "for experts" link shot.
+A **7-slide deck** is allowed instead (7 slides including the title). Suggested slides: 1. title, team, names, challenge; 2. the problem; 3. the app at a glance (home screen); 4. the questions (picture tiles); 5. the results (coloured year bars, estimate label); 6. how NASA data makes it possible; 7. what is next. The screenshots in `docs/screenshots/flow/` are ready to use. Decks must be in English.

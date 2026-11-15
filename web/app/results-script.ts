@@ -20,6 +20,7 @@ export type Strategy = {
   incomplete: boolean;
   card: { gaps: string[]; risks_for_local_review: string[] };
 };
+export type SeasonRisk = { heat_level: number[]; dry_spell_level: number[]; frost_days_per_year: { power: number; era5: number } };
 export type Result = {
   served: boolean;
   reason?: string;
@@ -28,6 +29,7 @@ export type Result = {
   strategies: Strategy[];
   site_evidence: Evidence[];
   location?: { nearest: string };
+  season_risk?: SeasonRisk; // calendar order, index 0 = January
 };
 
 export const RESULTS = {
@@ -47,6 +49,9 @@ export const RESULTS = {
   good: "अच्छी बातें",
   unknown: "जो हमें पता नहीं",
   expert: "विशेषज्ञ से पूछिए",
+  vulnerable: "नाज़ुक समय",
+  learn: "समझिए",
+  learnTitle: "ये बातें क्या हैं?",
   noneGood: "इस तरीके में कोई ख़ास अच्छी बात नहीं मिली।",
   kharif: "खरीफ",
   rabi: "रबी",
@@ -236,6 +241,129 @@ export function summarySpeech(list: Choice[], where?: string | null): string {
   if (top.length === 1) parts.push(`सबसे अच्छा लगा: ${top[0]}।`);
   else if (top.length > 1) parts.push(`ये लगभग बराबर अच्छे लगे: ${top.join(" और ")}।`);
   else parts.push("इस बार कोई साफ़ सबसे अच्छा तरीका नहीं मिला।");
-  parts.push(RESULTS.suggestion, RESULTS.disclaimer, "किसी तरीके को छुकर और जानिए।");
+  parts.push(RESULTS.suggestion, RESULTS.disclaimer, "किसी तरीके को छुकर और जानिए। शब्द समझने के लिए समझिए छुइए।");
   return parts.join(" ");
+}
+
+// ---- Vulnerable seasons: heat, dry spells inside the monsoon, and frost (engine: season_risk) ----
+
+const MONTH_HI = ["जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर", "जनवरी", "फ़रवरी", "मार्च", "अप्रैल", "मई"];
+
+/** Re-order a January-first list to June-first, the order of the year bar. */
+export const fromJune = <T,>(calendar: T[]): T[] => YEAR_ORDER.map((m) => calendar[m]);
+
+/** Months (June-first positions) as Hindi text: "अप्रैल से मई और जून". */
+export function monthRanges(positions: number[]): string {
+  const parts: string[] = [];
+  let i = 0;
+  while (i < positions.length) {
+    let j = i;
+    while (j + 1 < positions.length && positions[j + 1] === positions[j] + 1) j++;
+    parts.push(j > i ? `${MONTH_HI[positions[i]]} से ${MONTH_HI[positions[j]]}` : MONTH_HI[positions[i]]);
+    i = j + 1;
+  }
+  return parts.join(" और ");
+}
+
+export type RiskRun = { start: number; length: number; level: number };
+
+/** Consecutive risky months with the same level (2 = both datasets agree, 1 = they disagree). */
+export function riskRuns(levels: number[]): RiskRun[] {
+  const out: RiskRun[] = [];
+  levels.forEach((level, i) => {
+    if (!level) return;
+    const last = out[out.length - 1];
+    if (last && last.level === level && last.start + last.length === i) last.length++;
+    else out.push({ start: i, length: 1, level });
+  });
+  return out;
+}
+
+/** When this strategy's crop is in the ground during a hot or dry-spell month, plus the frost finding. */
+export function vulnerableLines(s: Strategy, risk: SeasonRisk): string[] {
+  const inGround = yearBar(s.calendar, s.kind === "mixed").map((c) => c.length > 0);
+  const heat = fromJune(risk.heat_level);
+  const dry = fromJune(risk.dry_spell_level);
+  const pick = (levels: number[]) => levels.map((l, i) => (l > 0 ? i : -1)).filter((i) => i >= 0);
+  const lines: string[] = [];
+
+  const hot = pick(heat);
+  const hotIn = hot.filter((i) => inGround[i]);
+  if (hot.length) {
+    lines.push(
+      hotIn.length
+        ? `${monthRanges(hotIn)} में महीने के कई दिन 38 डिग्री से ज़्यादा गर्मी पड़ती है, और तब फ़सल खेत में रहती है।`
+        : `गर्मी वाले महीनों (${monthRanges(hot)}) में इस तरीके की फ़सल खेत में नहीं रहती।`,
+    );
+    if (hotIn.some((i) => heat[i] === 1)) lines.push("कुछ महीनों की गर्मी के बारे में NASA और ERA5 के आँकड़े एकमत नहीं हैं, इसलिए वहाँ अंदाज़ा पक्का नहीं है।");
+  }
+
+  const dryMonths = pick(dry);
+  const dryIn = dryMonths.filter((i) => inGround[i]);
+  if (dryMonths.length) {
+    lines.push(
+      dryIn.length
+        ? `${monthRanges(dryIn)} में बारिश के बीच दस दिन या उससे ज़्यादा लंबा सूखा अंतराल कई सालों में आता है, और तब फ़सल खेत में होती है।`
+        : `बारिश के बीच सूखे अंतराल वाले महीनों (${monthRanges(dryMonths)}) में इस तरीके की फ़सल खेत में नहीं है।`,
+    );
+  }
+
+  lines.push(
+    risk.frost_days_per_year.power === 0 && risk.frost_days_per_year.era5 === 0
+      ? "पाला: 1981 से 2025 के आँकड़ों में पाले की रात नहीं मिली।"
+      : "पाला: आँकड़ों में पाले की कुछ रातें मिलीं। अपने इलाके के विशेषज्ञ से पूछिए।",
+  );
+  lines.push(AREA_SCALE_HI);
+  return lines;
+}
+
+// ---- "समझिए": plain explanations of the terms the brief asks for, plus satellite versus ground ----
+
+export type Explainer = { key: string; title: string; pics: PictogramId[]; text: string };
+
+export function explainers(risk?: SeasonRisk): Explainer[] {
+  const frostFound = risk && (risk.frost_days_per_year.power > 0 || risk.frost_days_per_year.era5 > 0);
+  const frostData = !risk
+    ? ""
+    : frostFound
+      ? " 1981 से 2025 के आँकड़ों में कुछ पाले की रातें मिलीं।"
+      : " 1981 से 2025 के आँकड़ों में इन तीनों जगहों पर पाले की रात नहीं मिली।";
+  return [
+    {
+      key: "et",
+      title: "वाष्पोत्सर्जन",
+      pics: ["et"],
+      text: "पौधे की पत्तियों और मिट्टी से पानी भाप बनकर उड़ता है, इसे वाष्पोत्सर्जन कहते हैं। गर्मी, धूप और हवा में यह बढ़ता है। फ़सल को कितना पानी चाहिए, यह इसी से तय होता है। इसलिए गर्मी में फ़सल ज़्यादा प्यासी होती है।",
+    },
+    {
+      key: "soil_moisture",
+      title: "मिट्टी की नमी का फ़र्क",
+      pics: ["soil_moisture"],
+      text: "सामान्य साल के मुकाबले मिट्टी में नमी कितनी कम या ज़्यादा है, इसे मिट्टी की नमी का फ़र्क कहते हैं। नमी सामान्य से कम हो तो यह सूखे का संकेत है। हम NASA के आँकड़ों से जड़ों के पास की नमी देखते हैं।",
+    },
+    {
+      key: "ndvi",
+      title: "हरापन (NDVI)",
+      pics: ["ndvi"],
+      text: "उपग्रह से खेत की हरियाली मापी जाती है, इसे NDVI कहते हैं। हरापन ज़्यादा हो तो खेत में फ़सल है, कम हो तो खेत खाली या सूखा है। हम इससे देखते हैं कि साल में खेत कब खाली रहता है।",
+    },
+    {
+      key: "frost",
+      title: "पाला",
+      pics: ["snow"],
+      text: `बहुत ठंडी रात में पौधों पर बर्फ़ जम जाना पाला है। इससे फ़सल जल सकती है।${frostData} यह इलाके का आँकड़ा है, आपके खेत का नहीं।`,
+    },
+    {
+      key: "balance",
+      title: "पानी का हिसाब",
+      pics: ["balance"],
+      text: "बारिश से जितना पानी मिला और फ़सल ने जितना इस्तेमाल किया, इन दोनों का मिलान पानी का हिसाब है। बारिश फ़सल की ज़रूरत से कम हो तो कमी रहती है, और तब सिंचाई या नमी बचाने की ज़रूरत पड़ती है।",
+    },
+    {
+      key: "satellite",
+      title: "उपग्रह और ज़मीन",
+      pics: ["satellite", "plus", "farmer"],
+      text: "उपग्रह ऊपर से बड़े इलाके की तस्वीर देता है, पर आपका अपना खेत अलग से नहीं देखता। हमारा मौसम का आँकड़ा लगभग पचास किलोमीटर के इलाके का है, और हरापन ढाई सौ मीटर के टुकड़े का। आपका खेत असल में कैसा है, यह आप और आपके कृषि अधिकारी जानते हैं। इसलिए दोनों को साथ मिलाकर देखिए।",
+    },
+  ];
 }

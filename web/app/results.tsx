@@ -14,23 +14,28 @@ import {
   SEASONS,
   choices,
   expertLines,
+  explainers,
+  fromJune,
   goodLines,
   picsFor,
+  riskRuns,
   runs,
   strategyName,
   strategyPics,
   nearestPhrase,
   summarySpeech,
   unknownLines,
+  vulnerableLines,
   yearBar,
   type Choice,
   type Result,
+  type SeasonRisk,
   type Strategy,
 } from "./results-script";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 
-type Row = "good" | "unknown" | "expert";
+type Row = "good" | "unknown" | "vulnerable" | "expert";
 
 function Pics({ pics, className }: { pics: PictogramId[]; className: string }) {
   return (
@@ -44,7 +49,35 @@ function Pics({ pics, className }: { pics: PictogramId[]; className: string }) {
 
 /* Twelve months, June first, so the kharif block and the rabi block each sit together.
    Green = a crop in the ground, dark = bare field. The compact version has no pictures. */
-function YearBar({ s, full }: { s: Strategy; full?: boolean }) {
+/* Under the year bar: the months the climate record marks as hot, and as having long dry spells inside the monsoon.
+   Solid = both NASA POWER and ERA5 agree; dashed = only one of them does. */
+function RiskRows({ risk }: { risk: SeasonRisk }) {
+  const rows = [
+    { key: "heat", pic: "hot", levels: fromJune(risk.heat_level) },
+    { key: "dry", pic: "dry", levels: fromJune(risk.dry_spell_level) },
+  ] as const;
+  return (
+    <>
+      {rows
+        .filter((r) => r.levels.some((l) => l > 0))
+        .map((r) => (
+          <div key={r.key} className="mt-1 grid grid-cols-12">
+            {riskRuns(r.levels).map((run) => (
+              <div
+                key={run.start}
+                style={{ gridColumn: `${run.start + 1} / span ${run.length}` }}
+                className={`flex items-center justify-center border-2 border-almanac py-1 ${run.level === 2 ? "bg-almanac/15" : "border-dashed"}`}
+              >
+                <Pictogram id={r.pic} className="h-7 w-7" />
+              </div>
+            ))}
+          </div>
+        ))}
+    </>
+  );
+}
+
+function YearBar({ s, full, risk }: { s: Strategy; full?: boolean; risk?: SeasonRisk }) {
   const bar = yearBar(s.calendar, s.kind === "mixed");
   const gap = (i: number) => (i === 4 || i === 9 ? "border-r-[6px] border-limewash" : "");
   return (
@@ -81,6 +114,7 @@ function YearBar({ s, full }: { s: Strategy; full?: boolean }) {
           ))}
         </div>
       )}
+      {full && risk && <RiskRows risk={risk} />}
     </div>
   );
 }
@@ -89,7 +123,7 @@ function Disclaimer() {
   return <p className="fixed inset-x-0 bottom-0 z-10 bg-turmeric px-4 py-2.5 text-center text-sm font-semibold text-soil">{DISCLAIMER}</p>;
 }
 
-function Detail({ c, onBack }: { c: Choice; onBack: () => void }) {
+function Detail({ c, risk, onBack }: { c: Choice; risk?: SeasonRisk; onBack: () => void }) {
   const s = c.strategy;
   const [open, setOpen] = useState<Row | null>(null);
   const [speaking, setSpeaking] = useState<Row | null>(null);
@@ -97,12 +131,14 @@ function Detail({ c, onBack }: { c: Choice; onBack: () => void }) {
   const rows: { key: Row; label: string; icon: PictogramId; lines: string[] }[] = [
     { key: "good", label: RESULTS.good, icon: "thumbs_up", lines: goodLines(s) },
     { key: "unknown", label: RESULTS.unknown, icon: "unknown", lines: unknownLines(s) },
+    ...(risk ? [{ key: "vulnerable" as const, label: RESULTS.vulnerable, icon: "warning" as const, lines: vulnerableLines(s, risk) }] : []),
     { key: "expert", label: RESULTS.expert, icon: "expert", lines: expertLines(s) },
   ];
 
   useEffect(() => {
-    speakHindi(`${name}। तीन बातें छुइए: ${RESULTS.good}, ${RESULTS.unknown}, और ${RESULTS.expert}।`);
+    speakHindi(`${name}। छुकर सुनिए: ${rows.map((r) => r.label).join(", ")}।`);
     return stopSpeech;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [name]);
 
   function tap(r: (typeof rows)[number]) {
@@ -143,7 +179,7 @@ function Detail({ c, onBack }: { c: Choice; onBack: () => void }) {
       </div>
 
       <div className="mt-5">
-        <YearBar s={s} full />
+        <YearBar s={s} full risk={risk} />
       </div>
 
       <ol className="mt-6 border-t-2 border-soil">
@@ -191,11 +227,74 @@ function Detail({ c, onBack }: { c: Choice; onBack: () => void }) {
   );
 }
 
+function Learn({ risk, onBack }: { risk?: SeasonRisk; onBack: () => void }) {
+  const [open, setOpen] = useState<string | null>(null);
+  const [speaking, setSpeaking] = useState<string | null>(null);
+  const items = explainers(risk);
+
+  useEffect(() => {
+    speakHindi(`${RESULTS.learnTitle} किसी तस्वीर को छुकर सुनिए।`);
+    return stopSpeech;
+  }, []);
+
+  return (
+    <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
+      <button
+        onClick={() => {
+          stopSpeech();
+          onBack();
+        }}
+        className="flex items-center gap-1 self-start rounded-field border-2 border-soil px-3 py-1.5 text-base font-bold"
+        lang="hi"
+      >
+        <svg aria-hidden viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+        {RESULTS.back}
+      </button>
+      <h1 className="narrow mt-6 text-3xl font-extrabold leading-tight" lang="hi">
+        {RESULTS.learnTitle}
+      </h1>
+      <ol className="mt-5 border-t-2 border-soil">
+        {items.map((e) => (
+          <li key={e.key} className="border-b border-rule">
+            <button
+              onClick={() => {
+                setOpen(e.key);
+                setSpeaking(e.key);
+                speakHindi(`${e.title}। ${e.text}`, () => setSpeaking(null));
+              }}
+              className="flex min-h-24 w-full items-center gap-4 py-3 text-left"
+            >
+              <span className="flex h-16 min-w-16 shrink-0 items-center justify-center gap-1 rounded-field border-2 border-soil bg-paper p-1.5">
+                {e.pics.map((id, i) => (
+                  <Pictogram key={i} id={id} className={id === "plus" ? "h-4 w-4" : e.pics.length > 1 ? "h-8 w-8" : "h-full w-full"} />
+                ))}
+              </span>
+              <span className="narrow flex-1 text-2xl font-bold leading-tight" lang="hi">
+                {e.title}
+              </span>
+              <SpeakerIcon className={`h-7 w-7 shrink-0 ${speaking === e.key ? "text-monsoon" : "text-soil-soft"}`} />
+            </button>
+            {open === e.key && (
+              <p className="border-l-4 border-rule pb-4 pl-3 pr-2 text-lg" lang="hi">
+                {e.text}
+              </p>
+            )}
+          </li>
+        ))}
+      </ol>
+      <Disclaimer />
+    </main>
+  );
+}
+
 export default function Results({ answers, onRestart }: { answers: Initial; onRestart: () => void }) {
   const [result, setResult] = useState<Result | null>(null);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  const [learn, setLearn] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -232,7 +331,8 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
   const list = result?.served ? choices(result) : [];
   const chosen = list.find((c) => c.strategy.id === selected);
 
-  if (chosen) return <Detail c={chosen} onBack={() => setSelected(null)} />;
+  if (learn) return <Learn risk={result?.season_risk} onBack={() => setLearn(false)} />;
+  if (chosen) return <Detail c={chosen} risk={result?.season_risk} onBack={() => setSelected(null)} />;
 
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col px-4 pb-24 pt-3">
@@ -338,6 +438,20 @@ export default function Results({ answers, onRestart }: { answers: Initial; onRe
               </li>
             ))}
           </ul>
+          <button
+            onClick={() => {
+              stopSpeech();
+              setLearn(true);
+            }}
+            className="mt-5 flex w-full items-center gap-4 border-y-2 border-soil py-4 text-left"
+          >
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center">
+              <Pictogram id="unknown" />
+            </span>
+            <span className="narrow flex-1 text-2xl font-bold" lang="hi">
+              {RESULTS.learn}
+            </span>
+          </button>
         </>
       )}
       <Disclaimer />

@@ -17,6 +17,16 @@ export type PictogramId =
   | "unknown"
   | "expert"
   | "sun"
+  | "hot"
+  | "dry"
+  | "warning"
+  | "snow"
+  | "et"
+  | "soil_moisture"
+  | "ndvi"
+  | "balance"
+  | "satellite"
+  | "farmer"
   | "then"
   | "rain"
   | "well"
@@ -134,6 +144,82 @@ const SHAPES: Record<PictogramId, ReactNode> = {
     <>
       <circle cx="24" cy="29" r="8" className="fill-turmeric stroke-soil" />
       <path d="M24 10v6M9 29h6M33 29h6M13.5 18.5l4 4M34.5 18.5l-4 4M6 40h36" className="stroke-soil" />
+    </>
+  ),
+  hot: (
+    <>
+      <path d="M20 8a4 4 0 0 1 8 0v19a8 8 0 1 1-8 0z" className="fill-paper stroke-soil" />
+      <path d="M24 18v17" className="stroke-almanac" strokeWidth={3} />
+      <circle cx="24" cy="36" r="4.5" className="fill-almanac stroke-almanac" />
+      <path d="M31 12h5M31 18h5M31 24h5" className="stroke-soil" />
+    </>
+  ),
+  dry: (
+    <>
+      <path d="M24 6c6 7 10 12 10 17a10 10 0 0 1-20 0c0-5 4-10 10-17z" className="fill-monsoon-wash stroke-monsoon" />
+      <path d="M11 11l26 28" className="stroke-almanac" strokeWidth={4} />
+    </>
+  ),
+  warning: (
+    <>
+      <path d="M24 6l19 34H5z" className="fill-turmeric stroke-soil" />
+      <path d="M24 18v11" className="stroke-soil" strokeWidth={3.5} />
+      <path d="M24 34v.5" className="stroke-soil" strokeWidth={3.5} />
+    </>
+  ),
+  snow: (
+    <>
+      <path d="M24 6v36M8.5 15l31 18M8.5 33l31-18" className="stroke-monsoon" strokeWidth={2.6} />
+      <path d="M19 9l5 4 5-4M19 39l5-4 5 4M6 21l7 1-1 7M42 21l-7 1 1 7M6 27l7-1-1-7M42 27l-7-1 1-7" className="stroke-monsoon" strokeWidth={1.8} />
+    </>
+  ),
+  et: (
+    <>
+      <circle cx="34" cy="11" r="6" className="fill-turmeric stroke-soil" />
+      <path d="M12 38c-3-4-3-7 0-10s3-6 0-10M22 38c-3-4-3-7 0-10s3-6 0-10" className="stroke-monsoon" strokeWidth={2.6} />
+      <path d="M9 17l3-4 3 4M19 17l3-4 3 4" className="stroke-monsoon" strokeWidth={2.2} />
+      <path d="M6 42h36" className="stroke-soil" />
+      <path d="M36 42V30" className="stroke-soil" />
+      <path d="M36 34c-5 0-7-2-7-6 5 0 7 2 7 6z" className="fill-crop stroke-soil" />
+    </>
+  ),
+  soil_moisture: (
+    <>
+      <rect x="6" y="26" width="36" height="16" className="fill-soil stroke-soil" />
+      <path d="M14 15c3 4 5 6 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9zM24 9c3 4 5 6 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9zM34 15c3 4 5 6 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9z" className="fill-monsoon-wash stroke-monsoon" />
+    </>
+  ),
+  ndvi: (
+    <>
+      <rect x="6" y="12" width="9" height="24" className="fill-soil stroke-soil" />
+      <rect x="15" y="12" width="9" height="24" className="fill-soil-soft stroke-soil" />
+      <rect x="24" y="12" width="9" height="24" className="fill-turmeric-wash stroke-soil" />
+      <rect x="33" y="12" width="9" height="24" className="fill-crop stroke-soil" />
+      <path d="M10 41h28M34 38l4 3-4 3" className="stroke-soil" />
+    </>
+  ),
+  balance: (
+    <>
+      <path d="M24 12v28M15 40h18M8 15h32" className="stroke-soil" />
+      <path d="M8 15l-5 12h10z" className="fill-monsoon-wash stroke-monsoon" />
+      <path d="M40 15l-5 12h10z" className="fill-crop stroke-soil" />
+      <circle cx="24" cy="10" r="2.5" className="fill-soil stroke-soil" />
+    </>
+  ),
+  satellite: (
+    <>
+      <rect x="18" y="16" width="12" height="12" className="fill-paper stroke-soil" transform="rotate(45 24 22)" />
+      <rect x="3" y="18" width="10" height="8" className="fill-monsoon stroke-soil" transform="rotate(45 8 22)" />
+      <rect x="35" y="18" width="10" height="8" className="fill-monsoon stroke-soil" transform="rotate(45 40 22)" />
+      <path d="M18 36q6 6 12 0M14 40q10 8 20 0" className="stroke-soil-soft" />
+    </>
+  ),
+  farmer: (
+    <>
+      <circle cx="24" cy="14" r="5.5" className="fill-paper stroke-soil" />
+      <path d="M15 12h18M18 9c0-4 12-4 12 0" className="stroke-soil" />
+      <path d="M14 40V31a10 10 0 0 1 20 0v9z" className="fill-monsoon-wash stroke-soil" />
+      <path d="M6 42h36" className="stroke-soil" />
     </>
   ),
   then: <path d="M8 24h30M30 15l9 9-9 9" className="stroke-soil-soft" />,

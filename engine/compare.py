@@ -30,9 +30,10 @@ MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 
 
 class Engine:
-    def __init__(self, crops, power, era5, market, soil, ndvi, ranges):
+    def __init__(self, crops, power, era5, market, soil, ndvi, ranges, season_risk):
         self.crops, self.power, self.era5, self.market = crops, power, era5, market
         self.soil, self.ndvi, self.ranges = soil, ndvi, ranges
+        self.season_risk = season_risk  # months of heat, in-monsoon dry spells and frost (pipeline/season_risk.py)
 
     @classmethod
     def from_repo(cls, root=ROOT):
@@ -46,6 +47,7 @@ class Engine:
             soil=pd.read_csv(proc / "soil.csv"),
             ndvi=pd.read_csv(proc / "ndvi.csv", parse_dates=["date"]),
             ranges=json.loads((proc / "features_ranges.json").read_text()),
+            season_risk=json.loads((proc / "season_risk.json").read_text()),
         )
 
     # ---- helpers ---------------------------------------------------------
@@ -189,6 +191,7 @@ class Engine:
             "tied_with_top": [i for i, t in totals.items() if top - t <= config.TIE_POINTS],
             "weights_used": compute_weights(priorities, constraints, tuple(BASE_WEIGHTS)),
             "strategies": out, "site_evidence": self._site_evidence(point, period),
+            "season_risk": {**self.season_risk["points"][point], "definitions": self.season_risk["definitions"]},
             "monsoon": {"onset_doy": round(yf_med["onset_doy"]), "withdrawal_doy": round(yf_med["withdrawal_doy"]),
                         "note": "median year, NASA POWER; ERA5 differs by a week or more"},
             "disclaimer": DISCLAIMER, "language": "en",

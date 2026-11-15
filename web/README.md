@@ -1,4 +1,4 @@
-# Field Shift web app (PWA)
+# Field Aid web app (PWA)
 
 Next.js 16 app. One screen: the farmer's inputs, then the four rotation cards from the engine's `POST /compare`.
 

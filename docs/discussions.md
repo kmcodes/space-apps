@@ -164,4 +164,4 @@ The engine scores sunn hemp and horse gram as S3 variants, but no screen shows t
 
 ## App name: Field Aid (Amrita, 15 Nov 2026, night)
 
-The app is now called **Field Aid** ("Field Shift" is the challenge's name). So far only the script titles changed (`call-script.ts`; Hindi "फ़ील्ड एड", machine-drafted). Kartik is renaming the rest (page title, installed-app name `web/app/manifest.ts`, docs). README, demo script and other docs still say Field Shift in places; the Vercel address (`field-shift-opal…`) stays.
+The app is now called **Field Aid** ("Field Shift" is the challenge's name). So far only the script titles changed (`call-script.ts`; Hindi "फ़ील्ड एड", machine-drafted). Later the same night Amrita asked for it everywhere: page title, installed-app name (`web/app/manifest.ts`), API title, demo recorder, README, web README, design notes, demo script and submission pack now say Field Aid. This file keeps the old name where it records history. The Vercel address (`field-shift-opal…`) and the language-storage key stay as they are. README, demo script and other docs still say Field Shift in places; the Vercel address (`field-shift-opal…`) stays.

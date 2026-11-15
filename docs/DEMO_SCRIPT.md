@@ -18,7 +18,7 @@ A screen recording of the app being used, from the first tap to the results page
 
 | Time | On screen | Caption (large, English) | Sound |
 |---|---|---|---|
-| 0:00–0:03 | Home screen in English | **Field Shift: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
+| 0:00–0:03 | Home screen in English | **Field Aid: voice advice for rainfed farmers.** Team Kartik and Amrita. NASA Space Apps 2026, "Adapting Farms with NASA Data" | none |
 | 0:03–0:07 | Tap **Tap to speak**. The call starts. | **1. One tap starts a call. The app asks the questions aloud.** | the app's greeting |
 | 0:07–0:15 | Tap **Akola**. Then three quick cuts: what is grown now, where the water comes from, what matters most. Tap a picture each time. | **2. Answer by voice or by touching a picture. Eight short questions.** | the app's voice, cut off by each tap |
 | 0:15–0:20 | The results list appears: four options with coloured year bars and the legend | **3. Four ways to use the field through the year, from 45 years of NASA POWER weather and MODIS satellite data.** | the start of the spoken summary |
@@ -69,7 +69,7 @@ Upload to YouTube as **Unlisted** (a link with no login works) or to Google Driv
 
 ## Video description (paste under the video)
 
-> Field Shift, a project for the NASA Space Apps Challenge 2026 ("Adapting Farms with NASA Data"). A voice and picture assistant for rainfed farmers in Vidarbha, built on NASA POWER weather and MODIS satellite data. Audio: the spoken voice is the browser's built-in machine-generated text-to-speech. Code, text and data scripts were written with AI assistance (Claude Code, Anthropic); no AI model runs inside the product. Code: https://github.com/kmcodes/space-apps
+> Field Aid, a project for the NASA Space Apps Challenge 2026 ("Adapting Farms with NASA Data"). A voice and picture assistant for rainfed farmers in Vidarbha, built on NASA POWER weather and MODIS satellite data. Audio: the spoken voice is the browser's built-in machine-generated text-to-speech. Code, text and data scripts were written with AI assistance (Claude Code, Anthropic); no AI model runs inside the product. Code: https://github.com/kmcodes/space-apps
 
 ## Do not show or say
 

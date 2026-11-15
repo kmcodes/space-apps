@@ -1,4 +1,4 @@
-# Field Shift design notes
+# Field Aid design notes
 
 Every screen in `web/` follows this. Change it here first, then in `app/globals.css`.
 

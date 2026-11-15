@@ -1,4 +1,4 @@
-# Field Shift
+# Field Aid
 
 **A voice and picture assistant, in Hindi and English, that helps rainfed farmers in Vidarbha compare ways to use their land through the year, built on NASA Earth data.**
 
@@ -7,7 +7,7 @@ Built for the NASA Space Apps Challenge 2026 (14–15 Nov), challenge [Adapting 
 - **Try it:** https://field-shift-opal.vercel.app (open on an Android phone in Chrome, so voice works)
 - **Engine API:** https://space-apps-dzma.onrender.com (`/health`, `/docs`). It sleeps when idle; the app wakes it when the page opens, so the first answer can take up to about a minute.
 
-> **Field Shift supports, and does not replace, the judgement of farmers and local agricultural experts.** Every suggestion is a hypothesis for local review, and today every suggestion is labelled an *estimate*.
+> **Field Aid supports, and does not replace, the judgement of farmers and local agricultural experts.** Every suggestion is a hypothesis for local review, and today every suggestion is labelled an *estimate*.
 
 **Contents:** [1. The goal](#1-the-goal) · [2. Our approach](#2-our-approach) · [3. The app, screen by screen](#3-the-app-screen-by-screen) · [4. Future steps](#4-future-steps) · [Run it](#run-it) · [Data and credits](#data-and-credits) · [How it is built](#how-it-is-built) · [Honest status](#honest-status) · [Team and AI use](#team-and-ai-use)
 

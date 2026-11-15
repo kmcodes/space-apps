@@ -216,7 +216,7 @@ def captions(parts, m):
     e_tap = edited(m["tap_start"])
     e_first = edited(m["first_answer"])
     return [
-        (0.0, e_tap, "Field Shift: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
+        (0.0, e_tap, "Field Aid: voice advice for rainfed farmers\nTeam Kartik and Amrita\nNASA Space Apps 2026: Adapting Farms with NASA Data"),
         (e_tap, e_first, "1. One tap starts a call.\nThe app asks the questions aloud."),
         (e_first, starts[2], "2. Answer by voice or by touching a picture.\nEight short questions."),
         (starts[2], starts[3], "3. Four ways to use the field through the year,\nfrom 45 years of NASA POWER weather\nand MODIS satellite data."),
